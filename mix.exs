@@ -5,9 +5,11 @@ defmodule SproutUI.MixProject do
     [
       app: :sprout_ui,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      aliases: aliases(),
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -18,12 +20,29 @@ defmodule SproutUI.MixProject do
     ]
   end
 
+  defp aliases do
+    [
+      setup: ["deps.get", "cmd --cd assets pnpm install"],
+      "assets.deploy": ["esbuild module"]
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:phoenix, "~> 1.6.14"},
       {:phoenix_live_view, "~> 0.18.2"},
       {:esbuild, "~> 0.4", only: :dev}
+    ]
+  end
+
+  defp package() do
+    [
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/TunkShif/sprout_ui"
+      },
+      files: ~w(assets/js lib priv) ++ ~w(LICENSE mix.exs package.json README.md)
     ]
   end
 end

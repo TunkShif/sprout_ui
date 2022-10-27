@@ -1,0 +1,16 @@
+{
+  "name": "sprout_ui",
+  "version": "0.1.0",
+  "description": "SproutUI JS Library",
+  "module": "./priv/static/sprout_ui.esm.js",
+  "repository": "git@github.com:TunkShif/sprout_ui.git",
+  "author": "Tristan Yang <tunkshif@foxmail.com>",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "priv/static/*",
+    "assets/js/sprout_ui/*"
+  ]
+}

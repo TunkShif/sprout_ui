@@ -3,20 +3,23 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, default: "modal"
-  attr :open, :boolean, default: false
-  attr :on_show, JS, default: %JS{}
-  attr :on_close, JS, default: %JS{}
-  attr :await_close_animation, :boolean, default: false
-  attr :rest, :global
+  attr :id, :string, default: "modal", doc: "The DOM identifier of the modal container tag"
+  attr :open, :boolean, default: false, doc: "The initial state of the modal"
+  attr :on_show, JS, default: %JS{}, doc: "JS command executed when opening the modal"
+  attr :on_close, JS, default: %JS{}, doc: "JS command executed when closing the modal"
+  attr :await_close_animation, :boolean, default: false, doc: "Whether awating closing animation"
+  attr :rest, :global, doc: "Additional HTML attributes added to the modal container tag"
 
-  slot(:trigger, required: false)
-  slot(:overlay, required: false)
+  slot(:trigger, required: false, doc: "The trigger to open the modal, usually a `button` element")
 
-  slot(:content, required: true) do
-    attr :class, :string
+  slot(:overlay, required: false, doc: "The overlay element")
+
+  slot(:content, required: true, doc: "The content rendered inside the modal container") do
+    attr :class, :string, doc: "Classes added to the modal container tag"
   end
 
+  # TODO: disable scrolling
+  # TODO: aria label
   def modal(assigns) do
     id = assigns.id
     state = if assigns.open, do: "show", else: "hidden"
@@ -29,12 +32,6 @@ defmodule SproutUI.Overlay do
       assigns.on_close
       |> hide_modal(selector: "##{id}", params: %{await_animation: assigns.await_close_animation})
 
-    ids = %{
-      modal: id,
-      overlay: "#{id}-overlay",
-      container: "#{id}-container"
-    }
-
     setup = %{
       trigger: %{
         attrs: %{
@@ -46,7 +43,7 @@ defmodule SproutUI.Overlay do
       },
       overlay: %{
         attrs: %{
-          "id" => ids.overlay,
+          "id" => "#{id}-overlay",
           "data-state" => state,
           "data-part" => "overlay",
           "aria-hidden" => "true"
@@ -54,7 +51,7 @@ defmodule SproutUI.Overlay do
       },
       container: %{
         attrs: %{
-          "id" => ids.container,
+          "id" => "#{id}-container",
           "role" => "dialog",
           "data-state" => state,
           "data-part" => "container",
@@ -73,9 +70,9 @@ defmodule SproutUI.Overlay do
     assigns = assigns |> assign(:setup, setup) |> assign(:state, state)
 
     ~H"""
-    <div {@rest}>
+    <div>
       <%= render_slot(@trigger, @setup.trigger) %>
-      <div id={@id} data-state={@state} data-part="modal">
+      <div id={@id} {@rest} data-state={@state} data-part="modal">
         <%= render_slot(@overlay, @setup.overlay) %>
         <div :for={content <- @content} {@setup.container.attrs} class={content[:class] || nil}>
           <.focus_wrap id={"#{@id}-wrapper"}>
