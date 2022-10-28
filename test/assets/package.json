@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "phoenix_live_view": "file:../deps/phoenix_live_view",
+    "sprout_ui": "link:../.."
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}

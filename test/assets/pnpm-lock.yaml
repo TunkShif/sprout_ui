@@ -1,0 +1,27 @@
+lockfileVersion: 5.4
+
+specifiers:
+  phoenix_live_view: file:../deps/phoenix_live_view
+  prettier: ^2.7.1
+  sprout_ui: link:../..
+
+dependencies:
+  phoenix_live_view: file:../deps/phoenix_live_view
+  sprout_ui: link:../..
+
+devDependencies:
+  prettier: 2.7.1
+
+packages:
+
+  /prettier/2.7.1:
+    resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  file:../deps/phoenix_live_view:
+    resolution: {directory: ../deps/phoenix_live_view, type: directory}
+    name: phoenix_live_view
+    version: 0.18.3
+    dev: false

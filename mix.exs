@@ -26,13 +26,14 @@ defmodule SproutUI.MixProject do
     [
       test: ["cmd echo test"],
       setup: ["deps.get", "cmd --cd assets pnpm install"],
-      "assets.deploy": [
+      "assets.build": [
         "esbuild module",
         "esbuild main",
         "esbuild cdn",
         "esbuild cdn_min",
         "esbuild tailwind"
-      ]
+      ],
+      "assets.watch": ["esbuild module --watch"]
     ]
   end
 
