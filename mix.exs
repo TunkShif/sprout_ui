@@ -1,10 +1,12 @@
 defmodule SproutUI.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :sprout_ui,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -22,8 +24,9 @@ defmodule SproutUI.MixProject do
 
   defp aliases do
     [
+      test: ["cmd echo test"],
       setup: ["deps.get", "cmd --cd assets pnpm install"],
-      "assets.deploy": ["esbuild module"]
+      "assets.deploy": ["esbuild module", "esbuild main", "esbuild cdn", "esbuild cdn_min"]
     ]
   end
 

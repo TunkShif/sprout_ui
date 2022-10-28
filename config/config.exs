@@ -10,9 +10,9 @@ if Mix.env() == :dev do
   end
 
   config :esbuild,
-    version: "0.12.15",
-    module: esbuild.(~w(--format=esm --sourcemap --outfile=../priv/static/sprout_ui.esm.js)),
-    main: esbuild.(~w(--format=cjs --sourcemap --outfile=../priv/static/sprout_ui.cjs.js)),
+    version: "0.15.12",
+    module: esbuild.(~w(--format=esm --sourcemap --outfile=../priv/static/sprout_ui.mjs)),
+    main: esbuild.(~w(--format=cjs --sourcemap --outfile=../priv/static/sprout_ui.cjs)),
     cdn:
       esbuild.(
         ~w(--format=iife --target=es2016 --global-name=SproutUI --outfile=../priv/static/sprout_ui.js)

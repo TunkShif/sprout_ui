@@ -2,7 +2,14 @@
   "name": "sprout_ui",
   "version": "0.1.0",
   "description": "SproutUI JS Library",
-  "module": "./priv/static/sprout_ui.esm.js",
+  "module": "./priv/static/sprout_ui.mjs",
+  "main": "./priv/static/sprout_ui.cjs",
+  "unpkg": "./priv/static/sprout_ui.min.js",
+  "jsdelivr": "./priv/static/sprout_ui.min.js",
+  "exports": {
+    "import": "./priv/static/sprout_ui.mjs",
+    "require": "./priv/static/sprout_ui.cjs"
+  },
   "repository": "git@github.com:TunkShif/sprout_ui.git",
   "author": "Tristan Yang <tunkshif@foxmail.com>",
   "license": "MIT",
