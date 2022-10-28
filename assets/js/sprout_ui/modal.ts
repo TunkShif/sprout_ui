@@ -1,4 +1,9 @@
-import type { SproutEvent } from "./types"
+import { SproutEvent, SproutStates } from "./types"
+
+// TODO: helper function for switching data attribute
+
+type ModalShowEvent = SproutEvent<{ disable_scrolling: boolean }>
+type ModalHideEvent = SproutEvent<{ await_animation: boolean; disable_scrolling: boolean }>
 
 const queryModalParts = (modal: HTMLElement) => {
   const overlay = modal.querySelector(`[data-part=overlay]`)
@@ -6,25 +11,44 @@ const queryModalParts = (modal: HTMLElement) => {
   return [modal, overlay, container] as const
 }
 
-window.addEventListener("sprout:modal:show", (e) => {
-  const { target } = e as SproutEvent
-  queryModalParts(target as HTMLElement).forEach((el) => el?.setAttribute("data-state", "show"))
+const toggleScrolling = (to: "enable" | "disable", disabled: boolean) => {
+  if (!disabled) return
+  switch (to) {
+    case "enable":
+      Object.assign(document.body.style, { overflow: "" })
+      break
+    case "disable":
+      Object.assign(document.body.style, { overflow: "hidden" })
+      break
+    default:
+      break
+  }
+}
+
+window.addEventListener("sprt:modal:open", (e) => {
+  const { target, detail } = e as ModalShowEvent
+  queryModalParts(target as HTMLElement).forEach((el) =>
+    el?.setAttribute("data-state", SproutStates.OPEN)
+  )
+  toggleScrolling("disable", detail.disable_scrolling)
 })
 
-window.addEventListener("sprout:modal:hide", (e) => {
-  const { target, detail } = e as SproutEvent<{ await_animation: boolean }>
+window.addEventListener("sprt:modal:close", (e) => {
+  const { target, detail } = e as ModalHideEvent
   const [modal, overlay, container] = queryModalParts(target)
 
-  overlay?.setAttribute("data-state", "hidden")
-  container?.setAttribute("data-state", "hidden")
+  overlay?.setAttribute("data-state", SproutStates.CLOSED)
+  container?.setAttribute("data-state", SproutStates.CLOSED)
+
+  toggleScrolling("enable", detail.disable_scrolling)
 
   if (detail.await_animation) {
     const handler = () => {
-      modal.setAttribute("data-state", "hidden")
+      modal.setAttribute("data-state", SproutStates.CLOSED)
       modal.removeEventListener("animationend", handler, false)
     }
     modal.addEventListener("animationend", handler, false)
   } else {
-    modal.setAttribute("data-state", "hidden")
+    modal.setAttribute("data-state", SproutStates.CLOSED)
   }
 })

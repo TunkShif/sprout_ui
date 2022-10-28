@@ -3,43 +3,98 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, default: "modal", doc: "The DOM identifier of the modal container tag"
-  attr :open, :boolean, default: false, doc: "The initial state of the modal"
-  attr :on_show, JS, default: %JS{}, doc: "JS command executed when opening the modal"
-  attr :on_close, JS, default: %JS{}, doc: "JS command executed when closing the modal"
-  attr :await_close_animation, :boolean, default: false, doc: "Whether awating closing animation"
+  @on_open_event "sprt:modal:open"
+  @on_close_event "sprt:modal:close"
+
+  attr :id, :string,
+    default: "modal",
+    doc: "The DOM identifier of the modal container tag"
+
+  attr :is_open, :boolean,
+    default: false,
+    doc: "The initial state of the modal"
+
+  attr :on_open, JS,
+    default: %JS{},
+    doc: "JS command executed when opening the modal"
+
+  attr :on_close, JS,
+    default: %JS{},
+    doc: "JS command executed when closing the modal"
+
+  attr :disable_scrolling, :boolean,
+    default: true,
+    doc: "Whether to disable page scrolling when modal is opened"
+
+  attr :await_close_animation, :boolean,
+    default: false,
+    doc: "Whether to await closing animation"
+
   attr :rest, :global, doc: "Additional HTML attributes added to the modal container tag"
 
-  slot(:trigger, required: false, doc: "The trigger to open the modal, usually a `button` element")
+  slot(:trigger, required: false, doc: "The trigger to open the modal, usually a `button` element") do
+    attr :class, :string, doc: "Classes added to the trigger button element"
 
-  slot(:overlay, required: false, doc: "The overlay element")
-
-  slot(:content, required: true, doc: "The content rendered inside the modal container") do
-    attr :class, :string, doc: "Classes added to the modal container tag"
+    attr :as_child, :boolean,
+      doc: "Use the an HTML element or custom component as the slot content"
   end
 
-  # TODO: disable scrolling
-  # TODO: aria label
+  slot(:overlay, required: false, doc: "The overlay element") do
+    attr :class, :string, doc: "Classes added to the modal overlay"
+  end
+
+  slot(:title,
+    requied: false,
+    doc: "The header section of the modal, rendered inside the modal container"
+  ) do
+    attr :class, :string, doc: "Classes added to the title tag"
+
+    attr :as_child, :boolean,
+      doc: "Use the an HTML element or custom component as the slot content"
+  end
+
+  slot(:content, required: true, doc: "The content rendered inside the modal container") do
+    attr :class, :string, doc: "Classes added to the modal **container** tag"
+  end
+
+  slot(:close, required: false, doc: "The button to close the modal") do
+    attr :class, :string, doc: "Classes added to the button element"
+
+    attr :as_child, :boolean,
+      doc: "Use the an HTML element or custom component as the slot content"
+  end
+
   def modal(assigns) do
     id = assigns.id
-    state = if assigns.open, do: "show", else: "hidden"
+    state = if assigns.is_open, do: "open", else: "closed"
 
-    on_show_op =
-      assigns.on_show
-      |> show_modal(selector: "##{id}")
+    open_modal_op =
+      assigns.on_open
+      |> open_modal(
+        selector: "##{id}",
+        params: %{
+          disable_scrolling: assigns.disable_scrolling
+        }
+      )
 
-    on_close_op =
+    close_modal_op =
       assigns.on_close
-      |> hide_modal(selector: "##{id}", params: %{await_animation: assigns.await_close_animation})
+      |> close_modal(
+        selector: "##{id}",
+        params: %{
+          await_animation: assigns.await_close_animation,
+          disable_scrolling: assigns.disable_scrolling
+        }
+      )
 
     setup = %{
       trigger: %{
         attrs: %{
           "type" => "button",
           "data-part" => "trigger",
-          "phx-click" => on_show_op
+          "phx-click" => open_modal_op
         },
-        show: on_show_op
+        open_modal: open_modal_op
       },
       overlay: %{
         attrs: %{
@@ -56,40 +111,82 @@ defmodule SproutUI.Overlay do
           "data-state" => state,
           "data-part" => "container",
           "aria-model" => "true",
+          "aria-labelledby" => "#{id}-titile",
+          "aria-describedby" => "#{id}-content",
           "tabindex" => "-1",
-          "phx-click-away" => on_close_op,
-          "phx-window-keydown" => on_close_op,
+          "phx-click-away" => close_modal_op,
+          "phx-window-keydown" => close_modal_op,
           "phx-key" => "escape"
         }
       },
+      title: %{
+        attrs: %{
+          "id" => "#{id}-title"
+        }
+      },
       content: %{
-        hide: on_close_op
+        close_modal: close_modal_op
+      },
+      close: %{
+        attrs: %{
+          "phx-click" => close_modal_op
+        },
+        close_modal: close_modal_op
       }
     }
 
-    assigns = assigns |> assign(:setup, setup) |> assign(:state, state)
+    assigns =
+      assigns
+      |> assign(:state, state)
+      |> assign(:setup, setup)
 
     ~H"""
     <div>
-      <%= render_slot(@trigger, @setup.trigger) %>
+      <%= for trigger <- @trigger do %>
+        <%= unless trigger[:as_child] do %>
+          <button {@setup.trigger.attrs} class={trigger[:class]}><%= render_slot(trigger) %></button>
+        <% else %>
+          <%= render_slot(trigger, @setup.trigger) %>
+        <% end %>
+      <% end %>
+
       <div id={@id} {@rest} data-state={@state} data-part="modal">
-        <%= render_slot(@overlay, @setup.overlay) %>
-        <div :for={content <- @content} {@setup.container.attrs} class={content[:class] || nil}>
+        <div :for={overlay <- @overlay} {@setup.overlay.attrs} class={overlay[:class]}></div>
+
+        <section :for={content <- @content} {@setup.container.attrs} class={content[:class]}>
           <.focus_wrap id={"#{@id}-wrapper"}>
-            <%= render_slot(@content, @setup.content) %>
+            <%= for title <- @title do %>
+              <%= unless title[:as_child] do %>
+                <h2 {@setup.title.attrs} class={title[:class]}><%= render_slot(title) %></h2>
+              <% else %>
+                <%= render_slot(title, @setup.title) %>
+              <% end %>
+            <% end %>
+
+            <div id={"#{@id}-content"}>
+              <%= render_slot(@content, @setup.content) %>
+            </div>
+
+            <%= for close <- @close do %>
+              <%= unless close[:as_child] do %>
+                <button {@setup.close.attrs} class={close[:class]}><%= render_slot(close) %></button>
+              <% else %>
+                <%= render_slot(close, @setup.close) %>
+              <% end %>
+            <% end %>
           </.focus_wrap>
-        </div>
+        </section>
       </div>
     </div>
     """
   end
 
-  defp show_modal(%JS{} = js, selector: selector) do
-    JS.dispatch(js, "sprout:modal:show", to: selector)
+  defp open_modal(%JS{} = js, selector: selector, params: params) do
+    JS.dispatch(js, @on_open_event, to: selector, detail: params)
     |> JS.focus_first(to: ~s(#{selector} [data-part="container"]))
   end
 
-  defp hide_modal(%JS{} = js, selector: selector, params: params) do
-    JS.dispatch(js, "sprout:modal:hide", to: selector, detail: params)
+  defp close_modal(%JS{} = js, selector: selector, params: params) do
+    JS.dispatch(js, @on_close_event, to: selector, detail: params)
   end
 end
