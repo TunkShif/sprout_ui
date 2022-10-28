@@ -1,4 +1,4 @@
-import { SproutEvent, SproutStates } from "./types"
+import { SproutEvent, SproutStates } from "../types"
 
 // TODO: helper function for switching data attribute
 

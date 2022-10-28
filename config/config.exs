@@ -9,6 +9,13 @@ if Mix.env() == :dev do
     ]
   end
 
+  esbuild_tailwind = fn args ->
+    [
+      args: ~w(./js/sprout_ui/tailwind) ++ args,
+      cd: Path.expand("../assets", __DIR__)
+    ]
+  end
+
   config :esbuild,
     version: "0.15.12",
     module: esbuild.(~w(--format=esm --sourcemap --outfile=../priv/static/sprout_ui.mjs)),
@@ -20,5 +27,9 @@ if Mix.env() == :dev do
     cdn_min:
       esbuild.(
         ~w(--format=iife --target=es2016 --global-name=SproutUI --minify --outfile=../priv/static/sprout_ui.min.js)
+      ),
+    tailwind:
+      esbuild_tailwind.(
+        ~w(--format=cjs --sourcemap --outfile=../priv/static/sprout_ui_tailwind.js)
       )
 end

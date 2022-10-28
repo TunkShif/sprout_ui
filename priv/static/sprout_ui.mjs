@@ -1,4 +1,4 @@
-// js/sprout_ui/modal.ts
+// js/sprout_ui/components/modal.ts
 var queryModalParts = (modal) => {
   const overlay = modal.querySelector(`[data-part=overlay]`);
   const container = modal.querySelector(`[data-part=container]`);

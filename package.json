@@ -7,10 +7,16 @@
   "unpkg": "./priv/static/sprout_ui.min.js",
   "jsdelivr": "./priv/static/sprout_ui.min.js",
   "exports": {
-    "import": "./priv/static/sprout_ui.mjs",
-    "require": "./priv/static/sprout_ui.cjs"
+    ".": {
+      "import": "./priv/static/sprout_ui.mjs",
+      "require": "./priv/static/sprout_ui.cjs"
+    },
+    "./tailwind": "./priv/static/sprout_ui_tailwind.js"
   },
-  "repository": "git@github.com:TunkShif/sprout_ui.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TunkShif/sprout_ui.git"
+  },
   "author": "Tristan Yang <tunkshif@foxmail.com>",
   "license": "MIT",
   "files": [

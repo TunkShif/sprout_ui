@@ -1,1 +1,1 @@
-import "./modal"
+import "./components/modal"
