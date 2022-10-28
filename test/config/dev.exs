@@ -13,11 +13,10 @@ config :sprout, SproutWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "/JFGnwRLlED9H0TOEm6oAw/HpI+SCrUBRmN8dKPG22HZVutJvg1S/zB3RDsB5osT",
+  secret_key_base: "TnfDJ37Ip3sAXTAOtharkgFaT1FrUtvnhrH5CkXafS7t0sz5VXsFHn1/J2Ol/fqb",
   watchers: [
-    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support

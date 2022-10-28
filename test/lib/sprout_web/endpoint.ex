@@ -7,7 +7,7 @@ defmodule SproutWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_sprout_key",
-    signing_salt: "o+cjGqez"
+    signing_salt: "zvYapm++"
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]

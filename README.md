@@ -1,11 +1,14 @@
-# SproutUi
+<p align="center">
+  <img src="./images/logo.svg" height="128" alt="SproutUI logo">
+</p>
 
-**TODO: Add description**
+---
+
+SproutUI provides unstyled and accessible Phoenix (Live View) components for building web apps.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `sprout_ui` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `sprout_ui` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,7 +18,6 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/sprout_ui>.
+## Copyright & License
 
+SproutUI source code is distributed under the [MIT License](./LICENSE).

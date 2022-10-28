@@ -30,7 +30,7 @@ defmodule SproutUI.Overlay do
     default: false,
     doc: "Whether to await closing animation"
 
-  attr :rest, :global, doc: "Additional HTML attributes added to the modal container tag"
+  attr :rest, :global, doc: "Additional HTML attributes added to the modal tag"
 
   slot(:trigger, required: false, doc: "The trigger to open the modal, usually a `button` element") do
     attr :class, :string, doc: "Classes added to the trigger button element"
