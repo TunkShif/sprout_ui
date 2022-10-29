@@ -3,8 +3,8 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  @on_open_event "sprt:modal:open"
-  @on_close_event "sprt:modal:close"
+  @on_modal_open_event "sprt:modal:open"
+  @on_modal_close_event "sprt:modal:close"
 
   attr :id, :string,
     default: "modal",
@@ -71,7 +71,7 @@ defmodule SproutUI.Overlay do
     open_modal_op =
       assigns.on_open
       |> open_modal(
-        selector: "##{id}",
+        to: "##{id}",
         params: %{
           disable_scrolling: assigns.disable_scrolling
         }
@@ -80,7 +80,7 @@ defmodule SproutUI.Overlay do
     close_modal_op =
       assigns.on_close
       |> close_modal(
-        selector: "##{id}",
+        to: "##{id}",
         params: %{
           await_animation: assigns.await_close_animation,
           disable_scrolling: assigns.disable_scrolling
@@ -181,12 +181,12 @@ defmodule SproutUI.Overlay do
     """
   end
 
-  defp open_modal(%JS{} = js, selector: selector, params: params) do
-    JS.dispatch(js, @on_open_event, to: selector, detail: params)
-    |> JS.focus_first(to: ~s(#{selector} [data-part="container"]))
+  defp open_modal(%JS{} = js, to: to, params: params) do
+    JS.dispatch(js, @on_modal_open_event, to: to, detail: params)
+    |> JS.focus_first(to: ~s(#{to} [data-part="container"]))
   end
 
-  defp close_modal(%JS{} = js, selector: selector, params: params) do
-    JS.dispatch(js, @on_close_event, to: selector, detail: params)
+  defp close_modal(%JS{} = js, to: to, params: params) do
+    JS.dispatch(js, @on_modal_close_event, to: to, detail: params)
   end
 end
