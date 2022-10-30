@@ -1,6 +1,8 @@
 defmodule SproutUI.Utility do
   use Phoenix.Component
 
+  # FIXME: first render flash
+
   @default_observed_attribute "data-transition-state"
   @default_observed_states {"show", "hide"}
 
@@ -17,6 +19,7 @@ defmodule SproutUI.Utility do
   attr :leave, :string, required: true
   attr :leave_from, :string, required: true
   attr :leave_to, :string, required: true
+  attr :as_child, :boolean, default: false
   attr :rest, :global
 
   slot(:inner_block, required: true)
@@ -41,8 +44,7 @@ defmodule SproutUI.Utility do
     }
 
     setup = %{
-      transition: %{
-        "id" => assigns.id,
+      attrs: %{
         "phx-hook" => assigns.hook,
         "data-observe-on" => observing.on,
         "data-observe-attr" => observing.attribute,
@@ -58,12 +60,19 @@ defmodule SproutUI.Utility do
       }
     }
 
+    # only include id attribute when `as_child` is not used
+    setup = unless assigns.as_child, do: put_in(setup, [:attrs, "id"], assigns.id), else: setup
+
     assigns = assigns |> assign(:setup, setup)
 
     ~H"""
-    <div {@setup.transition} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </div>
+    <%= if assigns.as_child do %>
+      <%= render_slot(@inner_block, @setup) %>
+    <% else %>
+      <div {@setup.attrs} {@rest}>
+        <%= render_slot(@inner_block) %>
+      </div>
+    <% end %>
     """
   end
 end

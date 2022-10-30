@@ -3,6 +3,8 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
+  # TODO: rewriting docs
+
   @on_modal_open_event "sprt:modal:open"
   @on_modal_close_event "sprt:modal:close"
 
@@ -39,30 +41,7 @@ defmodule SproutUI.Overlay do
       doc: "Use the an HTML element or custom component as the slot content"
   end
 
-  slot(:overlay, required: false, doc: "The overlay element") do
-    attr :class, :string, doc: "Classes added to the modal overlay"
-  end
-
-  slot(:title,
-    requied: false,
-    doc: "The header section of the modal, rendered inside the modal container"
-  ) do
-    attr :class, :string, doc: "Classes added to the title tag"
-
-    attr :as_child, :boolean,
-      doc: "Use the an HTML element or custom component as the slot content"
-  end
-
-  slot(:content, required: true, doc: "The content rendered inside the modal container") do
-    attr :class, :string, doc: "Classes added to the modal **container** tag"
-  end
-
-  slot(:close, required: false, doc: "The button to close the modal") do
-    attr :class, :string, doc: "Classes added to the button element"
-
-    attr :as_child, :boolean,
-      doc: "Use the an HTML element or custom component as the slot content"
-  end
+  slot(:inner_block, required: true)
 
   def modal(assigns) do
     id = assigns.id
@@ -88,6 +67,7 @@ defmodule SproutUI.Overlay do
       )
 
     setup = %{
+      id: id,
       trigger: %{
         attrs: %{
           "type" => "button",
@@ -151,33 +131,70 @@ defmodule SproutUI.Overlay do
       <% end %>
 
       <div id={@id} {@rest} data-state={@state} data-part="modal">
-        <div :for={overlay <- @overlay} {@setup.overlay.attrs} class={overlay[:class]}></div>
-
-        <section :for={content <- @content} {@setup.container.attrs} class={content[:class]}>
-          <.focus_wrap id={"#{@id}-wrapper"}>
-            <%= for title <- @title do %>
-              <%= unless title[:as_child] do %>
-                <h2 {@setup.title.attrs} class={title[:class]}><%= render_slot(title) %></h2>
-              <% else %>
-                <%= render_slot(title, @setup.title) %>
-              <% end %>
-            <% end %>
-
-            <div id={"#{@id}-content"}>
-              <%= render_slot(@content, @setup.content) %>
-            </div>
-
-            <%= for close <- @close do %>
-              <%= unless close[:as_child] do %>
-                <button {@setup.close.attrs} class={close[:class]}><%= render_slot(close) %></button>
-              <% else %>
-                <%= render_slot(close, @setup.close) %>
-              <% end %>
-            <% end %>
-          </.focus_wrap>
-        </section>
+        <%= render_slot(@inner_block, @setup) %>
       </div>
     </div>
+    """
+  end
+
+  attr :setup, :any, required: true
+  attr :rest, :global
+
+  def modal_overlay(assigns) do
+    ~H"""
+    <div {@setup.overlay.attrs} {@rest}></div>
+    """
+  end
+
+  attr :setup, :any, required: true
+  attr :rest, :global
+
+  slot(:title,
+    requied: false,
+    doc: "The header section of the modal, rendered inside the modal container"
+  ) do
+    attr :class, :string, doc: "Classes added to the title tag"
+
+    attr :as_child, :boolean,
+      doc: "Use the an HTML element or custom component as the slot content"
+  end
+
+  slot(:content, required: true, doc: "The content rendered inside the modal container") do
+    attr :class, :string, doc: "Classes added to the modal **container** tag"
+  end
+
+  slot(:close, required: false, doc: "The button to close the modal") do
+    attr :class, :string, doc: "Classes added to the button element"
+
+    attr :as_child, :boolean,
+      doc: "Use the an HTML element or custom component as the slot content"
+  end
+
+  def modal_body(assigns) do
+    ~H"""
+    <section {@setup.container.attrs} {@rest}>
+      <.focus_wrap id={"#{@setup.id}-focus"}>
+        <%= for title <- @title do %>
+          <%= unless title[:as_child] do %>
+            <h2 {@setup.title.attrs} class={title[:class]}><%= render_slot(title) %></h2>
+          <% else %>
+            <%= render_slot(title, @setup.title) %>
+          <% end %>
+        <% end %>
+
+        <div :for={content <- @content} id={"#{@setup.id}-content"} class={content[:class]}>
+          <%= render_slot(content, @setup.content) %>
+        </div>
+
+        <%= for close <- @close do %>
+          <%= unless close[:as_child] do %>
+            <button {@setup.close.attrs} class={close[:class]}><%= render_slot(close) %></button>
+          <% else %>
+            <%= render_slot(close, @setup.close) %>
+          <% end %>
+        <% end %>
+      </.focus_wrap>
+    </section>
     """
   end
 
