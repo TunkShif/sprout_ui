@@ -1,106 +1,8 @@
-// js/sprout_ui/components/transition.ts
-var getProperties = (el) => {
-  return {
-    enter: el.getAttribute("data-enter"),
-    enterFrom: el.getAttribute("data-enter-from"),
-    enterTo: el.getAttribute("data-enter-to"),
-    leave: el.getAttribute("data-leave"),
-    leaveFrom: el.getAttribute("data-leave-from"),
-    leaveTo: el.getAttribute("data-leave-to")
-  };
-};
-var waitForTransition = (el, callback) => {
-  const handler = () => {
-    callback();
-    el.removeEventListener("transitionend", handler, false);
-  };
-  el.addEventListener("transitionend", handler, false);
-};
-var doTransition = (el, state, props) => {
-  const classes = Object.fromEntries(
-    Object.entries(props).map(([key, val]) => {
-      var _a;
-      return [key, (_a = val == null ? void 0 : val.split(" ").filter(Boolean)) != null ? _a : []];
-    })
-  );
-  let base;
-  let from;
-  let to;
-  switch (state) {
-    case "show":
-      base = classes.enter;
-      from = classes.enterFrom;
-      to = classes.enterTo;
-      break;
-    case "hide":
-      base = classes.leave;
-      from = classes.leaveFrom;
-      to = classes.leaveTo;
-      break;
-  }
-  if (state === "show") {
-    el.removeAttribute("hidden");
-    el.style.display = "";
-  }
-  el.classList.add(...base, ...from);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      el.classList.remove(...from);
-      el.classList.add(...to);
-      waitForTransition(el, () => {
-        el.classList.remove(...base);
-        if (state === "hide") {
-          el.style.display = "none";
-        }
-      });
-    });
-  });
-};
-var init = (wrapper, observing, options) => {
-  const opts = Object.assign(
-    {
-      attribute: "data-transition-state",
-      states: {
-        show: "show",
-        hide: "hide"
-      }
-    },
-    options
-  );
-  const state = observing.getAttribute(opts.attribute);
-  const props = getProperties(wrapper);
-  if (state === opts.states.hide) {
-    wrapper.style.display = "none";
-  } else {
-    wrapper.style.display = "";
-  }
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.attributeName === opts.attribute) {
-        const mutatedState = observing.getAttribute(opts.attribute) === opts.states.show ? "show" : "hide";
-        doTransition(wrapper, mutatedState, props);
-      }
-    }
-  });
-  observer.observe(wrapper, { attributes: true });
-  return () => observer.disconnect();
-};
-var TransitionHook = {
-  mounted() {
-    this.cleanup = init(this.el, this.el);
-  },
-  updated() {
-  },
-  destroyed() {
-    this.cleanup();
-  }
-};
-
 // js/sprout_ui/components/modal.ts
-var queryModalParts = (modal) => {
-  const overlay = modal.querySelector(`[data-part=overlay]`);
-  const container = modal.querySelector(`[data-part=container]`);
-  return [modal, overlay, container];
+var queryModalParts = (modal2) => {
+  const overlay = modal2.querySelector(`[data-part=overlay]`);
+  const container = modal2.querySelector(`[data-part=container]`);
+  return [modal2, overlay, container];
 };
 var toggleScrolling = (to, disabled) => {
   if (!disabled)
@@ -116,35 +18,154 @@ var toggleScrolling = (to, disabled) => {
       break;
   }
 };
-window.addEventListener("sprt:modal:open", (e) => {
-  const { target, detail } = e;
-  queryModalParts(target).forEach(
-    (el) => el == null ? void 0 : el.setAttribute("data-state", "open" /* OPEN */)
-  );
-  toggleScrolling("disable", detail.disable_scrolling);
+var init = () => {
+  window.addEventListener("sprt:modal:open", (e) => {
+    const { target, detail } = e;
+    queryModalParts(target).forEach(
+      (el) => el == null ? void 0 : el.setAttribute("data-state", "open" /* OPEN */)
+    );
+    toggleScrolling("disable", detail.disable_scrolling);
+  });
+  window.addEventListener("sprt:modal:close", (e) => {
+    const { target, detail } = e;
+    const [modal2, overlay, container] = queryModalParts(target);
+    overlay == null ? void 0 : overlay.setAttribute("data-state", "closed" /* CLOSED */);
+    container == null ? void 0 : container.setAttribute("data-state", "closed" /* CLOSED */);
+    toggleScrolling("enable", detail.disable_scrolling);
+    if (detail.await_animation) {
+      const handler = () => {
+        modal2.setAttribute("data-state", "closed" /* CLOSED */);
+        modal2.removeEventListener("animationend", handler, false);
+      };
+      modal2.addEventListener("animationend", handler, false);
+    } else {
+      modal2.setAttribute("data-state", "closed" /* CLOSED */);
+    }
+  });
+};
+var modal = () => ({
+  init
 });
-window.addEventListener("sprt:modal:close", (e) => {
-  const { target, detail } = e;
-  const [modal, overlay, container] = queryModalParts(target);
-  overlay == null ? void 0 : overlay.setAttribute("data-state", "closed" /* CLOSED */);
-  container == null ? void 0 : container.setAttribute("data-state", "closed" /* CLOSED */);
-  toggleScrolling("enable", detail.disable_scrolling);
-  if (detail.await_animation) {
-    const handler = () => {
-      modal.setAttribute("data-state", "closed" /* CLOSED */);
-      modal.removeEventListener("animationend", handler, false);
-    };
-    modal.addEventListener("animationend", handler, false);
-  } else {
-    modal.setAttribute("data-state", "closed" /* CLOSED */);
+var modal_default = modal;
+
+// node_modules/.pnpm/@tunkshif+vanilla-transition@0.1.2/node_modules/@tunkshif/vanilla-transition/dist/vanilla-transition.mjs
+var m = (t) => ({
+  enter: t.dataset.enter,
+  enterFrom: t.dataset.enterFrom,
+  enterTo: t.dataset.enterTo,
+  leave: t.dataset.leave,
+  leaveFrom: t.dataset.leaveFrom,
+  leaveTo: t.dataset.leaveTo
+});
+var u = (t, s) => {
+  const a = () => {
+    s(), t.removeEventListener("transitionend", a, false);
+  };
+  t.addEventListener("transitionend", a, false);
+};
+var l = (t, s, a) => {
+  const e = Object.fromEntries(
+    Object.entries(a).map(([c, r]) => {
+      var d;
+      return [c, (d = r == null ? void 0 : r.split(" ").filter(Boolean)) != null ? d : []];
+    })
+  );
+  let n, i, o;
+  switch (s) {
+    case "show":
+      n = e.enter, i = e.enterFrom, o = e.enterTo;
+      break;
+    case "hide":
+      n = e.leave, i = e.leaveFrom, o = e.leaveTo;
+      break;
+  }
+  s === "show" && (t.removeAttribute("hidden"), t.style.display = ""), t.classList.add(...n, ...i), requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      t.classList.remove(...i), t.classList.add(...o), u(t, () => {
+        t.classList.remove(...n), s === "hide" && (t.style.display = "none");
+      });
+    });
+  });
+};
+var b = (t, s, a) => {
+  const e = Object.assign(
+    {
+      attribute: "data-transition-state",
+      states: {
+        show: "show",
+        hide: "hide"
+      }
+    },
+    a
+  ), n = s.getAttribute(e.attribute), i = m(t);
+  n === e.states.hide ? t.style.display = "none" : t.style.display = "";
+  const o = new MutationObserver((c) => {
+    for (const r of c)
+      if (r.attributeName === e.attribute) {
+        const d = s.getAttribute(e.attribute) === e.states.show ? "show" : "hide";
+        l(t, d, i);
+      }
+  });
+  return o.observe(s, { attributes: true }), () => o.disconnect();
+};
+var f = {
+  init: b
+};
+typeof window < "u" && (window.VanillaTransition = f);
+
+// js/sprout_ui/components/transition.ts
+var Hook = {
+  mounted() {
+    this.cleanup = f.init(this.el, this.el);
+  },
+  destroyed() {
+    this.cleanup();
+  }
+};
+var transition = (opts) => ({
+  hook: () => {
+    var _a;
+    const name = (_a = opts == null ? void 0 : opts.hook) != null ? _a : "Transition";
+    return { [name]: Hook };
+  },
+  handleDomChange: (from, to) => {
+    if (from.dataset.transitionState) {
+      if (from.getAttribute("style") === null) {
+        to.removeAttribute("style");
+      } else {
+        to.setAttribute("style", from.getAttribute("style"));
+      }
+    }
   }
 });
+var transition_default = transition;
 
 // js/sprout_ui/index.ts
-var Hooks = {
-  Transition: TransitionHook
+var createSproutConfig = (opts) => {
+  const components = opts.components;
+  return {
+    initComponents: () => {
+      components.forEach((comp) => {
+        var _a;
+        return (_a = comp.init) == null ? void 0 : _a.call(comp);
+      });
+    },
+    hooks: Object.assign({}, ...components.map((comp) => {
+      var _a;
+      return (_a = comp.hook) == null ? void 0 : _a.call(comp);
+    })),
+    handleDomChange: (from, to) => {
+      components.forEach((comp) => {
+        var _a;
+        return (_a = comp.handleDomChange) == null ? void 0 : _a.call(comp, from, to);
+      });
+    }
+  };
 };
+var sprout_ui_default = createSproutConfig;
 export {
-  Hooks
+  sprout_ui_default as default,
+  modal_default as modal,
+  transition_default as transition
 };
 //# sourceMappingURL=sprout_ui.mjs.map
