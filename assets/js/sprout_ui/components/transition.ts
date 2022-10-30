@@ -36,6 +36,12 @@ const transition: SproutComponentSetup = (opts) => ({
       } else {
         to.setAttribute("style", from.getAttribute("style")!)
       }
+
+      if (from.getAttribute("hidden") === null) {
+        to.removeAttribute("hidden")
+      } else {
+        to.setAttribute("hidden", "true")
+      }
     }
   }
 })

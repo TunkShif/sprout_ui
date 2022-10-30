@@ -29,7 +29,7 @@ defmodule SproutWeb.TransitionLive do
       <button
         id="button-0"
         phx-click={JS.dispatch("test:transition:toggle", to: "#transition-wrapper-0")}
-        class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg"
+        class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
       >
         Toggle
       </button>
@@ -72,7 +72,7 @@ defmodule SproutWeb.TransitionLive do
         <button
           id="button-1"
           phx-click="transition_box"
-          class="mt-4 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg"
+          class="mt-4 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
         >
           Transition
         </button>
@@ -88,7 +88,7 @@ defmodule SproutWeb.TransitionLive do
       <button
         id="button-2"
         phx-click="toggle_text"
-        class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg"
+        class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
       >
         Toggle
       </button>
@@ -98,6 +98,7 @@ defmodule SproutWeb.TransitionLive do
       <.transition
         id="transition-wrapper-2"
         observing={[on: "#text-state", attr: "data-text-state"]}
+        initial_state="hide"
         enter="transition-opacity duration-300"
         enter_from="opacity-0"
         enter_to="opacity-100"

@@ -2,6 +2,7 @@ defmodule SproutUI.Utility do
   use Phoenix.Component
 
   # FIXME: first render flash
+  # ^ probably fixed now, but not quite satisfied with the current workaround
 
   @default_observed_attribute "data-transition-state"
   @default_observed_states {"show", "hide"}
@@ -43,6 +44,8 @@ defmodule SproutUI.Utility do
       state_hide: elem(observing[:states] || @default_observed_states, 1)
     }
 
+    hidden = if initial_state == observing.state_hide, do: true, else: nil
+
     setup = %{
       attrs: %{
         "phx-hook" => assigns.hook,
@@ -56,6 +59,7 @@ defmodule SproutUI.Utility do
         "data-leave" => assigns.leave,
         "data-leave-from" => assigns.leave_from,
         "data-leave-to" => assigns.leave_to,
+        "hidden" => hidden,
         observed_attribute => transition_state
       }
     }

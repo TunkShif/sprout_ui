@@ -20,7 +20,7 @@ defmodule SproutWeb.ModalLive do
     <h3 class="mb-2 font-medium">simple modal</h3>
     <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
       <.modal :let={setup} id="modal-0">
-        <:trigger class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg">
+        <:trigger class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600">
           Show Modal
         </:trigger>
         <.modal_overlay setup={setup} class="fixed inset-0 z-30 bg-black/50 sprt-closed:hidden" />
@@ -47,7 +47,7 @@ defmodule SproutWeb.ModalLive do
         <:trigger :let={setup} as_child>
           <button
             {setup.attrs}
-            class="flex justify-center items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg"
+            class="flex justify-center items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
           >
             <span class="flex justify-center items-center mr-2">
               <Heroicons.arrow_up_tray solid class="w-5 h-5" />
@@ -107,7 +107,7 @@ defmodule SproutWeb.ModalLive do
         <:trigger :let={setup} as_child>
           <button
             {setup.attrs}
-            class="flex justify-center items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg"
+            class="flex justify-center items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-full shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
           >
             <span class="flex justify-center items-center mr-2">
               <Heroicons.pencil solid class="w-5 h-5" />
@@ -118,6 +118,7 @@ defmodule SproutWeb.ModalLive do
         <.transition
           :let={transition}
           observing={[on: "#modal-2", attr: "data-state", states: {"open", "closed"}]}
+          initial_state="closed"
           enter="ease-out duration-300"
           enter_from="opacity-0"
           enter_to="opacity-100"
@@ -131,6 +132,7 @@ defmodule SproutWeb.ModalLive do
         <.transition
           :let={transition}
           observing={[on: "#modal-2", attr: "data-state", states: {"open", "closed"}]}
+          initial_state="closed"
           enter="ease-out duration-300"
           enter_from="opacity-0 scale-95 translate-y-[15%]"
           enter_to="opacity-100 scale-100 -translate-y-1/2"
