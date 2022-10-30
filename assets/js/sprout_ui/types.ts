@@ -1,6 +1,15 @@
+interface LiveViewHook {
+  el: HTMLElement
+  mounted(): void
+  updated?(): void
+  destroyed?(): void
+  disconnected?(): void
+  reconnected?(): void
+}
+
 export interface SproutComponent {
   init?: () => void
-  hook?: () => { [key: string]: LiveViewHook }
+  hook?: () => { [key: string]: SproutHook }
   handleDomChange?: (from: HTMLElement, to: HTMLElement) => void
 }
 
@@ -14,11 +23,6 @@ export type SproutEvent<T = unknown> = CustomEvent<T> & {
   target: HTMLElement
 }
 
-export interface LiveViewHook {
-  el: HTMLElement
-  mounted(): void
-  updated?(): void
-  destroyed?(): void
-  disconnected?(): void
-  reconnected?(): void
+export interface SproutHook<T = any> extends LiveViewHook {
+  getConfig(): T
 }

@@ -115,8 +115,22 @@ typeof window < "u" && (window.VanillaTransition = f);
 
 // js/sprout_ui/components/transition.ts
 var Hook = {
+  getConfig() {
+    return {
+      observing: this.el.dataset.observeOn,
+      options: {
+        attribute: this.el.dataset.observeAttr,
+        states: {
+          show: this.el.dataset.observeStateShow,
+          hide: this.el.dataset.observeStateHide
+        }
+      }
+    };
+  },
   mounted() {
-    this.cleanup = f.init(this.el, this.el);
+    const config = this.getConfig();
+    const observing = document.querySelector(config.observing) || this.el;
+    this.cleanup = f.init(this.el, observing, config.options);
   },
   destroyed() {
     this.cleanup();
@@ -129,7 +143,7 @@ var transition = (opts) => ({
     return { [name]: Hook };
   },
   handleDomChange: (from, to) => {
-    if (from.dataset.transitionState) {
+    if (from.dataset.observeOn) {
       if (from.getAttribute("style") === null) {
         to.removeAttribute("style");
       } else {

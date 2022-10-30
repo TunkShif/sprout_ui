@@ -1,4 +1,4 @@
-import type { LiveViewHook, SproutComponent } from "./types"
+import type { SproutComponent, SproutHook } from "./types"
 
 type CreateSproutConfigOptions = {
   components: SproutComponent[]
@@ -6,7 +6,7 @@ type CreateSproutConfigOptions = {
 
 type CreateSproutConfig = (opts: CreateSproutConfigOptions) => {
   initComponents: () => void
-  hooks: { [key: string]: LiveViewHook }
+  hooks: { [key: string]: SproutHook }
   handleDomChange: (from: HTMLElement, to: HTMLElement) => void
 }
 

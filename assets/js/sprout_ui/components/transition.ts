@@ -1,14 +1,28 @@
 import VanillaTransition from "@tunkshif/vanilla-transition"
-import type { LiveViewHook, SproutComponentSetup } from "../types"
+import type { SproutHook, SproutComponentSetup } from "../types"
 
 const Hook = {
+  getConfig() {
+    return {
+      observing: this.el.dataset.observeOn,
+      options: {
+        attribute: this.el.dataset.observeAttr,
+        states: {
+          show: this.el.dataset.observeStateShow,
+          hide: this.el.dataset.observeStateHide
+        }
+      }
+    }
+  },
   mounted() {
-    this.cleanup = VanillaTransition.init(this.el, this.el)
+    const config = this.getConfig()
+    const observing = document.querySelector<HTMLElement>(config.observing) || this.el
+    this.cleanup = VanillaTransition.init(this.el, observing, config.options)
   },
   destroyed() {
     this.cleanup()
   }
-} as LiveViewHook
+} as SproutHook
 
 const transition: SproutComponentSetup = (opts) => ({
   hook: () => {
@@ -16,7 +30,7 @@ const transition: SproutComponentSetup = (opts) => ({
     return { [name]: Hook }
   },
   handleDomChange: (from, to) => {
-    if (from.dataset.transitionState) {
+    if (from.dataset.observeOn) {
       if (from.getAttribute("style") === null) {
         to.removeAttribute("style")
       } else {
