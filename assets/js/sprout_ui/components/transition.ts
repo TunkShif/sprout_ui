@@ -1,23 +1,25 @@
 import VanillaTransition from "@tunkshif/vanilla-transition"
 import type { SproutHook, SproutComponentSetup } from "../types"
 
+interface TransitionConfig {
+  on: string
+  opts: {
+    attribute: string
+    states: {
+      show: string
+      hide: string
+    }
+  }
+}
+
 const Hook = {
   getConfig() {
-    return {
-      observing: this.el.dataset.observeOn,
-      options: {
-        attribute: this.el.dataset.observeAttr,
-        states: {
-          show: this.el.dataset.observeStateShow,
-          hide: this.el.dataset.observeStateHide
-        }
-      }
-    }
+    return JSON.parse(this.el.dataset.observing)
   },
   mounted() {
-    const config = this.getConfig()
-    const observing = document.querySelector<HTMLElement>(config.observing) || this.el
-    this.cleanup = VanillaTransition.init(this.el, observing, config.options)
+    const config = this.getConfig() as TransitionConfig
+    const observing = document.querySelector<HTMLElement>(config.on) || this.el
+    this.cleanup = VanillaTransition.init(this.el, observing, config.opts)
   },
   destroyed() {
     this.cleanup()
@@ -30,7 +32,7 @@ const transition: SproutComponentSetup = (opts) => ({
     return { [name]: Hook }
   },
   handleDomChange: (from, to) => {
-    if (from.dataset.observeOn) {
+    if (from.dataset.observing) {
       if (from.getAttribute("style") === null) {
         to.removeAttribute("style")
       } else {

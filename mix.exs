@@ -42,6 +42,7 @@ defmodule SproutUI.MixProject do
     [
       {:phoenix, "~> 1.6.14"},
       {:phoenix_live_view, "~> 0.18.2"},
+      {:jason, "~> 1.4.0"},
       {:esbuild, "~> 0.4", only: :dev}
     ]
   end

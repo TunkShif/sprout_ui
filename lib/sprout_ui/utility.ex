@@ -30,25 +30,26 @@ defmodule SproutUI.Utility do
     transition_state = if initial_state && observed_element == :self, do: initial_state
 
     observing = %{
-      on:
+      "on" =>
         if(observed_element == :self || observed_element == nil,
           do: assigns.id,
           else: observed_element
         ),
-      attribute: observed_attribute || @default_observed_attribute,
-      state_show: elem(observed_states || @default_observed_states, 0),
-      state_hide: elem(observed_states || @default_observed_states, 1)
+      "opts" => %{
+        "attribute" => observed_attribute || @default_observed_attribute,
+        "states" => %{
+          "show" => elem(observed_states || @default_observed_states, 0),
+          "hide" => elem(observed_states || @default_observed_states, 1)
+        }
+      }
     }
 
-    hidden = if initial_state == observing.state_hide, do: true
+    hidden = if initial_state == observing["opts"]["states"]["hide"], do: true
 
     setup = %{
       attrs: %{
         "phx-hook" => assigns.hook,
-        "data-observe-on" => observing.on,
-        "data-observe-attr" => observing.attribute,
-        "data-observe-state-show" => observing.state_show,
-        "data-observe-state-hide" => observing.state_hide,
+        "data-observing" => Jason.encode!(observing),
         "data-enter" => assigns.enter,
         "data-enter-from" => assigns.enter_from,
         "data-enter-to" => assigns.enter_to,
@@ -56,7 +57,7 @@ defmodule SproutUI.Utility do
         "data-leave-from" => assigns.leave_from,
         "data-leave-to" => assigns.leave_to,
         "hidden" => hidden,
-        observing.attribute => transition_state
+        observing["opts"]["attribute"] => transition_state
       }
     }
 

@@ -30,5 +30,3 @@ window.addEventListener("phx:page-loading-stop", (info) => topbar.hide())
 
 liveSocket.connect()
 window.liveSocket = liveSocket
-
-import "./test"

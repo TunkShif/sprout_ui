@@ -144,21 +144,12 @@ var SproutUI = (() => {
   // js/sprout_ui/components/transition.ts
   var Hook = {
     getConfig() {
-      return {
-        observing: this.el.dataset.observeOn,
-        options: {
-          attribute: this.el.dataset.observeAttr,
-          states: {
-            show: this.el.dataset.observeStateShow,
-            hide: this.el.dataset.observeStateHide
-          }
-        }
-      };
+      return JSON.parse(this.el.dataset.observing);
     },
     mounted() {
       const config = this.getConfig();
-      const observing = document.querySelector(config.observing) || this.el;
-      this.cleanup = f.init(this.el, observing, config.options);
+      const observing = document.querySelector(config.on) || this.el;
+      this.cleanup = f.init(this.el, observing, config.opts);
     },
     destroyed() {
       this.cleanup();
@@ -171,7 +162,7 @@ var SproutUI = (() => {
       return { [name]: Hook };
     },
     handleDomChange: (from, to) => {
-      if (from.dataset.observeOn) {
+      if (from.dataset.observing) {
         if (from.getAttribute("style") === null) {
           to.removeAttribute("style");
         } else {

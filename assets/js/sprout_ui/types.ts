@@ -23,6 +23,6 @@ export type SproutEvent<T = unknown> = CustomEvent<T> & {
   target: HTMLElement
 }
 
-export interface SproutHook<T = any> extends LiveViewHook {
-  getConfig(): T
+export interface SproutHook extends LiveViewHook {
+  getConfig(): unknown
 }
