@@ -2,8 +2,6 @@ defmodule SproutWeb.TransitionLive do
   use SproutWeb, :live_view
   use SproutUI
 
-  alias Phoenix.LiveView.JS
-
   def mount(_params, _session, socket) do
     socket =
       socket
@@ -28,7 +26,7 @@ defmodule SproutWeb.TransitionLive do
     <section class="box mb-4">
       <button
         id="button-0"
-        phx-click={JS.dispatch("test:transition:toggle", to: "#transition-wrapper-0")}
+        phx-click={SproutUI.JS.toggle_ui_state({"show", "hide"}, to: "#transition-wrapper-0")}
         class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
       >
         Toggle
@@ -46,12 +44,6 @@ defmodule SproutWeb.TransitionLive do
       >
         👋 Hi, there!
       </.transition>
-      <script>
-        window.addEventListener("test:transition:toggle", ({ target }) => {
-        const state = target.getAttribute("data-transition-state") === "show" ? "hide" : "show"
-        target.setAttribute("data-transition-state", state)
-        })
-      </script>
     </section>
     """
   end

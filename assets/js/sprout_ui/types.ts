@@ -1,3 +1,5 @@
+// FIXME: correctly typing hooks
+
 interface LiveViewHook {
   el: HTMLElement
   mounted(): void

@@ -1,14 +1,14 @@
 defmodule SproutUI.Utility do
   use Phoenix.Component
 
-  @default_observed_attribute "data-transition-state"
+  @default_observed_attribute "data-ui-state"
   @default_observed_states {"show", "hide"}
 
   attr :id, :string, default: "transition-wrapper"
   attr :hook, :string, default: "Transition"
 
   attr :observing, :list, default: [on: :self]
-  attr :initial_state, :string, default: nil
+  attr :initial_state, :string, default: ""
   attr :enter, :string, required: true
   attr :enter_from, :string, required: true
   attr :enter_to, :string, required: true
@@ -63,6 +63,63 @@ defmodule SproutUI.Utility do
 
     # only include id attribute when `as_child` is not used
     setup = unless assigns.as_child, do: put_in(setup, [:attrs, "id"], assigns.id), else: setup
+
+    assigns = assigns |> assign(:setup, setup)
+
+    ~H"""
+    <%= if assigns.as_child do %>
+      <%= render_slot(@inner_block, @setup) %>
+    <% else %>
+      <div {@setup.attrs} {@rest}>
+        <%= render_slot(@inner_block) %>
+      </div>
+    <% end %>
+    """
+  end
+
+  attr :id, :string, default: "floating-wrapper"
+  attr :hook, :string, default: "Floating"
+  attr :reference, :string, required: true
+
+  attr :placement, :string,
+    default: "bottom",
+    values: [
+      "top",
+      "top-start",
+      "top-end",
+      "right",
+      "right-start",
+      "right-end",
+      "bottom",
+      "bottom-start",
+      "bottom-end",
+      "left",
+      "left-start",
+      "left-end"
+    ]
+
+  attr :middleware, :list, default: []
+  attr :auto_update, :boolean, default: false
+  attr :as_child, :boolean, default: false
+  attr :rest, :global
+  slot(:inner_block, required: true)
+
+  def floating(assigns) do
+    floating = %{
+      "reference" => assigns.reference,
+      "placement" => assigns.placement,
+      "autoUpdate" => assigns.auto_update,
+      "middleware" => assigns.middleware
+    }
+
+    setup = %{
+      attrs: %{
+        "id" => assigns.id,
+        "role" => "tooltip",
+        "phx-hook" => assigns.hook,
+        "data-floating" => Jason.encode!(floating)
+      }
+    }
 
     assigns = assigns |> assign(:setup, setup)
 

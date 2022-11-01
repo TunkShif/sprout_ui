@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../assets/js/sprout_ui/tailwind.js"],
-  "sourcesContent": ["const plugin = require(\"tailwindcss/plugin\")\n\nconst states = [\"open\", \"closed\"]\n\nmodule.exports = plugin(({ addVariant }) => {\n  states.forEach((state) => {\n    addVariant(`sprt-${state}`, `&[data-state=${state}]`)\n  })\n})\n"],
-  "mappings": ";AAAA,MAAM,SAAS,QAAQ,oBAAoB;AAE3C,MAAM,SAAS,CAAC,QAAQ,QAAQ;AAEhC,OAAO,UAAU,OAAO,CAAC,EAAE,WAAW,MAAM;AAC1C,SAAO,QAAQ,CAAC,UAAU;AACxB,eAAW,QAAQ,SAAS,gBAAgB,QAAQ;AAAA,EACtD,CAAC;AACH,CAAC;",
+  "sourcesContent": ["// TODO: switch to typescript\n\nconst plugin = require(\"tailwindcss/plugin\")\n\nconst states = [\"open\"]\n\nmodule.exports = plugin(({ addVariant }) => {\n  states.forEach((state) => {\n    addVariant(`sprt-${state}`, `&[data-state=${state}]`)\n  })\n})\n\nmodule.exports = plugin.withOptions(({ prefix = \"ui\" } = {}) => {\n  return ({ addVariant }) => {\n    states.forEach((state) => {\n      addVariant(`${prefix}-${state}`, [\n        `&[data-ui-state~=\"${state}\"]`,\n        `:where([data-ui-state~=\"${state}\"]) &`\n      ])\n      addVariant(`${prefix}-not-${state}`, [\n        `&[data-ui-state]:not([data-ui-state~=\"${state}\"])`,\n        `:where([data-ui-state]:not([data-ui-state~=\"${state}\"])) &:not([data-ui-state])`\n      ])\n    })\n  }\n})\n"],
+  "mappings": ";AAEA,MAAM,SAAS,QAAQ,oBAAoB;AAE3C,MAAM,SAAS,CAAC,MAAM;AAEtB,OAAO,UAAU,OAAO,CAAC,EAAE,WAAW,MAAM;AAC1C,SAAO,QAAQ,CAAC,UAAU;AACxB,eAAW,QAAQ,SAAS,gBAAgB,QAAQ;AAAA,EACtD,CAAC;AACH,CAAC;AAED,OAAO,UAAU,OAAO,YAAY,CAAC,EAAE,SAAS,KAAK,IAAI,CAAC,MAAM;AAC9D,SAAO,CAAC,EAAE,WAAW,MAAM;AACzB,WAAO,QAAQ,CAAC,UAAU;AACxB,iBAAW,GAAG,UAAU,SAAS;AAAA,QAC/B,qBAAqB;AAAA,QACrB,2BAA2B;AAAA,MAC7B,CAAC;AACD,iBAAW,GAAG,cAAc,SAAS;AAAA,QACnC,yCAAyC;AAAA,QACzC,+CAA+C;AAAA,MACjD,CAAC;AAAA,IACH,CAAC;AAAA,EACH;AACF,CAAC;",
   "names": []
 }

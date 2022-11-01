@@ -19,14 +19,14 @@ defmodule SproutWeb.ModalLive do
     ~H"""
     <h3 class="mb-2 font-medium">simple modal</h3>
     <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
-      <.modal :let={setup} id="modal-0">
+      <.modal :let={setup} id="modal-0" class="ui-not-open:hidden">
         <:trigger class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600">
           Show Modal
         </:trigger>
-        <.modal_overlay setup={setup} class="fixed inset-0 z-30 bg-black/50 sprt-closed:hidden" />
+        <.modal_overlay setup={setup} class="fixed inset-0 z-30 bg-black/50" />
         <.modal_body
           setup={setup}
-          class="fixed z-50 max-w-md rounded-lg p-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white sprt-closed:hidden"
+          class="fixed z-50 max-w-md rounded-lg p-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white"
         >
           <:title class="mb-2 font-medium text-lg">Simple Modal</:title>
           <:content>
@@ -43,7 +43,7 @@ defmodule SproutWeb.ModalLive do
     ~H"""
     <h3 class="mb-2 font-medium">customized modal</h3>
     <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
-      <.modal :let={setup} id="modal-1">
+      <.modal :let={setup} id="modal-1" class="ui-not-open:hidden">
         <:trigger :let={setup} as_child>
           <button
             {setup.attrs}
@@ -55,10 +55,10 @@ defmodule SproutWeb.ModalLive do
             <span>OPEN</span>
           </button>
         </:trigger>
-        <.modal_overlay setup={setup} class="fixed inset-0 z-30 bg-black/50 sprt-closed:hidden" />
+        <.modal_overlay setup={setup} class="fixed inset-0 z-30 bg-black/50" />
         <.modal_body
           setup={setup}
-          class="fixed z-50 max-w-lg rounded-lg p-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white sprt-closed:hidden"
+          class="fixed z-50 max-w-lg rounded-lg p-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white"
         >
           <:title :let={setup} as_child>
             <header {setup.attrs}>
@@ -117,8 +117,8 @@ defmodule SproutWeb.ModalLive do
         </:trigger>
         <.transition
           :let={transition}
-          observing={[on: "#modal-2", attr: "data-state", states: {"open", "closed"}]}
-          initial_state="closed"
+          observing={[on: "#modal-2", states: {"open", ""}]}
+          initial_state=""
           enter="ease-out duration-300"
           enter_from="opacity-0"
           enter_to="opacity-100"
@@ -131,8 +131,8 @@ defmodule SproutWeb.ModalLive do
         </.transition>
         <.transition
           :let={transition}
-          observing={[on: "#modal-2", attr: "data-state", states: {"open", "closed"}]}
-          initial_state="closed"
+          observing={[on: "#modal-2", states: {"open", ""}]}
+          initial_state=""
           enter="ease-out duration-300"
           enter_from="opacity-0 scale-95 translate-y-[15%]"
           enter_to="opacity-100 scale-100 -translate-y-1/2"

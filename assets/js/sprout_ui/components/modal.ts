@@ -2,13 +2,8 @@ import type { SproutComponentSetup, SproutEvent } from "../types"
 
 // TODO: helper function for switching data attribute
 
-type ModalShowEvent = SproutEvent<{ disable_scrolling: boolean }>
-type ModalHideEvent = SproutEvent<{ await_animation: boolean; disable_scrolling: boolean }>
-
-enum SproutStates {
-  OPEN = "open",
-  CLOSED = "closed"
-}
+type ModalShowEvent = SproutEvent<{ disableScrolling: boolean }>
+type ModalHideEvent = SproutEvent<{ awaitAnimation: boolean; disableScrolling: boolean }>
 
 const queryModalParts = (modal: HTMLElement) => {
   const overlay = modal.querySelector(`[data-part=overlay]`)
@@ -34,28 +29,28 @@ const init = () => {
   window.addEventListener("sprt:modal:open", (e) => {
     const { target, detail } = e as ModalShowEvent
     queryModalParts(target as HTMLElement).forEach((el) =>
-      el?.setAttribute("data-state", SproutStates.OPEN)
+      el?.setAttribute("data-ui-state", "open")
     )
-    toggleScrolling("disable", detail.disable_scrolling)
+    toggleScrolling("disable", detail.disableScrolling)
   })
 
   window.addEventListener("sprt:modal:close", (e) => {
     const { target, detail } = e as ModalHideEvent
     const [modal, overlay, container] = queryModalParts(target)
 
-    overlay?.setAttribute("data-state", SproutStates.CLOSED)
-    container?.setAttribute("data-state", SproutStates.CLOSED)
+    overlay?.setAttribute("data-ui-state", "")
+    container?.setAttribute("data-ui-state", "")
 
-    toggleScrolling("enable", detail.disable_scrolling)
+    toggleScrolling("enable", detail.disableScrolling)
 
-    if (detail.await_animation) {
+    if (detail.awaitAnimation) {
       const handler = () => {
-        modal.setAttribute("data-state", SproutStates.CLOSED)
+        modal.setAttribute("data-ui-state", "")
         modal.removeEventListener("animationend", handler, false)
       }
       modal.addEventListener("animationend", handler, false)
     } else {
-      modal.setAttribute("data-state", SproutStates.CLOSED)
+      modal.setAttribute("data-ui-state", "")
     }
   })
 }

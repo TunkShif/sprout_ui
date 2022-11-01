@@ -45,14 +45,14 @@ defmodule SproutUI.Overlay do
 
   def modal(assigns) do
     id = assigns.id
-    state = if assigns.is_open, do: "open", else: "closed"
+    state = if assigns.is_open, do: "open", else: ""
 
     open_modal_op =
       assigns.on_open
       |> open_modal(
         to: "##{id}",
         params: %{
-          disable_scrolling: assigns.disable_scrolling
+          "disableScrolling" => assigns.disable_scrolling
         }
       )
 
@@ -61,8 +61,8 @@ defmodule SproutUI.Overlay do
       |> close_modal(
         to: "##{id}",
         params: %{
-          await_animation: assigns.await_close_animation,
-          disable_scrolling: assigns.disable_scrolling
+          "awaitAnimation" => assigns.await_close_animation,
+          "disableScrolling" => assigns.disable_scrolling
         }
       )
 
@@ -79,7 +79,7 @@ defmodule SproutUI.Overlay do
       overlay: %{
         attrs: %{
           "id" => "#{id}-overlay",
-          "data-state" => state,
+          "data-ui-state" => state,
           "data-part" => "overlay",
           "aria-hidden" => "true"
         }
@@ -88,7 +88,7 @@ defmodule SproutUI.Overlay do
         attrs: %{
           "id" => "#{id}-container",
           "role" => "dialog",
-          "data-state" => state,
+          "data-ui-state" => state,
           "data-part" => "container",
           "aria-model" => "true",
           "aria-labelledby" => "#{id}-titile",
@@ -130,7 +130,7 @@ defmodule SproutUI.Overlay do
         <% end %>
       <% end %>
 
-      <div id={@id} {@rest} data-state={@state} data-part="modal">
+      <div id={@id} {@rest} data-ui-state={@state} data-part="modal">
         <%= render_slot(@inner_block, @setup) %>
       </div>
     </div>

@@ -19,6 +19,7 @@ defmodule SproutWeb.Router do
 
     get "/", PageController, :index
     live "/modal", ModalLive
+    live "/floating", FloatingLive
     live "/transition", TransitionLive
   end
 

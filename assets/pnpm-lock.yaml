@@ -1,11 +1,13 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@floating-ui/dom': ^1.0.4
   '@tunkshif/vanilla-transition': ^0.1.2
   prettier: ^2.7.1
   tailwindcss: ^3.2.1
 
 dependencies:
+  '@floating-ui/dom': 1.0.4
   '@tunkshif/vanilla-transition': 0.1.2
 
 devDependencies:
@@ -13,6 +15,16 @@ devDependencies:
   tailwindcss: 3.2.1
 
 packages:
+
+  /@floating-ui/core/1.0.1:
+    resolution: {integrity: sha512-bO37brCPfteXQfFY0DyNDGB3+IMe4j150KFQcgJ5aBP295p9nBGeHEs/p0czrRbtlHq4Px/yoPXO/+dOCcF4uA==}
+    dev: false
+
+  /@floating-ui/dom/1.0.4:
+    resolution: {integrity: sha512-maYJRv+sAXTy4K9mzdv0JPyNW5YPVHrqtY90tEdI6XNpuLOP26Ci2pfwPsKBA/Wh4Z3FX5sUrtUFTdMYj9v+ug==}
+    dependencies:
+      '@floating-ui/core': 1.0.1
+    dev: false
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
