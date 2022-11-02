@@ -1,3 +1,10 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+
 // js/sprout_ui/components/global.ts
 var init = () => {
   window.addEventListener("sprt:toggle_attribute", (e2) => {
@@ -12,48 +19,71 @@ var global = () => ({
 var global_default = global;
 
 // js/sprout_ui/components/modal.ts
-var queryModalParts = (modal2) => {
-  const overlay = modal2.querySelector(`[data-part=overlay]`);
-  const container = modal2.querySelector(`[data-part=container]`);
-  return [modal2, overlay, container];
-};
-var toggleScrolling = (to, disabled) => {
-  if (!disabled)
-    return;
-  switch (to) {
-    case "enable":
-      Object.assign(document.body.style, { overflow: "" });
-      break;
-    case "disable":
-      Object.assign(document.body.style, { overflow: "hidden" });
-      break;
-    default:
-      break;
+var Modal = class {
+  constructor(el, options) {
+    __publicField(this, "modal");
+    __publicField(this, "disableScrolling");
+    __publicField(this, "awaitCloseAnimation");
+    this.modal = el;
+    this.disableScrolling = options.disableScrolling;
+    this.awaitCloseAnimation = options.awaitCloseAnimation;
+  }
+  open() {
+    this.parts.forEach((el) => el == null ? void 0 : el.setAttribute("data-ui-state", "open"));
+    this.toggleScrolling("off");
+  }
+  close() {
+    var _a, _b;
+    (_a = this.overlay) == null ? void 0 : _a.setAttribute("data-ui-state", "");
+    (_b = this.container) == null ? void 0 : _b.setAttribute("data-ui-state", "");
+    this.toggleScrolling("on");
+    if (this.awaitCloseAnimation) {
+      const handler = () => {
+        this.modal.setAttribute("data-ui-state", "");
+        this.modal.removeEventListener("animationend", handler, false);
+      };
+      this.modal.addEventListener("animationend", handler, false);
+    } else {
+      this.modal.setAttribute("data-ui-state", "");
+    }
+  }
+  get overlay() {
+    return this.modal.querySelector(`[data-part=overlay]`);
+  }
+  get container() {
+    return this.modal.querySelector(`[data-part=container]`);
+  }
+  get parts() {
+    return [this.modal, this.overlay, this.container];
+  }
+  toggleScrolling(state) {
+    if (!this.disableScrolling)
+      return;
+    switch (state) {
+      case "on":
+        Object.assign(document.body.style, { overflow: "" });
+        break;
+      case "off":
+        Object.assign(document.body.style, { overflow: "hidden" });
+        break;
+    }
   }
 };
 var init2 = () => {
-  window.addEventListener("sprt:modal:open", (e2) => {
+  const modals = /* @__PURE__ */ new WeakMap();
+  window.addEventListener("sprt:modal:init", (e2) => {
     const { target, detail } = e2;
-    queryModalParts(target).forEach(
-      (el) => el == null ? void 0 : el.setAttribute("data-ui-state", "open")
-    );
-    toggleScrolling("disable", detail.disableScrolling);
+    modals.set(target, new Modal(target, detail.options));
+  });
+  window.addEventListener("sprt:modal:open", (e2) => {
+    const { target } = e2;
+    const modal2 = modals.get(target);
+    modal2 == null ? void 0 : modal2.open();
   });
   window.addEventListener("sprt:modal:close", (e2) => {
-    const { target, detail } = e2;
-    const [modal2, overlay, container] = queryModalParts(target);
-    overlay == null ? void 0 : overlay.setAttribute("data-ui-state", "");
-    container == null ? void 0 : container.setAttribute("data-ui-state", "");
-    toggleScrolling("enable", detail.disableScrolling);
-    if (detail.awaitAnimation) {
-      const handler = () => {
-        modal2.setAttribute("data-ui-state", "");
-        modal2.removeEventListener("animationend", handler, false);
-      };
-      modal2.addEventListener("animationend", handler, false);
-    } else {
-      modal2.setAttribute("data-ui-state", "");
-    }
+    const { target } = e2;
+    const modal2 = modals.get(target);
+    modal2 == null ? void 0 : modal2.close();
   });
 };
 var modal = () => ({

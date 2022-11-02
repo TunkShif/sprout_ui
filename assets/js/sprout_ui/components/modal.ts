@@ -1,62 +1,95 @@
-import type { SproutComponentSetup, SproutEvent } from "../types"
+import type { SproutComponentSetup, SproutEvent } from "../types";
 
-// TODO: helper function for switching data attribute
-
-type ModalShowEvent = SproutEvent<{ disableScrolling: boolean }>
-type ModalHideEvent = SproutEvent<{ awaitAnimation: boolean; disableScrolling: boolean }>
-
-const queryModalParts = (modal: HTMLElement) => {
-  const overlay = modal.querySelector(`[data-part=overlay]`)
-  const container = modal.querySelector(`[data-part=container]`)
-  return [modal, overlay, container] as const
+interface ModalInitOptions {
+  disableScrolling: boolean;
+  awaitCloseAnimation: boolean;
 }
 
-const toggleScrolling = (to: "enable" | "disable", disabled: boolean) => {
-  if (!disabled) return
-  switch (to) {
-    case "enable":
-      Object.assign(document.body.style, { overflow: "" })
-      break
-    case "disable":
-      Object.assign(document.body.style, { overflow: "hidden" })
-      break
-    default:
-      break
+type ModalInitEvent = SproutEvent<{ options: ModalInitOptions }>;
+type ModalShowEvent = SproutEvent;
+type ModalHideEvent = SproutEvent;
+
+class Modal {
+  private modal: HTMLElement;
+  private disableScrolling: boolean;
+  private awaitCloseAnimation: boolean;
+
+  constructor(el: HTMLElement, options: ModalInitOptions) {
+    this.modal = el;
+    this.disableScrolling = options.disableScrolling;
+    this.awaitCloseAnimation = options.awaitCloseAnimation;
+  }
+
+  open() {
+    this.parts.forEach(el => el?.setAttribute("data-ui-state", "open"));
+    this.toggleScrolling("off");
+  }
+
+  close() {
+    this.overlay?.setAttribute("data-ui-state", "");
+    this.container?.setAttribute("data-ui-state", "");
+
+    this.toggleScrolling("on");
+
+    if (this.awaitCloseAnimation) {
+      const handler = () => {
+        this.modal.setAttribute("data-ui-state", "");
+        this.modal.removeEventListener("animationend", handler, false);
+      };
+      this.modal.addEventListener("animationend", handler, false);
+    } else {
+      this.modal.setAttribute("data-ui-state", "");
+    }
+  }
+
+  private get overlay() {
+    return this.modal.querySelector<HTMLElement>(`[data-part=overlay]`);
+  }
+
+  private get container() {
+    return this.modal.querySelector<HTMLElement>(`[data-part=container]`);
+  }
+
+  private get parts() {
+    return [this.modal, this.overlay, this.container];
+  }
+
+  private toggleScrolling(state: "on" | "off") {
+    if (!this.disableScrolling) return;
+    switch (state) {
+      case "on":
+        Object.assign(document.body.style, { overflow: "" });
+        break;
+      case "off":
+        Object.assign(document.body.style, { overflow: "hidden" });
+        break;
+    }
   }
 }
 
 const init = () => {
-  window.addEventListener("sprt:modal:open", (e) => {
-    const { target, detail } = e as ModalShowEvent
-    queryModalParts(target as HTMLElement).forEach((el) =>
-      el?.setAttribute("data-ui-state", "open")
-    )
-    toggleScrolling("disable", detail.disableScrolling)
-  })
+  const modals = new WeakMap<Element, Modal>();
 
-  window.addEventListener("sprt:modal:close", (e) => {
-    const { target, detail } = e as ModalHideEvent
-    const [modal, overlay, container] = queryModalParts(target)
+  window.addEventListener("sprt:modal:init", e => {
+    const { target, detail } = e as ModalInitEvent;
+    modals.set(target, new Modal(target, detail.options));
+  });
 
-    overlay?.setAttribute("data-ui-state", "")
-    container?.setAttribute("data-ui-state", "")
+  window.addEventListener("sprt:modal:open", e => {
+    const { target } = e as ModalShowEvent;
+    const modal = modals.get(target);
+    modal?.open();
+  });
 
-    toggleScrolling("enable", detail.disableScrolling)
-
-    if (detail.awaitAnimation) {
-      const handler = () => {
-        modal.setAttribute("data-ui-state", "")
-        modal.removeEventListener("animationend", handler, false)
-      }
-      modal.addEventListener("animationend", handler, false)
-    } else {
-      modal.setAttribute("data-ui-state", "")
-    }
-  })
-}
+  window.addEventListener("sprt:modal:close", e => {
+    const { target } = e as ModalHideEvent;
+    const modal = modals.get(target);
+    modal?.close();
+  });
+};
 
 const modal: SproutComponentSetup = () => ({
   init
-})
+});
 
-export default modal
+export default modal;

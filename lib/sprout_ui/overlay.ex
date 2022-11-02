@@ -5,6 +5,7 @@ defmodule SproutUI.Overlay do
 
   # TODO: rewriting docs
 
+  @on_modal_init_event "sprt:modal:init"
   @on_modal_open_event "sprt:modal:open"
   @on_modal_close_event "sprt:modal:close"
 
@@ -47,24 +48,23 @@ defmodule SproutUI.Overlay do
     id = assigns.id
     state = if assigns.is_open, do: "open", else: ""
 
+    modal_init_event_detail = %{
+      options: %{
+        "disableScrolling" => assigns.disable_scrolling,
+        "awaitCloseAnimation" => assigns.await_close_animation
+      }
+    }
+
+    init_modal_op = JS.dispatch(@on_modal_init_event, detail: modal_init_event_detail)
+
     open_modal_op =
       assigns.on_open
-      |> open_modal(
-        to: "##{id}",
-        params: %{
-          "disableScrolling" => assigns.disable_scrolling
-        }
-      )
+      |> JS.dispatch(@on_modal_open_event, to: "##{id}")
+      |> JS.focus_first(to: ~s(##{id} [data-part=container]))
 
     close_modal_op =
       assigns.on_close
-      |> close_modal(
-        to: "##{id}",
-        params: %{
-          "awaitAnimation" => assigns.await_close_animation,
-          "disableScrolling" => assigns.disable_scrolling
-        }
-      )
+      |> JS.dispatch(@on_modal_close_event, to: "##{id}")
 
     setup = %{
       id: id,
@@ -75,6 +75,14 @@ defmodule SproutUI.Overlay do
           "phx-click" => open_modal_op
         },
         open_modal: open_modal_op
+      },
+      modal: %{
+        attrs: %{
+          "id" => assigns.id,
+          "data-part" => "modal",
+          "data-ui-state" => state,
+          "phx-mounted" => init_modal_op
+        }
       },
       overlay: %{
         attrs: %{
@@ -115,10 +123,7 @@ defmodule SproutUI.Overlay do
       }
     }
 
-    assigns =
-      assigns
-      |> assign(:state, state)
-      |> assign(:setup, setup)
+    assigns = assigns |> assign(:setup, setup)
 
     ~H"""
     <div>
@@ -130,7 +135,7 @@ defmodule SproutUI.Overlay do
         <% end %>
       <% end %>
 
-      <div id={@id} {@rest} data-ui-state={@state} data-part="modal">
+      <div {@setup.modal.attrs} {@rest}>
         <%= render_slot(@inner_block, @setup) %>
       </div>
     </div>
@@ -196,14 +201,5 @@ defmodule SproutUI.Overlay do
       </.focus_wrap>
     </section>
     """
-  end
-
-  defp open_modal(%JS{} = js, to: to, params: params) do
-    JS.dispatch(js, @on_modal_open_event, to: to, detail: params)
-    |> JS.focus_first(to: ~s(#{to} [data-part="container"]))
-  end
-
-  defp close_modal(%JS{} = js, to: to, params: params) do
-    JS.dispatch(js, @on_modal_close_event, to: to, detail: params)
   end
 end
