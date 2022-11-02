@@ -28,6 +28,7 @@ defmodule SproutWeb.FloatingLive do
           id="floating-wrapper-0"
           reference="#dashed-box"
           placement={@placement}
+          middleware={[offset: 12]}
           data-ui-state="open"
           class="absolute w-max p-1.5 py-1 top-0 left-0 bg-gray-800 text-white text-sm rounded ui-not-open:hidden"
         >

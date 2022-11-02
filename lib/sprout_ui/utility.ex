@@ -2,7 +2,7 @@ defmodule SproutUI.Utility do
   use Phoenix.Component
 
   @default_observed_attribute "data-ui-state"
-  @default_observed_states {"show", "hide"}
+  @default_observed_states {"show", ""}
 
   attr :id, :string, default: "transition-wrapper"
   attr :hook, :string, default: "Transition"
@@ -35,16 +35,16 @@ defmodule SproutUI.Utility do
           do: assigns.id,
           else: observed_element
         ),
-      "opts" => %{
+      "options" => %{
         "attribute" => observed_attribute || @default_observed_attribute,
-        "states" => %{
-          "show" => elem(observed_states || @default_observed_states, 0),
-          "hide" => elem(observed_states || @default_observed_states, 1)
+        "stages" => %{
+          "enter" => elem(observed_states || @default_observed_states, 0),
+          "leave" => elem(observed_states || @default_observed_states, 1)
         }
       }
     }
 
-    hidden = if initial_state == observing["opts"]["states"]["hide"], do: true
+    hidden = if initial_state == observing["options"]["stages"]["leave"], do: true
 
     setup = %{
       attrs: %{
@@ -57,7 +57,7 @@ defmodule SproutUI.Utility do
         "data-leave-from" => assigns.leave_from,
         "data-leave-to" => assigns.leave_to,
         "hidden" => hidden,
-        observing["opts"]["attribute"] => transition_state
+        observing["options"]["attribute"] => transition_state
       }
     }
 
@@ -109,13 +109,13 @@ defmodule SproutUI.Utility do
       "reference" => assigns.reference,
       "placement" => assigns.placement,
       "autoUpdate" => assigns.auto_update,
-      "middleware" => assigns.middleware
+      "middleware" =>
+        assigns.middleware |> Enum.map(fn {k, v} -> transform_middleware(k, v) end) |> Map.new()
     }
 
     setup = %{
       attrs: %{
         "id" => assigns.id,
-        "role" => "tooltip",
         "phx-hook" => assigns.hook,
         "data-floating" => Jason.encode!(floating)
       }
@@ -133,4 +133,25 @@ defmodule SproutUI.Utility do
     <% end %>
     """
   end
+
+  defp transform_middleware(:offset, value) when is_integer(value), do: {:offset, value}
+
+  defp transform_middleware(:offset, {main, cross}) when is_integer(main) and is_integer(cross),
+    do:
+      {:offset,
+       %{
+         "mainAxis" => main,
+         "crossAxis" => cross
+       }}
+
+  defp transform_middleware(:shift, {main, cross}) when is_integer(main) and is_integer(cross),
+    do:
+      {:shift,
+       %{
+         "mainAxis" => main,
+         "crossAxis" => cross
+       }}
+
+  defp transform_middleware(:shift, _), do: {:shift, true}
+  defp transform_middleware(name, _) when is_atom(name), do: {name, true}
 end

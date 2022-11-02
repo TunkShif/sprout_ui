@@ -2,17 +2,19 @@ lockfileVersion: 5.4
 
 specifiers:
   '@floating-ui/dom': ^1.0.4
-  '@tunkshif/vanilla-transition': ^0.1.2
+  '@tunkshif/vanilla-transition': ^0.2.1
   prettier: ^2.7.1
   tailwindcss: ^3.2.1
+  typescript: ^4.8.4
 
 dependencies:
   '@floating-ui/dom': 1.0.4
-  '@tunkshif/vanilla-transition': 0.1.2
+  '@tunkshif/vanilla-transition': 0.2.1
 
 devDependencies:
   prettier: 2.7.1
   tailwindcss: 3.2.1
+  typescript: 4.8.4
 
 packages:
 
@@ -47,8 +49,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@tunkshif/vanilla-transition/0.1.2:
-    resolution: {integrity: sha512-RrKn3huSFdJRbbe+af2p6UAe9DaeONPhocgtQCGH/vx1XVJ7tMU5QN5+CtXi5tcTvSbBdLFzpJrl/nckpou+yg==}
+  /@tunkshif/vanilla-transition/0.2.1:
+    resolution: {integrity: sha512-Hy26OTSsHh90V28v20zLmiBlvL6HHuKpamYzaiiUiqcolKK5QYYAOkNXXxzJ+CPbK5Vawq3hyED15sq7NeH9bQ==}
     dev: false
 
   /acorn-node/1.8.2:
@@ -454,6 +456,12 @@ packages:
     engines: {node: '>=8.0'}
     dependencies:
       is-number: 7.0.0
+    dev: true
+
+  /typescript/4.8.4:
+    resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
     dev: true
 
   /util-deprecate/1.0.2:

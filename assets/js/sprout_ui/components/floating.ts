@@ -1,4 +1,4 @@
-import { autoUpdate, computePosition, offset } from "@floating-ui/dom"
+import { autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom"
 import type { Middleware } from "@floating-ui/dom"
 import type { SproutHook, SproutComponentSetup } from "../types"
 
@@ -21,6 +21,16 @@ interface FloatingConfig {
   middleware: any[]
 }
 
+const MIDDLEWARES = {
+  offset,
+  shift,
+  flip
+}
+
+const buildMiddlewares = (middleware: any) => {
+  return Object.entries(middleware).map(([key, val]) => MIDDLEWARES[key](val))
+}
+
 const Hook = {
   getConfig() {
     return JSON.parse(this.el.dataset.floating)
@@ -32,13 +42,15 @@ const Hook = {
       const config = this.getConfig() as FloatingConfig
       const reference = document.querySelector(config.reference)!
       const placement = config.placement
+      const middleware = buildMiddlewares(config.middleware)
+      console.log(middleware)
 
       this.autoUpdate = config.autoUpdate
       console.log("inside updating function", `autoupdate: ${this.autoUpdate}`)
 
       computePosition(reference, this.el, {
         placement: placement,
-        middleware: [] // TODO
+        middleware: middleware
       }).then(({ x, y }) => {
         Object.assign(this.el.style, {
           left: `${x}px`,

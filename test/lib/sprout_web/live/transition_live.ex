@@ -7,7 +7,7 @@ defmodule SproutWeb.TransitionLive do
       socket
       |> assign(:title, "Transition")
       |> assign(:box_state, "show")
-      |> assign(:text_state, "hide")
+      |> assign(:text_state, "")
 
     {:ok, socket}
   end
@@ -26,7 +26,7 @@ defmodule SproutWeb.TransitionLive do
     <section class="box mb-4">
       <button
         id="button-0"
-        phx-click={SproutUI.JS.toggle_ui_state({"show", "hide"}, to: "#transition-wrapper-0")}
+        phx-click={SproutUI.JS.toggle_ui_state({"show"}, to: "#transition-wrapper-0")}
         class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600"
       >
         Toggle
@@ -34,7 +34,7 @@ defmodule SproutWeb.TransitionLive do
       <.transition
         id="transition-wrapper-0"
         class="mt-2"
-        initial_state="hide"
+        initial_state=""
         enter="transition-opacity duration-300"
         enter_from="opacity-0"
         enter_to="opacity-100"
@@ -91,12 +91,12 @@ defmodule SproutWeb.TransitionLive do
         Toggle
       </button>
       <div id="text-state" data-text-state={@text_state} class="my-2 font-medium">
-        State: <span id="text-0"><%= @text_state %></span>
+        State: <span id="text-0"><%= if @text_state == "", do: "hidden", else: @text_state %></span>
       </div>
       <.transition
         id="transition-wrapper-2"
         observing={[on: "#text-state", attr: "data-text-state"]}
-        initial_state="hide"
+        initial_state=""
         enter="transition-opacity duration-300"
         enter_from="opacity-0"
         enter_to="opacity-100"
@@ -112,11 +112,11 @@ defmodule SproutWeb.TransitionLive do
 
   def handle_event("transition_box", _params, socket) do
     Process.send_after(self(), "reset_box", 500)
-    {:noreply, socket |> assign(:box_state, "hide")}
+    {:noreply, socket |> assign(:box_state, "")}
   end
 
   def handle_event("toggle_text", _params, socket) do
-    state = if socket.assigns.text_state == "show", do: "hide", else: "show"
+    state = if socket.assigns.text_state == "show", do: "", else: "show"
     {:noreply, socket |> assign(:text_state, state)}
   end
 
