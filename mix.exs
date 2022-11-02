@@ -31,7 +31,8 @@ defmodule SproutUI.MixProject do
         "esbuild main",
         "esbuild cdn",
         "esbuild cdn_min",
-        "esbuild tailwind"
+        "esbuild tailwind",
+        "cmd --cd assets tsc --declaration --emitDeclarationOnly"
       ],
       "assets.watch": ["esbuild module --watch"]
     ]

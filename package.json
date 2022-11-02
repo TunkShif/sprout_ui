@@ -4,6 +4,7 @@
   "description": "SproutUI JS Library",
   "module": "./priv/static/sprout_ui.mjs",
   "main": "./priv/static/sprout_ui.cjs",
+  "types": "./priv/static/index.d.ts",
   "unpkg": "./priv/static/sprout_ui.min.js",
   "jsdelivr": "./priv/static/sprout_ui.min.js",
   "exports": {

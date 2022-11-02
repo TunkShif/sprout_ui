@@ -1,8 +1,6 @@
 import global from "./components/global";
 import type { SproutComponent, SproutHook } from "./types";
 
-// TODO: emit type declaration
-
 type CreateSproutConfigOptions = {
   components: SproutComponent[];
 };
@@ -28,3 +26,4 @@ const createSproutConfig: CreateSproutConfig = opts => {
 
 export default createSproutConfig;
 export * from "./components";
+export * from "./types";
