@@ -6,33 +6,32 @@ defmodule SproutWeb.FloatingLive do
     socket =
       socket
       |> assign(:title, "Floating")
-      |> assign(:placement, "top")
+      |> assign(:placement, "bottom")
 
     {:ok, socket}
   end
 
   def render(assigns) do
     ~H"""
-    <.simple_example placement={@placement} />
+    <.placement_example placement={@placement} />
+    <.shift_example />
     """
   end
 
-  defp simple_example(assigns) do
+  defp placement_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">simple tooltip</h3>
+    <h3 class="mb-2 font-medium">placment example</h3>
     <section class="box mb-4">
       <div class="relative flex justify-center items-center h-48 overflow-hidden">
-        <button id="dashed-box" class="h-24 w-24 border-2 border-gray-900 border-dashed rounded">
-        </button>
+        <div id="dashed-box-0" class="h-24 w-24 border-2 border-gray-900 border-dashed rounded"></div>
         <.floating
-          id="floating-wrapper-0"
-          reference="#dashed-box"
+          anchor="#dashed-box-0"
           placement={@placement}
           middleware={[offset: 12]}
-          data-ui-state="open"
-          class="absolute w-max p-1.5 py-1 top-0 left-0 bg-gray-800 text-white text-sm rounded ui-not-open:hidden"
+          class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
+          is_active
         >
-          👋 Hi, there!
+          <%= @placement %>
         </.floating>
       </div>
       <div class="mt-2 flex space-x-4 justify-center items-center">
@@ -49,7 +48,37 @@ defmodule SproutWeb.FloatingLive do
     """
   end
 
+  defp shift_example(assigns) do
+    ~H"""
+    <h3 class="mb-2 font-medium">shift example</h3>
+    <section class="box mb-4">
+      <div class="relative h-[400px] overflow-hidden overflow-y-auto">
+        <div class="h-[240px] w-1"></div>
+        <div
+          id="dashed-box-1"
+          class="ml-[calc(50%-110px)] h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+        >
+        </div>
+        <.floating
+          anchor="#dashed-box-1"
+          placement="right"
+          middleware={[offset: 12, shift: true]}
+          class="ui-not-active:hidden z-10 absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
+          is_active
+        >
+          <h3 class="mb-2 text-lg font-medium">Popover</h3>
+          <p class="leading-relaxed">
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi.
+            Lorem pariatur mollit ex esse exercitation amet.
+          </p>
+        </.floating>
+        <div class="h-[240px] w-1"></div>
+      </div>
+    </section>
+    """
+  end
+
   def handle_event("change_placement", %{"placement" => placement}, socket) do
-    {:noreply, socket |> assign(:placement, placement)}
+    {:noreply, assign(socket, :placement, placement)}
   end
 end

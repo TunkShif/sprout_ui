@@ -1,6 +1,6 @@
 "use strict";
 const plugin = require("tailwindcss/plugin");
-const states = ["open"];
+const states = ["open", "active"];
 module.exports = plugin(({ addVariant }) => {
   states.forEach((state) => {
     addVariant(`sprt-${state}`, `&[data-state=${state}]`);

@@ -1,95 +1,91 @@
-import { autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom"
-import type { Middleware } from "@floating-ui/dom"
-import type { SproutHook, SproutComponentSetup } from "../types"
-
-interface FloatingConfig {
-  reference: string
-  placement:
-  | "top"
-  | "top-start"
-  | "top-end"
-  | "right"
-  | "right-start"
-  | "right-end"
-  | "bottom"
-  | "bottom-start"
-  | "bottom-end"
-  | "left"
-  | "left-start"
-  | "left-end"
-  autoUpdate: boolean
-  middleware: any[]
-}
+import { autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom";
+import type { Middleware, Placement } from "@floating-ui/dom";
+import type { SproutComponentSetup } from "../types";
 
 const MIDDLEWARES = {
   offset,
   shift,
   flip
-}
+} as { [key: string]: (options: unknown) => Middleware };
 
-const buildMiddlewares = (middleware: any) => {
-  return Object.entries(middleware).map(([key, val]) => MIDDLEWARES[key](val))
-}
+class FloatingElement extends HTMLElement {
+  active: boolean = false;
+  private cleanup: ReturnType<typeof autoUpdate> | undefined;
 
-const Hook = {
-  getConfig() {
-    return JSON.parse(this.el.dataset.floating)
-  },
-  mounted() {
-    const config = this.getConfig() as FloatingConfig
-
-    this.updateElement = () => {
-      const config = this.getConfig() as FloatingConfig
-      const reference = document.querySelector(config.reference)!
-      const placement = config.placement
-      const middleware = buildMiddlewares(config.middleware)
-      console.log(middleware)
-
-      this.autoUpdate = config.autoUpdate
-      console.log("inside updating function", `autoupdate: ${this.autoUpdate}`)
-
-      computePosition(reference, this.el, {
-        placement: placement,
-        middleware: middleware
-      }).then(({ x, y }) => {
-        Object.assign(this.el.style, {
-          left: `${x}px`,
-          top: `${y}px`
-        })
-      })
-    }
-
-    if (config.autoUpdate) {
-      const reference = document.querySelector(config.reference)!
-      this.cleanup = autoUpdate(reference, this.el, this.updateElement)
-    } else {
-      this.updateElement()
-    }
-  },
-  updated() {
-    if (this.autoUpdate) return
-    console.log("mannuly updated")
-    this.updateElement()
-  },
-  destroyed() {
-    this.cleanup?.()
+  static get observedAttributes() {
+    return ["data-ui-state", "data-placement", "data-middleware"];
   }
-} as SproutHook
 
-const floating: SproutComponentSetup = (opts) => ({
-  hook: () => {
-    const name = opts?.hook ?? "Floating"
-    return { [name]: Hook }
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    this.start();
+  }
+
+  disconnectedCallback() {
+    this.stop();
+  }
+
+  attributeChangedCallback(name: string, _oldValue: unknown, newValue: unknown) {
+    if (name === "data-ui-state") {
+      this.active = newValue === "active";
+    }
+
+    if (this.active) {
+      this.update();
+    }
+  }
+
+  get anchor() {
+    if (!this.dataset.anchor) return null;
+    return document.querySelector<HTMLElement>(this.dataset.anchor);
+  }
+
+  get placement() {
+    return (this.dataset.placement || "bottom") as Placement;
+  }
+
+  get middleware() {
+    const middlewares = JSON.parse(this.dataset.middleware || "[]") as [string, unknown][];
+    return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
+  }
+
+  private start() {
+    if (!this.anchor) return;
+    this.cleanup = autoUpdate(this.anchor, this, this.update.bind(this));
+  }
+
+  private stop() {
+    this.cleanup?.();
+  }
+
+  private update() {
+    if (!this.active || !this.anchor) return;
+
+    computePosition(this.anchor, this, {
+      placement: this.placement,
+      middleware: this.middleware
+    }).then(({ x, y }) => {
+      Object.assign(this.style, {
+        left: `${x}px`,
+        top: `${y}px`
+      });
+    });
+  }
+}
+
+const floating: SproutComponentSetup = opts => ({
+  init: () => {
+    const element = opts?.element || "sprt-floating";
+    customElements.define(element, FloatingElement);
   },
   handleDomChange: (from, to) => {
-    if (from.dataset.floating) {
-      if (from.getAttribute("style") === null) {
-        to.removeAttribute("style")
-      } else {
-        to.setAttribute("style", from.getAttribute("style")!)
-      }
+    if (from.nodeName.toLowerCase() === (opts?.element || "sprt-floating")) {
+      to.setAttribute("style", from.getAttribute("style") || "");
     }
   }
-})
+});
 
-export default floating
+export default floating;

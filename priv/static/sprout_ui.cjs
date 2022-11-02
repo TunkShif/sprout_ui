@@ -508,64 +508,72 @@ var MIDDLEWARES = {
   shift: L,
   flip: b
 };
-var buildMiddlewares = (middleware) => {
-  return Object.entries(middleware).map(([key, val]) => MIDDLEWARES[key](val));
-};
-var Hook = {
-  getConfig() {
-    return JSON.parse(this.el.dataset.floating);
-  },
-  mounted() {
-    const config = this.getConfig();
-    this.updateElement = () => {
-      const config2 = this.getConfig();
-      const reference = document.querySelector(config2.reference);
-      const placement = config2.placement;
-      const middleware = buildMiddlewares(config2.middleware);
-      console.log(middleware);
-      this.autoUpdate = config2.autoUpdate;
-      console.log("inside updating function", `autoupdate: ${this.autoUpdate}`);
-      A(reference, this.el, {
-        placement,
-        middleware
-      }).then(({ x: x3, y: y3 }) => {
-        Object.assign(this.el.style, {
-          left: `${x3}px`,
-          top: `${y3}px`
-        });
-      });
-    };
-    if (config.autoUpdate) {
-      const reference = document.querySelector(config.reference);
-      this.cleanup = z(reference, this.el, this.updateElement);
-    } else {
-      this.updateElement();
+var FloatingElement = class extends HTMLElement {
+  constructor() {
+    super();
+    __publicField(this, "active", false);
+    __publicField(this, "cleanup");
+  }
+  static get observedAttributes() {
+    return ["data-ui-state", "data-placement", "data-middleware"];
+  }
+  connectedCallback() {
+    this.start();
+  }
+  disconnectedCallback() {
+    this.stop();
+  }
+  attributeChangedCallback(name, _oldValue, newValue) {
+    if (name === "data-ui-state") {
+      this.active = newValue === "active";
     }
-  },
-  updated() {
-    if (this.autoUpdate)
+    if (this.active) {
+      this.update();
+    }
+  }
+  get anchor() {
+    if (!this.dataset.anchor)
+      return null;
+    return document.querySelector(this.dataset.anchor);
+  }
+  get placement() {
+    return this.dataset.placement || "bottom";
+  }
+  get middleware() {
+    const middlewares = JSON.parse(this.dataset.middleware || "[]");
+    return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
+  }
+  start() {
+    if (!this.anchor)
       return;
-    console.log("mannuly updated");
-    this.updateElement();
-  },
-  destroyed() {
+    this.cleanup = z(this.anchor, this, this.update.bind(this));
+  }
+  stop() {
     var _a;
     (_a = this.cleanup) == null ? void 0 : _a.call(this);
   }
+  update() {
+    if (!this.active || !this.anchor)
+      return;
+    A(this.anchor, this, {
+      placement: this.placement,
+      middleware: this.middleware
+    }).then(({ x: x3, y: y3 }) => {
+      Object.assign(this.style, {
+        left: `${x3}px`,
+        top: `${y3}px`
+      });
+    });
+  }
 };
 var floating = (opts) => ({
-  hook: () => {
-    var _a;
-    const name = (_a = opts == null ? void 0 : opts.hook) != null ? _a : "Floating";
-    return { [name]: Hook };
+  init: () => {
+    const element = (opts == null ? void 0 : opts.element) || "sprt-floating";
+    customElements.define(element, FloatingElement);
   },
   handleDomChange: (from, to) => {
-    if (from.dataset.floating) {
-      if (from.getAttribute("style") === null) {
-        to.removeAttribute("style");
-      } else {
-        to.setAttribute("style", from.getAttribute("style"));
-      }
+    if (from.nodeName.toLowerCase() === ((opts == null ? void 0 : opts.element) || "sprt-floating")) {
+      to.setAttribute("style", from.getAttribute("style") || "");
     }
   }
 });
@@ -618,7 +626,7 @@ var getTransitionClasses = (el) => Object.fromEntries(
     return [key, (_c = (_b = (_a = el.dataset[key]) == null ? void 0 : _a.split(" ")) == null ? void 0 : _b.filter(Boolean)) != null ? _c : []];
   })
 );
-var Hook2 = {
+var Hook = {
   getConfig() {
     const config = JSON.parse(this.el.dataset.observing);
     const classes = getTransitionClasses(this.el);
@@ -639,7 +647,7 @@ var transition = (opts) => ({
   hook: () => {
     var _a;
     const name = (_a = opts == null ? void 0 : opts.hook) != null ? _a : "Transition";
-    return { [name]: Hook2 };
+    return { [name]: Hook };
   },
   handleDomChange: (from, to) => {
     if (from.dataset.observing) {

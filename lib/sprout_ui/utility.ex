@@ -77,9 +77,9 @@ defmodule SproutUI.Utility do
     """
   end
 
-  attr :id, :string, default: "floating-wrapper"
-  attr :hook, :string, default: "Floating"
-  attr :reference, :string, required: true
+  attr :element, :string, default: "sprt-floating"
+  attr :is_active, :boolean, default: false
+  attr :anchor, :string, required: true
 
   attr :placement, :string,
     default: "bottom",
@@ -99,59 +99,54 @@ defmodule SproutUI.Utility do
     ]
 
   attr :middleware, :list, default: []
-  attr :auto_update, :boolean, default: false
-  attr :as_child, :boolean, default: false
   attr :rest, :global
   slot(:inner_block, required: true)
 
   def floating(assigns) do
-    floating = %{
-      "reference" => assigns.reference,
-      "placement" => assigns.placement,
-      "autoUpdate" => assigns.auto_update,
-      "middleware" =>
-        assigns.middleware |> Enum.map(fn {k, v} -> transform_middleware(k, v) end) |> Map.new()
-    }
+    state = if assigns.is_active, do: "active", else: ""
+
+    middleware = assigns.middleware |> Enum.map(fn {k, v} -> transform_middleware(k, v) end)
 
     setup = %{
+      element: assigns.element,
       attrs: %{
-        "id" => assigns.id,
-        "phx-hook" => assigns.hook,
-        "data-floating" => Jason.encode!(floating)
+        "data-ui-state" => state,
+        "data-anchor" => assigns.anchor,
+        "data-placement" => assigns.placement,
+        "data-middleware" => Jason.encode!(middleware)
       }
     }
 
     assigns = assigns |> assign(:setup, setup)
 
     ~H"""
-    <%= if assigns.as_child do %>
-      <%= render_slot(@inner_block, @setup) %>
-    <% else %>
-      <div {@setup.attrs} {@rest}>
-        <%= render_slot(@inner_block) %>
-      </div>
-    <% end %>
+    <.dynamic_tag name={@setup.element} {@setup.attrs} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.dynamic_tag>
     """
   end
 
-  defp transform_middleware(:offset, value) when is_integer(value), do: {:offset, value}
+  defp transform_middleware(:offset, value) when is_integer(value), do: [:offset, value]
 
   defp transform_middleware(:offset, {main, cross}) when is_integer(main) and is_integer(cross),
-    do:
-      {:offset,
-       %{
-         "mainAxis" => main,
-         "crossAxis" => cross
-       }}
+    do: [
+      :offset,
+      %{
+        "mainAxis" => main,
+        "crossAxis" => cross
+      }
+    ]
 
   defp transform_middleware(:shift, {main, cross}) when is_integer(main) and is_integer(cross),
-    do:
-      {:shift,
-       %{
-         "mainAxis" => main,
-         "crossAxis" => cross
-       }}
+    do: [
+      :shift,
+      %{
+        "mainAxis" => main,
+        "crossAxis" => cross
+      }
+    ]
 
-  defp transform_middleware(:shift, _), do: {:shift, true}
-  defp transform_middleware(name, _) when is_atom(name), do: {name, true}
+  # TODO: more middleware 
+  defp transform_middleware(:shift, _), do: [:shift, %{}]
+  # defp transform_middleware(name, _) when is_atom(name), do: {name, true}
 end
