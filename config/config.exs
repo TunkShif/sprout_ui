@@ -30,6 +30,6 @@ if Mix.env() == :dev do
       ),
     tailwind:
       esbuild_tailwind.(
-        ~w(--format=cjs --sourcemap --outfile=../priv/static/sprout_ui_tailwind.js)
+        ~w(--format=cjs --bundle --minify --external:tailwindcss --outfile=../priv/static/sprout_ui_tailwind.js)
       )
 end
