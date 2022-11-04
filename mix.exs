@@ -24,7 +24,7 @@ defmodule SproutUI.MixProject do
 
   defp aliases do
     [
-      test: ["cmd echo test"],
+      test: ["cmd --cd assets pnpm jest"],
       setup: ["deps.get", "cmd --cd assets pnpm install"],
       "assets.build": [
         "esbuild module",
