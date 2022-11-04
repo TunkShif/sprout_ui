@@ -2,6 +2,10 @@ defmodule SproutWeb.FloatingLive do
   use SproutWeb, :live_view
   use SproutUI
 
+  import SproutWeb.LiveHelper
+
+  alias Phoenix.LiveView.JS
+
   def mount(_params, _session, socket) do
     socket =
       socket
@@ -20,8 +24,7 @@ defmodule SproutWeb.FloatingLive do
 
   defp placement_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">placment example</h3>
-    <section class="box mb-4">
+    <.display_section title="placement example">
       <div class="relative flex justify-center items-center h-48 overflow-hidden">
         <div id="dashed-box-0" class="h-24 w-24 border-2 border-gray-900 border-dashed rounded"></div>
         <.floating
@@ -34,7 +37,7 @@ defmodule SproutWeb.FloatingLive do
           <%= @placement %>
         </.floating>
       </div>
-      <div class="mt-2 flex space-x-4 justify-center items-center">
+      <div class="mt-4 flex space-x-4 justify-center items-center">
         <button
           :for={placement <- ["top", "bottom", "left", "right"]}
           phx-click="change_placement"
@@ -44,26 +47,28 @@ defmodule SproutWeb.FloatingLive do
           <%= placement %>
         </button>
       </div>
-    </section>
+    </.display_section>
     """
   end
 
   defp shift_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">shift example</h3>
-    <section class="box mb-4">
-      <div class="relative h-[400px] overflow-hidden overflow-y-auto">
-        <div class="h-[240px] w-1"></div>
+    <.display_section title="shift example">
+      <div
+        class="relative h-[400px] overflow-hidden overflow-y-auto"
+        phx-mounted={JS.dispatch("test:floating:scroll")}
+      >
+        <div class="h-[360px] w-1"></div>
         <div
           id="dashed-box-1"
-          class="ml-[calc(50%-110px)] h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+          class="inline-block ml-[calc(50%-110px)] h-24 w-24 border-2 border-gray-900 border-dashed rounded"
         >
         </div>
         <.floating
           anchor="#dashed-box-1"
           placement="right"
           middleware={[offset: 12, shift: true]}
-          class="ui-not-active:hidden z-10 absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
+          class="ui-not-active:hidden absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
           is_active
         >
           <h3 class="mb-2 text-lg font-medium">Popover</h3>
@@ -72,9 +77,14 @@ defmodule SproutWeb.FloatingLive do
             Lorem pariatur mollit ex esse exercitation amet.
           </p>
         </.floating>
-        <div class="h-[240px] w-1"></div>
+        <div class="h-[360px] w-1"></div>
       </div>
-    </section>
+      <script>
+        window.addEventListener("test:floating:scroll", ({target}) => {
+          target.scrollTo({ top: target.offsetHeight / 2 })
+        })
+      </script>
+    </.display_section>
     """
   end
 

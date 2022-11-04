@@ -1,12 +1,14 @@
 // FIXME: correctly typing hooks
 
-interface LiveViewHook {
-  el: HTMLElement;
-  mounted(): void;
-  updated?(): void;
-  destroyed?(): void;
-  disconnected?(): void;
-  reconnected?(): void;
+declare global {
+  class LiveViewHook {
+    el: HTMLElement;
+    mounted(): void;
+    updated?(): void;
+    destroyed?(): void;
+    disconnected?(): void;
+    reconnected?(): void;
+  }
 }
 
 export interface SproutComponent {

@@ -2,6 +2,8 @@ defmodule SproutWeb.TransitionLive do
   use SproutWeb, :live_view
   use SproutUI
 
+  import SproutWeb.LiveHelper
+
   def mount(_params, _session, socket) do
     socket =
       socket
@@ -22,8 +24,7 @@ defmodule SproutWeb.TransitionLive do
 
   defp simple_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">triggered on client-side</h3>
-    <section class="box mb-4">
+    <.display_section title="triggerd on client-side">
       <button
         id="button-0"
         phx-click={SproutUI.JS.toggle_ui_state({"show"}, to: "#transition-wrapper-0")}
@@ -44,14 +45,13 @@ defmodule SproutWeb.TransitionLive do
       >
         👋 Hi, there!
       </.transition>
-    </section>
+    </.display_section>
     """
   end
 
   defp resetting_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">triggered from server-side</h3>
-    <section class="box">
+    <.display_section title="triggered form server-side">
       <div class="flex flex-col items-center">
         <div class="h-32 w-32">
           <.transition
@@ -75,14 +75,13 @@ defmodule SproutWeb.TransitionLive do
           Transition
         </button>
       </div>
-    </section>
+    </.display_section>
     """
   end
 
   defp custom_observer_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">observing on other element changes</h3>
-    <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
+    <.display_section title="observing on other element changes">
       <button
         id="button-2"
         phx-click="toggle_text"
@@ -106,7 +105,7 @@ defmodule SproutWeb.TransitionLive do
       >
         Hello, World!
       </.transition>
-    </section>
+    </.display_section>
     """
   end
 

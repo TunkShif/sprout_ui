@@ -2,6 +2,8 @@ defmodule SproutWeb.ModalLive do
   use SproutWeb, :live_view
   use SproutUI
 
+  import SproutWeb.LiveHelper
+
   def mount(_params, _session, socket) do
     socket = assign(socket, :title, "Modal")
     {:ok, socket}
@@ -17,8 +19,7 @@ defmodule SproutWeb.ModalLive do
 
   defp simple_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">simple modal</h3>
-    <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
+    <.display_section title="simple modal">
       <.modal :let={setup} id="modal-0" class="ui-not-open:hidden">
         <:trigger class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600">
           Show Modal
@@ -35,14 +36,13 @@ defmodule SproutWeb.ModalLive do
           <:close class="absolute top-3 right-3 text-slate-600 hover:text-slate-900">&times;</:close>
         </.modal_body>
       </.modal>
-    </section>
+    </.display_section>
     """
   end
 
   defp customized_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">customized modal</h3>
-    <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
+    <.display_section title="customized example">
       <.modal :let={setup} id="modal-1" class="ui-not-open:hidden">
         <:trigger :let={setup} as_child>
           <button
@@ -95,14 +95,13 @@ defmodule SproutWeb.ModalLive do
           </:close>
         </.modal_body>
       </.modal>
-    </section>
+    </.display_section>
     """
   end
 
   defp transition_example(assigns) do
     ~H"""
-    <h3 class="mb-2 font-medium">with transition</h3>
-    <section class="mb-4 min-w-max border border-slate-500 rounded-md p-4">
+    <.display_section title="with transition">
       <.modal :let={setup} id="modal-2">
         <:trigger :let={setup} as_child>
           <button
@@ -203,7 +202,7 @@ defmodule SproutWeb.ModalLive do
           </.modal_body>
         </.transition>
       </.modal>
-    </section>
+    </.display_section>
     """
   end
 end
