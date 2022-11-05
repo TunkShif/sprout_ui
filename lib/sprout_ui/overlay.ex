@@ -98,8 +98,8 @@ defmodule SproutUI.Overlay do
           "role" => "dialog",
           "data-ui-state" => state,
           "data-part" => "container",
-          "aria-model" => "true",
-          "aria-labelledby" => "#{id}-titile",
+          "aria-modal" => "true",
+          "aria-labelledby" => "#{id}-title",
           "aria-describedby" => "#{id}-content",
           "tabindex" => "-1",
           "phx-click-away" => close_modal_op,
@@ -117,6 +117,8 @@ defmodule SproutUI.Overlay do
       },
       close: %{
         attrs: %{
+          "role" => "button",
+          "aria-label" => "Modal close button",
           "phx-click" => close_modal_op
         },
         close_modal: close_modal_op
