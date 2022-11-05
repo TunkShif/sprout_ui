@@ -5,7 +5,7 @@ import Config
 config :sprout, SproutWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "BxS30mhnRal2mT5SwxrKSiWdh1Pz5/1fu5icIX3I/+ncAz059HV1gXWm6G8DX167",
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn

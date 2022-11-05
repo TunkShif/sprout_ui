@@ -44,6 +44,7 @@ defmodule Sprout.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:heroicons, "~> 0.5.0"},
+      {:wallaby, "~> 0.30.0", runtime: false, only: :test},
       {:sprout_ui, path: "../"}
     ]
   end
@@ -57,6 +58,7 @@ defmodule Sprout.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
+      test: ["tailwind default", "esbuild default", "test"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
   end
