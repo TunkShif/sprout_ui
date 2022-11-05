@@ -126,27 +126,6 @@ defmodule SproutUI.Utility do
     """
   end
 
-  defp transform_middleware(:offset, value) when is_integer(value), do: [:offset, value]
-
-  defp transform_middleware(:offset, {main, cross}) when is_integer(main) and is_integer(cross),
-    do: [
-      :offset,
-      %{
-        "mainAxis" => main,
-        "crossAxis" => cross
-      }
-    ]
-
-  defp transform_middleware(:shift, {main, cross}) when is_integer(main) and is_integer(cross),
-    do: [
-      :shift,
-      %{
-        "mainAxis" => main,
-        "crossAxis" => cross
-      }
-    ]
-
-  # TODO: more middleware 
-  defp transform_middleware(:shift, _), do: [:shift, %{}]
-  # defp transform_middleware(name, _) when is_atom(name), do: {name, true}
+  defp transform_middleware(name, true) when is_atom(name), do: [name, %{}]
+  defp transform_middleware(name, option) when is_atom(name), do: [name, option]
 end

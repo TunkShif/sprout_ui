@@ -3,43 +3,21 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  # TODO: rewriting docs
-
   @on_modal_init_event "sprt:modal:init"
   @on_modal_open_event "sprt:modal:open"
   @on_modal_close_event "sprt:modal:close"
 
-  attr :id, :string,
-    default: "modal",
-    doc: "The DOM identifier of the modal container tag"
+  attr :id, :string, default: "modal"
+  attr :is_open, :boolean, default: false
+  attr :on_open, JS, default: %JS{}
+  attr :on_close, JS, default: %JS{}
+  attr :disable_scrolling, :boolean, default: true
+  attr :await_close_animation, :boolean, default: false
+  attr :rest, :global
 
-  attr :is_open, :boolean,
-    default: false,
-    doc: "The initial state of the modal"
-
-  attr :on_open, JS,
-    default: %JS{},
-    doc: "JS command executed when opening the modal"
-
-  attr :on_close, JS,
-    default: %JS{},
-    doc: "JS command executed when closing the modal"
-
-  attr :disable_scrolling, :boolean,
-    default: true,
-    doc: "Whether to disable page scrolling when modal is opened"
-
-  attr :await_close_animation, :boolean,
-    default: false,
-    doc: "Whether to await closing animation"
-
-  attr :rest, :global, doc: "Additional HTML attributes added to the modal tag"
-
-  slot(:trigger, required: false, doc: "The trigger to open the modal, usually a `button` element") do
-    attr :class, :string, doc: "Classes added to the trigger button element"
-
-    attr :as_child, :boolean,
-      doc: "Use the an HTML element or custom component as the slot content"
+  slot(:trigger, required: false) do
+    attr :class, :string
+    attr :as_child, :boolean
   end
 
   slot(:inner_block, required: true)
@@ -156,25 +134,20 @@ defmodule SproutUI.Overlay do
   attr :setup, :any, required: true
   attr :rest, :global
 
-  slot(:title,
-    requied: false,
-    doc: "The header section of the modal, rendered inside the modal container"
-  ) do
-    attr :class, :string, doc: "Classes added to the title tag"
+  slot(:title, requied: false) do
+    attr :class, :string
 
-    attr :as_child, :boolean,
-      doc: "Use the an HTML element or custom component as the slot content"
+    attr :as_child, :boolean
   end
 
-  slot(:content, required: true, doc: "The content rendered inside the modal container") do
-    attr :class, :string, doc: "Classes added to the modal **container** tag"
+  slot(:content, required: true) do
+    attr :class, :string
   end
 
-  slot(:close, required: false, doc: "The button to close the modal") do
-    attr :class, :string, doc: "Classes added to the button element"
+  slot(:close, required: false) do
+    attr :class, :string
 
-    attr :as_child, :boolean,
-      doc: "Use the an HTML element or custom component as the slot content"
+    attr :as_child, :boolean
   end
 
   def modal_body(assigns) do

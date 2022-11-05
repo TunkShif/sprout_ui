@@ -49,6 +49,14 @@ class FloatingElement extends HTMLElement {
 
   get middleware() {
     const middlewares = JSON.parse(this.dataset.middleware || "[]") as [string, unknown][];
+
+    const arrow = middlewares.find(([name]) => name === "arrow") as [string, any];
+    if (arrow) {
+      const element = arrow[1]["element"];
+      arrow[1]["element"] = document.querySelector(element);
+    }
+    console.log(middlewares);
+
     return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
   }
 

@@ -19,6 +19,7 @@ defmodule SproutWeb.FloatingLive do
     ~H"""
     <.placement_example placement={@placement} />
     <.shift_example />
+    <.flip_example />
     """
   end
 
@@ -67,7 +68,7 @@ defmodule SproutWeb.FloatingLive do
         <.floating
           anchor="#dashed-box-1"
           placement="right"
-          middleware={[offset: 12, shift: true]}
+          middleware={[offset: 12, shift: %{"rootBoundary" => "document"}]}
           class="ui-not-active:hidden absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
           is_active
         >
@@ -85,6 +86,40 @@ defmodule SproutWeb.FloatingLive do
         })
       </script>
     </.display_section>
+    """
+  end
+
+  defp flip_example(assigns) do
+    ~H"""
+    <.display_section title="flip example">
+      <div
+        class="relative h-[400px] grid place-items-center overflow-hidden overflow-y-auto"
+        phx-mounted={JS.dispatch("test:floating:scroll")}
+      >
+        <div class="h-[360px] w-1"></div>
+        <div
+          id="dashed-box-2"
+          class="inline-block h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+        >
+        </div>
+        <.floating
+          anchor="#dashed-box-2"
+          placement="top"
+          middleware={[offset: 12, flip: true]}
+          class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-white rounded"
+          is_active
+        >
+          Tooltip
+        </.floating>
+        <div class="h-[360px] w-1"></div>
+      </div>
+    </.display_section>
+    """
+  end
+
+  defp arrow_example(assigns) do
+    ~H"""
+
     """
   end
 
