@@ -4,14 +4,18 @@ defmodule SproutWeb.ModalLive do
 
   import SproutWeb.LiveHelper
 
-  def mount(_params, _session, socket) do
-    socket = assign(socket, :title, "Modal")
+  def mount(params, _session, socket) do
+    socket =
+      socket
+      |> assign(:title, "Modal")
+      |> assign(:is_open, params["default_open"] == "true")
+
     {:ok, socket}
   end
 
   def render(assigns) do
     ~H"""
-    <.simple_example />
+    <.simple_example is_open={@is_open} />
     <.customized_example />
     <.transition_example />
     """
@@ -20,7 +24,7 @@ defmodule SproutWeb.ModalLive do
   defp simple_example(assigns) do
     ~H"""
     <.display_section title="simple modal">
-      <.modal :let={setup} id="modal-0" class="ui-not-open:hidden">
+      <.modal :let={setup} is_open={@is_open} id="modal-0" class="ui-not-open:hidden">
         <:trigger class="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md shadow-lg outline-none ring-0 focus:outline-offset-1 focus:outline-2 focus:outline-emerald-600">
           Show Modal
         </:trigger>

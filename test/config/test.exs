@@ -12,3 +12,11 @@ config :logger, level: :warn
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :wallaby,
+  otp_app: :sprout,
+  driver: Wallaby.Chrome,
+  chromedriver: [
+    binary: "/usr/bin/google-chrome-stable",
+    path: Path.expand("../_build/chromedriver", __DIR__)
+  ]
