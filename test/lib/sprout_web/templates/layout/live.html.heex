@@ -1,6 +1,6 @@
 <main class="max-w-5xl mx-auto py-12 px-16">
   <h1 class="mb-8 text-2xl font-bold">
-    <.link navigate={Routes.page_path(@socket, :index)}>
+    <.link navigate={Routes.live_path(@socket, SproutWeb.IndexLive)}>
       <%= "#{assigns[:title] || "Sprout UI"}" %>
     </.link>
   </h1>

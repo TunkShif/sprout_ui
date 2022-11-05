@@ -599,6 +599,12 @@ var SproutUI = (() => {
     }
     get middleware() {
       const middlewares = JSON.parse(this.dataset.middleware || "[]");
+      const arrow = middlewares.find(([name]) => name === "arrow");
+      if (arrow) {
+        const element = arrow[1]["element"];
+        arrow[1]["element"] = document.querySelector(element);
+      }
+      console.log(middlewares);
       return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
     }
     start() {
@@ -678,37 +684,38 @@ var SproutUI = (() => {
   };
 
   // js/sprout_ui/components/transition.ts
-  var getTransitionClasses = (el) => Object.fromEntries(
-    ["enter", "leave"].map((v4) => [v4, `${v4}From`, `${v4}To`]).flat().map((key) => {
-      var _a, _b, _c;
-      return [key, (_c = (_b = (_a = el.dataset[key]) == null ? void 0 : _a.split(" ")) == null ? void 0 : _b.filter(Boolean)) != null ? _c : []];
-    })
-  );
-  var Hook = {
-    getConfig() {
-      const config = JSON.parse(this.el.dataset.observing);
-      const classes = getTransitionClasses(this.el);
-      config.options.classes = classes;
-      return config;
-    },
-    mounted() {
-      const config = this.getConfig();
-      const observing = document.querySelector(config.on) || this.el;
-      this.cleanup = v3(this.el, observing, config.options);
-    },
-    destroyed() {
-      var _a;
-      (_a = this.cleanup) == null ? void 0 : _a.call(this);
+  var Transition = class {
+    constructor(element, config) {
+      __publicField(this, "cleanup");
+      __publicField(this, "element");
+      __publicField(this, "config");
+      this.element = element;
+      this.config = config;
+    }
+    init() {
+      const observing = document.querySelector(this.config.on) || this.element;
+      this.cleanup = v3(this.element, observing, this.config.options);
     }
   };
-  var transition = (opts) => ({
-    hook: () => {
+  var init3 = () => {
+    const transitions = /* @__PURE__ */ new WeakMap();
+    window.addEventListener("sprt:transition:init", (e2) => {
+      const { target, detail } = e2;
+      const transition2 = new Transition(target, detail);
+      transitions.set(target, transition2);
+      transition2.init();
+    });
+    window.addEventListener("sprt:transition:cleanup", (e2) => {
       var _a;
-      const name = (_a = opts == null ? void 0 : opts.hook) != null ? _a : "Transition";
-      return { [name]: Hook };
-    },
+      const { target } = e2;
+      const transition2 = transitions.get(target);
+      (_a = transition2 == null ? void 0 : transition2.cleanup) == null ? void 0 : _a.call(transition2);
+    });
+  };
+  var transition = () => ({
+    init: init3,
     handleDomChange: (from, to) => {
-      if (from.dataset.observing) {
+      if (from.hasAttribute("data-transition")) {
         if (from.getAttribute("style") === null) {
           to.removeAttribute("style");
         } else {

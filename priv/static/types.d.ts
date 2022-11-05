@@ -1,10 +1,12 @@
-interface LiveViewHook {
-    el: HTMLElement;
-    mounted(): void;
-    updated?(): void;
-    destroyed?(): void;
-    disconnected?(): void;
-    reconnected?(): void;
+declare global {
+    class LiveViewHook {
+        el: HTMLElement;
+        mounted(): void;
+        updated?(): void;
+        destroyed?(): void;
+        disconnected?(): void;
+        reconnected?(): void;
+    }
 }
 export interface SproutComponent {
     init?: () => void;
@@ -24,4 +26,3 @@ export declare type SproutEvent<T = unknown> = CustomEvent<T> & {
 export interface SproutHook extends LiveViewHook {
     getConfig(): unknown;
 }
-export {};

@@ -1,13 +1,15 @@
 defmodule SproutUI.Utility do
   use Phoenix.Component
 
+  alias Phoenix.LiveView.JS
+
+  @on_transition_init_event "sprt:transition:init"
+  @on_transition_cleanup_event "sprt:transition:cleanup"
+
   @default_observed_attribute "data-ui-state"
   @default_observed_states {"show", ""}
 
-  attr :id, :string, default: "transition-wrapper"
-  attr :hook, :string, default: "Transition"
-
-  attr :observing, :list, default: [on: :self]
+  attr :observing, :list, default: []
   attr :initial_state, :string, default: ""
   attr :enter, :string, required: true
   attr :enter_from, :string, required: true
@@ -27,42 +29,43 @@ defmodule SproutUI.Utility do
     observed_states = assigns.observing[:states]
 
     # transition state is only applied when `as_child` is not used
-    transition_state = if initial_state && observed_element == :self, do: initial_state
+    transition_state = if initial_state && observed_element == nil, do: initial_state
 
-    observing = %{
-      "on" =>
-        if(observed_element == :self || observed_element == nil,
-          do: assigns.id,
-          else: observed_element
-        ),
+    transition_classes =
+      %{
+        "enter" => assigns.enter,
+        "enterFrom" => assigns.enter_from,
+        "enterTo" => assigns.enter_to,
+        "leave" => assigns.leave,
+        "leaveFrom" => assigns.leave_from,
+        "leaveTo" => assigns.leave_to
+      }
+      |> Enum.map(fn {key, val} -> {key, String.split(val)} end)
+      |> Map.new()
+
+    init_event_detail = %{
+      "on" => observed_element,
       "options" => %{
         "attribute" => observed_attribute || @default_observed_attribute,
         "stages" => %{
           "enter" => elem(observed_states || @default_observed_states, 0),
           "leave" => elem(observed_states || @default_observed_states, 1)
-        }
+        },
+        "classes" => transition_classes
       }
     }
 
-    hidden = if initial_state == observing["options"]["stages"]["leave"], do: true
+    hidden = if initial_state == init_event_detail["options"]["stages"]["leave"], do: true
 
     setup = %{
       attrs: %{
-        "phx-hook" => assigns.hook,
-        "data-observing" => Jason.encode!(observing),
-        "data-enter" => assigns.enter,
-        "data-enter-from" => assigns.enter_from,
-        "data-enter-to" => assigns.enter_to,
-        "data-leave" => assigns.leave,
-        "data-leave-from" => assigns.leave_from,
-        "data-leave-to" => assigns.leave_to,
+        "phx-mounted" => JS.dispatch(@on_transition_init_event, detail: init_event_detail),
+        "phx-remove" => JS.dispatch(@on_transition_cleanup_event),
         "hidden" => hidden,
-        observing["options"]["attribute"] => transition_state
+        init_event_detail["options"]["attribute"] => transition_state,
+        "data-transition" => true
       }
     }
-
-    # only include id attribute when `as_child` is not used
-    setup = unless assigns.as_child, do: put_in(setup, [:attrs, "id"], assigns.id), else: setup
 
     assigns = assigns |> assign(:setup, setup)
 

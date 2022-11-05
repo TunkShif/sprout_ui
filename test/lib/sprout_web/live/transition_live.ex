@@ -55,7 +55,6 @@ defmodule SproutWeb.TransitionLive do
       <div class="flex flex-col items-center">
         <div class="h-32 w-32">
           <.transition
-            id="transition-wrapper-1"
             initial_state={@box_state}
             class="h-32 w-32 bg-emerald-500 rounded-md shadow-lg"
             enter="transform transition duration-[400ms]"
@@ -93,7 +92,6 @@ defmodule SproutWeb.TransitionLive do
         State: <span id="text-0"><%= if @text_state == "", do: "hidden", else: @text_state %></span>
       </div>
       <.transition
-        id="transition-wrapper-2"
         observing={[on: "#text-state", attr: "data-text-state"]}
         initial_state=""
         enter="transition-opacity duration-300"

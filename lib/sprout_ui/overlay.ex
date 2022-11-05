@@ -26,14 +26,14 @@ defmodule SproutUI.Overlay do
     id = assigns.id
     state = if assigns.is_open, do: "open", else: ""
 
-    modal_init_event_detail = %{
+    init_event_detail = %{
       options: %{
         "disableScrolling" => assigns.disable_scrolling,
         "awaitCloseAnimation" => assigns.await_close_animation
       }
     }
 
-    init_modal_op = JS.dispatch(@on_modal_init_event, detail: modal_init_event_detail)
+    init_modal_op = JS.dispatch(@on_modal_init_event, detail: init_event_detail)
 
     open_modal_op =
       assigns.on_open

@@ -1,44 +1,53 @@
 import { createTransitionObserever, TransitionOptions } from "@tunkshif/vanilla-transition";
-import type { TransitionClasses } from "@tunkshif/vanilla-transition";
-import type { SproutHook, SproutComponentSetup } from "../types";
+import type { SproutComponentSetup, SproutEvent } from "../types";
 
 interface TransitionConfig {
   on: string;
   options: TransitionOptions;
 }
 
-const getTransitionClasses = (el: HTMLElement) =>
-  Object.fromEntries(
-    ["enter", "leave"]
-      .map(v => [v, `${v}From`, `${v}To`])
-      .flat()
-      .map(key => [key, el.dataset[key]?.split(" ")?.filter(Boolean) ?? []] as const)
-  ) as TransitionClasses;
+type TransitionInitEvent = SproutEvent<TransitionConfig>;
 
-const Hook = {
-  getConfig() {
-    const config = JSON.parse(this.el.dataset.observing) as TransitionConfig;
-    const classes = getTransitionClasses(this.el);
-    config.options.classes = classes;
-    return config;
-  },
-  mounted() {
-    const config = this.getConfig() as TransitionConfig;
-    const observing = document.querySelector<HTMLElement>(config.on) || this.el;
-    this.cleanup = createTransitionObserever(this.el, observing, config.options);
-  },
-  destroyed() {
-    this.cleanup?.();
+class Transition {
+  cleanup?: () => void;
+
+  private element: HTMLElement;
+  private config: TransitionConfig;
+
+  constructor(element: HTMLElement, config: TransitionConfig) {
+    this.element = element;
+    this.config = config;
   }
-} as SproutHook;
 
-const transition: SproutComponentSetup = opts => ({
-  hook: () => {
-    const name = opts?.hook ?? "Transition";
-    return { [name]: Hook };
-  },
+  init() {
+    const observing = document.querySelector<HTMLElement>(this.config.on) || this.element;
+    this.cleanup = createTransitionObserever(this.element, observing, this.config.options);
+  }
+}
+
+const init = () => {
+  const transitions = new WeakMap<Element, Transition>();
+
+  window.addEventListener("sprt:transition:init", e => {
+    const { target, detail } = e as TransitionInitEvent;
+    const transition = new Transition(target, detail);
+    transitions.set(target, transition);
+
+    transition.init();
+  });
+
+  window.addEventListener("sprt:transition:cleanup", e => {
+    const { target } = e as SproutEvent;
+    const transition = transitions.get(target);
+
+    transition?.cleanup?.();
+  });
+};
+
+const transition: SproutComponentSetup = () => ({
+  init,
   handleDomChange: (from, to) => {
-    if (from.dataset.observing) {
+    if (from.hasAttribute("data-transition")) {
       if (from.getAttribute("style") === null) {
         to.removeAttribute("style");
       } else {
