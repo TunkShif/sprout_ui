@@ -11,15 +11,20 @@ const MIDDLEWARES = {
 
 class FloatingElement extends HTMLElement {
   active: boolean = false;
+
+  private anchorEl: HTMLElement | null | undefined;
   private arrowEl: HTMLElement | undefined;
+  private middleware: Middleware[];
   private cleanup: ReturnType<typeof autoUpdate> | undefined;
 
   static get observedAttributes() {
-    return ["data-ui-state", "data-placement", "data-middleware"];
+    return ["data-ui-state", "data-placement"];
   }
 
   constructor() {
     super();
+    this.anchorEl = this.getAnchorEl();
+    this.middleware = this.getMiddleware();
   }
 
   connectedCallback() {
@@ -40,16 +45,16 @@ class FloatingElement extends HTMLElement {
     }
   }
 
-  get anchor() {
-    if (!this.dataset.anchor) return null;
-    return document.querySelector<HTMLElement>(this.dataset.anchor);
-  }
-
   get placement() {
     return (this.dataset.placement || "bottom") as Placement;
   }
 
-  get middleware() {
+  private getAnchorEl() {
+    if (!this.dataset.anchor) return null;
+    return document.querySelector<HTMLElement>(this.dataset.anchor);
+  }
+
+  private getMiddleware() {
     const middlewares = JSON.parse(this.dataset.middleware || "[]") as [string, unknown][];
 
     const arrow = middlewares.find(([name]) => name === "arrow") as [string, any];
@@ -63,8 +68,8 @@ class FloatingElement extends HTMLElement {
   }
 
   private start() {
-    if (!this.anchor) return;
-    this.cleanup = autoUpdate(this.anchor, this, this.update.bind(this));
+    if (!this.anchorEl) return;
+    this.cleanup = autoUpdate(this.anchorEl, this, this.update.bind(this));
   }
 
   private stop() {
@@ -72,9 +77,9 @@ class FloatingElement extends HTMLElement {
   }
 
   private update() {
-    if (!this.active || !this.anchor) return;
+    if (!this.active || !this.anchorEl) return;
 
-    computePosition(this.anchor, this, {
+    computePosition(this.anchorEl, this, {
       placement: this.placement,
       middleware: this.middleware
     }).then(({ x, y, placement, middlewareData }) => {

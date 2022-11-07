@@ -496,11 +496,15 @@ var FloatingElement = class extends HTMLElement {
   constructor() {
     super();
     __publicField(this, "active", false);
+    __publicField(this, "anchorEl");
     __publicField(this, "arrowEl");
+    __publicField(this, "middleware");
     __publicField(this, "cleanup");
+    this.anchorEl = this.getAnchorEl();
+    this.middleware = this.getMiddleware();
   }
   static get observedAttributes() {
-    return ["data-ui-state", "data-placement", "data-middleware"];
+    return ["data-ui-state", "data-placement"];
   }
   connectedCallback() {
     this.start();
@@ -516,15 +520,15 @@ var FloatingElement = class extends HTMLElement {
       this.update();
     }
   }
-  get anchor() {
+  get placement() {
+    return this.dataset.placement || "bottom";
+  }
+  getAnchorEl() {
     if (!this.dataset.anchor)
       return null;
     return document.querySelector(this.dataset.anchor);
   }
-  get placement() {
-    return this.dataset.placement || "bottom";
-  }
-  get middleware() {
+  getMiddleware() {
     const middlewares = JSON.parse(this.dataset.middleware || "[]");
     const arrow = middlewares.find(([name]) => name === "arrow");
     if (arrow) {
@@ -535,18 +539,18 @@ var FloatingElement = class extends HTMLElement {
     return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
   }
   start() {
-    if (!this.anchor)
+    if (!this.anchorEl)
       return;
-    this.cleanup = z(this.anchor, this, this.update.bind(this));
+    this.cleanup = z(this.anchorEl, this, this.update.bind(this));
   }
   stop() {
     var _a;
     (_a = this.cleanup) == null ? void 0 : _a.call(this);
   }
   update() {
-    if (!this.active || !this.anchor)
+    if (!this.active || !this.anchorEl)
       return;
-    A(this.anchor, this, {
+    A(this.anchorEl, this, {
       placement: this.placement,
       middleware: this.middleware
     }).then(({ x: x3, y: y3, placement, middlewareData }) => {
