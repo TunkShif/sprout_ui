@@ -238,6 +238,18 @@ var SproutUI = (() => {
   function u(t2, e2, n3) {
     return f(t2, c(e2, n3));
   }
+  var m = (t2) => ({ name: "arrow", options: t2, fn(i3) {
+    return __async(this, null, function* () {
+      const { element: o3, padding: l3 = 0 } = null != t2 ? t2 : {}, { x: s3, y: c3, placement: f3, rects: m3, platform: g3 } = i3;
+      if (null == o3)
+        return {};
+      const d4 = a(l3), p3 = { x: s3, y: c3 }, h3 = n(f3), y3 = e(f3), x3 = r(h3), w3 = yield g3.getDimensions(o3), v4 = "y" === h3 ? "top" : "left", b3 = "y" === h3 ? "bottom" : "right", R2 = m3.reference[x3] + m3.reference[h3] - p3[h3] - m3.floating[x3], A2 = p3[h3] - m3.reference[h3], P2 = yield null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(o3);
+      let T3 = P2 ? "y" === h3 ? P2.clientHeight || 0 : P2.clientWidth || 0 : 0;
+      0 === T3 && (T3 = m3.floating[x3]);
+      const O2 = R2 / 2 - A2 / 2, L3 = d4[v4], D3 = T3 - w3[x3] - d4[b3], k2 = T3 / 2 - w3[x3] / 2 + O2, E3 = u(L3, k2, D3), C2 = ("start" === y3 ? d4[v4] : d4[b3]) > 0 && k2 !== E3 && m3.reference[x3] <= m3.floating[x3];
+      return { [h3]: p3[h3] - (C2 ? k2 < L3 ? L3 - k2 : D3 - k2 : 0), data: { [h3]: E3, centerOffset: k2 - E3 } };
+    });
+  } });
   var g = { left: "right", right: "left", bottom: "top", top: "bottom" };
   function d(t2) {
     return t2.replace(/left|right|bottom|top/g, (t3) => g[t3]);
@@ -564,12 +576,14 @@ var SproutUI = (() => {
   var MIDDLEWARES = {
     offset: T,
     shift: L,
-    flip: b
+    flip: b,
+    arrow: m
   };
   var FloatingElement = class extends HTMLElement {
     constructor() {
       super();
       __publicField(this, "active", false);
+      __publicField(this, "arrowEl");
       __publicField(this, "cleanup");
     }
     static get observedAttributes() {
@@ -602,9 +616,9 @@ var SproutUI = (() => {
       const arrow = middlewares.find(([name]) => name === "arrow");
       if (arrow) {
         const element = arrow[1]["element"];
-        arrow[1]["element"] = document.querySelector(element);
+        this.arrowEl = this.querySelector(element);
+        arrow[1]["element"] = this.arrowEl;
       }
-      console.log(middlewares);
       return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
     }
     start() {
@@ -622,11 +636,27 @@ var SproutUI = (() => {
       A(this.anchor, this, {
         placement: this.placement,
         middleware: this.middleware
-      }).then(({ x: x3, y: y3 }) => {
+      }).then(({ x: x3, y: y3, placement, middlewareData }) => {
         Object.assign(this.style, {
           left: `${x3}px`,
           top: `${y3}px`
         });
+        if (middlewareData.arrow && this.arrowEl) {
+          const { x: arrowX, y: arrowY } = middlewareData.arrow;
+          const staticSide = {
+            top: "bottom",
+            right: "left",
+            bottom: "top",
+            left: "right"
+          }[placement.split("-")[0]];
+          Object.assign(this.arrowEl.style, {
+            left: arrowX != null ? `${arrowX}px` : "",
+            top: arrowY != null ? `${arrowY}px` : "",
+            right: "",
+            bottom: "",
+            [staticSide]: "-4px"
+          });
+        }
       });
     }
   };

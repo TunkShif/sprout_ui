@@ -111,7 +111,6 @@ defmodule SproutUI.Utility do
     middleware = assigns.middleware |> Enum.map(fn {k, v} -> transform_middleware(k, v) end)
 
     setup = %{
-      element: assigns.element,
       attrs: %{
         "data-ui-state" => state,
         "data-anchor" => assigns.anchor,
@@ -123,7 +122,7 @@ defmodule SproutUI.Utility do
     assigns = assigns |> assign(:setup, setup)
 
     ~H"""
-    <.dynamic_tag name={@setup.element} {@setup.attrs} {@rest}>
+    <.dynamic_tag name={@element} {@setup.attrs} {@rest}>
       <%= render_slot(@inner_block) %>
     </.dynamic_tag>
     """

@@ -1,15 +1,17 @@
-import { autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom";
+import { autoUpdate, computePosition, flip, offset, shift, arrow } from "@floating-ui/dom";
 import type { Middleware, Placement } from "@floating-ui/dom";
 import type { SproutComponentSetup } from "../types";
 
 const MIDDLEWARES = {
   offset,
   shift,
-  flip
+  flip,
+  arrow
 } as { [key: string]: (options: unknown) => Middleware };
 
 class FloatingElement extends HTMLElement {
   active: boolean = false;
+  private arrowEl: HTMLElement | undefined;
   private cleanup: ReturnType<typeof autoUpdate> | undefined;
 
   static get observedAttributes() {
@@ -53,9 +55,9 @@ class FloatingElement extends HTMLElement {
     const arrow = middlewares.find(([name]) => name === "arrow") as [string, any];
     if (arrow) {
       const element = arrow[1]["element"];
-      arrow[1]["element"] = document.querySelector(element);
+      this.arrowEl = this.querySelector(element);
+      arrow[1]["element"] = this.arrowEl;
     }
-    console.log(middlewares);
 
     return middlewares.map(([name, options]) => MIDDLEWARES[name](options));
   }
@@ -75,11 +77,30 @@ class FloatingElement extends HTMLElement {
     computePosition(this.anchor, this, {
       placement: this.placement,
       middleware: this.middleware
-    }).then(({ x, y }) => {
+    }).then(({ x, y, placement, middlewareData }) => {
       Object.assign(this.style, {
         left: `${x}px`,
         top: `${y}px`
       });
+
+      if (middlewareData.arrow && this.arrowEl) {
+        const { x: arrowX, y: arrowY } = middlewareData.arrow;
+
+        const staticSide = {
+          top: "bottom",
+          right: "left",
+          bottom: "top",
+          left: "right"
+        }[placement.split("-")[0]] as string;
+
+        Object.assign(this.arrowEl.style, {
+          left: arrowX != null ? `${arrowX}px` : "",
+          top: arrowY != null ? `${arrowY}px` : "",
+          right: "",
+          bottom: "",
+          [staticSide]: "-4px"
+        });
+      }
     });
   }
 }

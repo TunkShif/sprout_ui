@@ -20,6 +20,7 @@ defmodule SproutWeb.FloatingLive do
     <.placement_example placement={@placement} />
     <.shift_example />
     <.flip_example />
+    <.arrow_example />
     """
   end
 
@@ -72,8 +73,8 @@ defmodule SproutWeb.FloatingLive do
           class="ui-not-active:hidden absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
           is_active
         >
-          <h3 class="mb-2 text-lg font-medium">Popover</h3>
-          <p class="leading-relaxed">
+          <h3 class="mb-2 font-medium">Popover</h3>
+          <p class="text-sm leading-relaxed">
             Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi.
             Lorem pariatur mollit ex esse exercitation amet.
           </p>
@@ -106,7 +107,7 @@ defmodule SproutWeb.FloatingLive do
           anchor="#dashed-box-2"
           placement="top"
           middleware={[offset: 12, flip: true]}
-          class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-white rounded"
+          class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
           is_active
         >
           Tooltip
@@ -119,7 +120,26 @@ defmodule SproutWeb.FloatingLive do
 
   defp arrow_example(assigns) do
     ~H"""
-
+    <.display_section title="arrow example">
+      <div class="relative flex justify-center items-center h-48 overflow-hidden">
+        <div
+          id="dashed-box-3"
+          class="grid place-items-center cursor-pointer h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+        >
+          Hover Me
+        </div>
+        <.floating
+          anchor="#dashed-box-3"
+          placement="top"
+          middleware={[offset: 12, arrow: %{element: "#arrow"}]}
+          class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
+          is_active
+        >
+          Tooltip
+          <div id="arrow" class="absolute w-2 h-2 bg-gray-700 rotate-45"></div>
+        </.floating>
+      </div>
+    </.display_section>
     """
   end
 
