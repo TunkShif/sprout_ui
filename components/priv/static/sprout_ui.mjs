@@ -19,42 +19,70 @@ var global = () => ({
 var global_default = global;
 
 // js/sprout_ui/components/modal.ts
-var Modal = class {
-  constructor(el, options) {
-    __publicField(this, "modal");
-    __publicField(this, "disableScrolling");
-    __publicField(this, "awaitCloseAnimation");
-    this.modal = el;
-    this.disableScrolling = options.disableScrolling;
-    this.awaitCloseAnimation = options.awaitCloseAnimation;
+var ModalElement = class extends HTMLElement {
+  constructor() {
+    super();
+    __publicField(this, "open", false);
+    __publicField(this, "disableScrolling", true);
+    __publicField(this, "containerEl");
+    __publicField(this, "handleClick", (e2) => {
+      var _a, _b;
+      const target = e2.target;
+      if (!(((_a = this.containerEl) == null ? void 0 : _a.isSameNode(target)) || ((_b = this.containerEl) == null ? void 0 : _b.contains(target)))) {
+        this.dataset.uiState = "";
+        this.execOnCloseJs();
+        document.removeEventListener("click", this.handleClick);
+      }
+    });
+    __publicField(this, "handleKeyDown", (e2) => {
+      const key = e2.key;
+      if (key === "Escape" || key === "Esc") {
+        this.dataset.uiState = "";
+        this.execOnCloseJs();
+        document.removeEventListener("keydown", this.handleKeyDown);
+      }
+    });
+    this.disableScrolling = Boolean(this.dataset.disableScrolling) || this.disableScrolling;
+    this.containerEl = this.getContainerEl();
   }
-  open() {
-    this.parts.forEach((el) => el == null ? void 0 : el.setAttribute("data-ui-state", "open"));
-    this.toggleScrolling("off");
+  static get observedAttributes() {
+    return ["data-ui-state"];
   }
-  close() {
-    var _a, _b;
-    (_a = this.overlay) == null ? void 0 : _a.setAttribute("data-ui-state", "");
-    (_b = this.container) == null ? void 0 : _b.setAttribute("data-ui-state", "");
-    this.toggleScrolling("on");
-    if (this.awaitCloseAnimation) {
-      const handler = () => {
-        this.modal.setAttribute("data-ui-state", "");
-        this.modal.removeEventListener("animationend", handler, false);
-      };
-      this.modal.addEventListener("animationend", handler, false);
+  connectedCallback() {
+    this.update();
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue)
+      return;
+    if (name === "data-ui-state") {
+      this.open = newValue === "open";
+    }
+    this.update();
+  }
+  getContainerEl() {
+    return this.querySelector("[data-part=container]");
+  }
+  update() {
+    if (this.open) {
+      this.execOnOpenJs();
+      this.toggleScrolling("off");
+      document.addEventListener("click", this.handleClick);
+      document.addEventListener("keydown", this.handleKeyDown);
     } else {
-      this.modal.setAttribute("data-ui-state", "");
+      this.toggleScrolling("on");
+      document.removeEventListener("click", this.handleClick);
+      document.removeEventListener("keydown", this.handleKeyDown);
     }
   }
-  get overlay() {
-    return this.modal.querySelector(`[data-part=overlay]`);
+  execOnOpenJs() {
+    if (this.dataset.onOpenJs) {
+      window.liveSocket.execJS(this, this.dataset.onOpenJs);
+    }
   }
-  get container() {
-    return this.modal.querySelector(`[data-part=container]`);
-  }
-  get parts() {
-    return [this.modal, this.overlay, this.container];
+  execOnCloseJs() {
+    if (this.dataset.onCloseJs) {
+      window.liveSocket.execJS(this, this.dataset.onCloseJs);
+    }
   }
   toggleScrolling(state) {
     if (!this.disableScrolling)
@@ -69,25 +97,11 @@ var Modal = class {
     }
   }
 };
-var init2 = () => {
-  const modals = /* @__PURE__ */ new WeakMap();
-  window.addEventListener("sprt:modal:init", (e2) => {
-    const { target, detail } = e2;
-    modals.set(target, new Modal(target, detail.options));
-  });
-  window.addEventListener("sprt:modal:open", (e2) => {
-    const { target } = e2;
-    const modal2 = modals.get(target);
-    modal2 == null ? void 0 : modal2.open();
-  });
-  window.addEventListener("sprt:modal:close", (e2) => {
-    const { target } = e2;
-    const modal2 = modals.get(target);
-    modal2 == null ? void 0 : modal2.close();
-  });
-};
-var modal = () => ({
-  init: init2
+var modal = (opts) => ({
+  init: () => {
+    const element = (opts == null ? void 0 : opts.element) || "sprt-modal";
+    customElements.define(element, ModalElement);
+  }
 });
 var modal_default = modal;
 
@@ -644,7 +658,7 @@ var Transition = class {
     this.cleanup = v3(this.element, observing, this.config.options);
   }
 };
-var init3 = () => {
+var init2 = () => {
   const transitions = /* @__PURE__ */ new WeakMap();
   window.addEventListener("sprt:transition:init", (e2) => {
     const { target, detail } = e2;
@@ -660,7 +674,7 @@ var init3 = () => {
   });
 };
 var transition = () => ({
-  init: init3,
+  init: init2,
   handleDomChange: (from, to) => {
     if (from.hasAttribute("data-transition")) {
       if (from.getAttribute("style") === null) {

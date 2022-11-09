@@ -29,5 +29,8 @@ window.addEventListener("phx:page-loading-start", info => topbar.delayedShow(200
 window.addEventListener("phx:page-loading-stop", info => topbar.hide());
 
 liveSocket.connect();
-
 window.liveSocket = liveSocket;
+
+window.addEventListener("test:floating:scroll", ({ target }) => {
+  target.scrollTo({ top: target.offsetHeight / 2 });
+});

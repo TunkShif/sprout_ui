@@ -79,11 +79,6 @@ defmodule SproutWeb.FloatingLive do
         </.floating>
         <div class="h-[360px] w-1"></div>
       </div>
-      <script>
-        window.addEventListener("test:floating:scroll", ({target}) => {
-          target.scrollTo({ top: target.offsetHeight / 2 })
-        })
-      </script>
     </.display_section>
     """
   end

@@ -3,6 +3,9 @@ lockfileVersion: 5.4
 specifiers:
   '@floating-ui/dom': ^1.0.4
   '@tunkshif/vanilla-transition': ^0.2.1
+  phoenix: file:../deps/phoenix
+  phoenix_html: file:../deps/phoenix_html
+  phoenix_live_view: file:../deps/phoenix_live_view
   prettier: ^2.7.1
   tailwindcss: ^3.2.1
   typescript: ^4.8.4
@@ -10,6 +13,9 @@ specifiers:
 dependencies:
   '@floating-ui/dom': 1.0.4
   '@tunkshif/vanilla-transition': 0.2.1
+  phoenix: file:../deps/phoenix
+  phoenix_html: file:../deps/phoenix_html
+  phoenix_live_view: file:../deps/phoenix_live_view
 
 devDependencies:
   prettier: 2.7.1
@@ -477,3 +483,21 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
     dev: true
+
+  file:../deps/phoenix:
+    resolution: {directory: ../deps/phoenix, type: directory}
+    name: phoenix
+    version: 1.7.0-rc.0
+    dev: false
+
+  file:../deps/phoenix_html:
+    resolution: {directory: ../deps/phoenix_html, type: directory}
+    name: phoenix_html
+    version: 3.2.0
+    dev: false
+
+  file:../deps/phoenix_live_view:
+    resolution: {directory: ../deps/phoenix_live_view, type: directory}
+    name: phoenix_live_view
+    version: 0.18.3
+    dev: false

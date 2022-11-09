@@ -13,7 +13,7 @@ class FloatingElement extends HTMLElement {
   active: boolean = false;
 
   private anchorEl: HTMLElement | null | undefined;
-  private arrowEl: HTMLElement | undefined;
+  private arrowEl: HTMLElement | null | undefined;
   private middleware: Middleware[];
   private cleanup: ReturnType<typeof autoUpdate> | undefined;
 
@@ -60,7 +60,7 @@ class FloatingElement extends HTMLElement {
     const arrow = middlewares.find(([name]) => name === "arrow") as [string, any];
     if (arrow) {
       const element = arrow[1]["element"];
-      this.arrowEl = this.querySelector(element);
+      this.arrowEl = this.querySelector<HTMLElement>(element);
       arrow[1]["element"] = this.arrowEl;
     }
 

@@ -1,6 +1,14 @@
 // FIXME: correctly typing hooks
 
 declare global {
+  class LiveSocket {
+    execJS(el: HTMLElement, js: string): void;
+  }
+
+  interface Window {
+    liveSocket: LiveSocket;
+  }
+
   class LiveViewHook {
     el: HTMLElement;
     mounted(): void;

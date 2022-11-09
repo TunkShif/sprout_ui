@@ -3,86 +3,39 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  @on_modal_init_event "sprt:modal:init"
-  @on_modal_open_event "sprt:modal:open"
-  @on_modal_close_event "sprt:modal:close"
-
   attr :id, :string, default: "modal"
-  attr :is_open, :boolean, default: false
+  attr :element, :string, default: "sprt-modal"
+  attr :open, :boolean, default: false
   attr :on_open, JS, default: %JS{}
   attr :on_close, JS, default: %JS{}
-  attr :disable_scrolling, :boolean, default: true
-  attr :await_close_animation, :boolean, default: false
   attr :rest, :global
-
-  slot :trigger, required: false do
-    attr :class, :string
-    attr :as_child, :boolean
-  end
 
   slot :inner_block, required: true
 
   def modal(assigns) do
     id = assigns.id
-    state = if assigns.is_open, do: "open", else: ""
-
-    init_event_detail = %{
-      options: %{
-        "disableScrolling" => assigns.disable_scrolling,
-        "awaitCloseAnimation" => assigns.await_close_animation
-      }
-    }
-
-    init_modal_op = JS.dispatch(@on_modal_init_event, detail: init_event_detail)
-
-    open_modal_op =
-      assigns.on_open
-      |> JS.dispatch(@on_modal_open_event, to: "##{id}")
-      |> JS.focus_first(to: ~s(##{id} [data-part=container]))
-
-    close_modal_op =
-      assigns.on_close
-      |> JS.dispatch(@on_modal_close_event, to: "##{id}")
+    state = if assigns.open, do: "open", else: ""
 
     setup = %{
       id: id,
-      trigger: %{
-        attrs: %{
-          "type" => "button",
-          "data-part" => "trigger",
-          "phx-click" => open_modal_op
-        },
-        open_modal: open_modal_op
-      },
       modal: %{
         attrs: %{
-          "id" => assigns.id,
+          "id" => id,
           "data-part" => "modal",
           "data-ui-state" => state,
-          "phx-mounted" => init_modal_op
-        }
-      },
-      overlay: %{
-        attrs: %{
-          "id" => "#{id}-overlay",
-          "data-ui-state" => state,
-          "data-part" => "overlay",
-          "aria-hidden" => "true"
+          "data-on-open-js" =>
+            assigns.on_open |> JS.focus_first(to: "##{id} [data-part=container]"),
+          "data-on-close-js" => assigns.on_close |> JS.pop_focus()
         }
       },
       container: %{
         attrs: %{
-          "id" => "#{id}-container",
           "role" => "dialog",
-          "data-ui-state" => state,
           "data-part" => "container",
           "aria-modal" => "true",
           "aria-labelledby" => "#{id}-title",
           "aria-describedby" => "#{id}-content",
-          "tabindex" => "-1",
-          "phx-click-away" => close_modal_op,
-          "phx-window-keydown" => close_modal_op,
-          "phx-key" => "escape"
+          "tabindex" => "-1"
         }
       },
       title: %{
@@ -90,44 +43,29 @@ defmodule SproutUI.Overlay do
           "id" => "#{id}-title"
         }
       },
-      content: %{
-        close_modal: close_modal_op
-      },
       close: %{
         attrs: %{
           "role" => "button",
           "aria-label" => "Modal close button",
-          "phx-click" => close_modal_op
-        },
-        close_modal: close_modal_op
+          "phx-click" => JS.set_attribute({"data-ui-state", ""}, to: "##{id}")
+        }
       }
     }
 
     assigns = assigns |> assign(:setup, setup)
 
     ~H"""
-    <div>
-      <%= for trigger <- @trigger do %>
-        <%= unless trigger[:as_child] do %>
-          <button {@setup.trigger.attrs} class={trigger[:class]}><%= render_slot(trigger) %></button>
-        <% else %>
-          <%= render_slot(trigger, @setup.trigger) %>
-        <% end %>
-      <% end %>
-
-      <div {@setup.modal.attrs} {@rest}>
-        <%= render_slot(@inner_block, @setup) %>
-      </div>
-    </div>
+    <.dynamic_tag name={@element} {@setup.modal.attrs} {@rest}>
+      <%= render_slot(@inner_block, @setup) %>
+    </.dynamic_tag>
     """
   end
 
-  attr :setup, :any, required: true
   attr :rest, :global
 
   def modal_overlay(assigns) do
     ~H"""
-    <div {@setup.overlay.attrs} {@rest}></div>
+    <div data-part="overlay" aria-hidden="true" {@rest}></div>
     """
   end
 
@@ -163,7 +101,7 @@ defmodule SproutUI.Overlay do
         <% end %>
 
         <div :for={content <- @content} id={"#{@setup.id}-content"} class={content[:class]}>
-          <%= render_slot(content, @setup.content) %>
+          <%= render_slot(content) %>
         </div>
 
         <%= for close <- @close do %>
