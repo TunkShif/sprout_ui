@@ -1,78 +1,45 @@
-import type { SproutComponentSetup } from "../types";
+import type { SproutComponentSetup, SproutEvent } from "../types";
 
-export class ModalElement extends HTMLElement {
-  open: boolean = false;
+class Modal {
+  private modal: HTMLElement;
 
-  private disableScrolling = true;
-  private containerEl: HTMLElement | null | undefined;
-
-  static get observedAttributes() {
-    return ["data-ui-state"];
+  constructor(el: HTMLElement) {
+    this.modal = el;
   }
 
-  constructor() {
-    super();
-    this.disableScrolling = Boolean(this.dataset.disableScrolling) || this.disableScrolling;
-    this.containerEl = this.getContainerEl();
+  init() {
+    this.modal.addEventListener("sprt:modal:open", this.handleModalOpen);
+    this.modal.addEventListener("sprt:modal:close", this.handleModalClose);
   }
 
-  connectedCallback() {
-    this.update();
+  cleanup() {
+    this.modal.removeEventListener("sprt:modal:open", this.handleModalOpen);
+    this.modal.removeEventListener("sprt:modal:close", this.handleModalClose);
   }
 
-  attributeChangedCallback(name: string, oldValue: unknown, newValue: unknown) {
-    if (oldValue === newValue) return;
-    if (name === "data-ui-state") {
-      this.open = newValue === "open";
-    }
-
-    this.update();
+  get disableScrolling() {
+    return !!this.modal.dataset.disableScrolling;
   }
 
-  private getContainerEl() {
-    return this.querySelector<HTMLElement>("[data-part=container]");
-  }
-
-  private update() {
-    if (this.open) {
-      this.execOnOpenJs();
-      this.toggleScrolling("off");
-      document.addEventListener("click", this.handleClick);
-      document.addEventListener("keydown", this.handleKeyDown);
-    } else {
-      this.toggleScrolling("on");
-      document.removeEventListener("click", this.handleClick);
-      document.removeEventListener("keydown", this.handleKeyDown);
-    }
-  }
-
-  private handleClick = (e: MouseEvent) => {
-    const target = e.target as HTMLElement | null;
-    if (!(this.containerEl?.isSameNode(target) || this.containerEl?.contains(target))) {
-      this.dataset.uiState = "";
-      this.execOnCloseJs();
-      document.removeEventListener("click", this.handleClick);
-    }
+  private handleModalOpen = () => {
+    this.execOnOpenJS();
+    this.toggleScrolling("off");
   };
 
-  private handleKeyDown = (e: KeyboardEvent) => {
-    const key = e.key;
-    if (key === "Escape" || key === "Esc") {
-      this.dataset.uiState = "";
-      this.execOnCloseJs();
-      document.removeEventListener("keydown", this.handleKeyDown);
-    }
+  private handleModalClose = () => {
+    this.execOnCloseJS();
+    this.toggleScrolling("on");
   };
 
-  private execOnOpenJs() {
-    if (this.dataset.onOpenJs) {
-      window.liveSocket.execJS(this, this.dataset.onOpenJs);
+  private execOnOpenJS() {
+    if (this.modal.dataset.onOpenJs) {
+      window.liveSocket.execJS(this.modal, this.modal.dataset.onOpenJs);
     }
   }
 
-  private execOnCloseJs() {
-    if (this.dataset.onCloseJs) {
-      window.liveSocket.execJS(this, this.dataset.onCloseJs);
+  private execOnCloseJS() {
+    if (this.modal.dataset.onCloseJs) {
+      window.liveSocket.execJS(this.modal, this.modal.dataset.onCloseJs);
     }
   }
 
@@ -89,11 +56,23 @@ export class ModalElement extends HTMLElement {
   }
 }
 
-const modal: SproutComponentSetup = opts => ({
-  init: () => {
-    const element = opts?.element || "sprt-modal";
-    customElements.define(element, ModalElement);
-  }
+const init = () => {
+  const modals = new WeakMap<Element, Modal>();
+
+  window.addEventListener("sprt:modal:init", e => {
+    const { target } = e as SproutEvent;
+    modals.set(target, new Modal(target));
+  });
+
+  window.addEventListener("sprt:modal:remove", e => {
+    const { target } = e as SproutEvent;
+    const modal = modals.get(target);
+    modal?.cleanup();
+  });
+};
+
+const modal: SproutComponentSetup = () => ({
+  init
 });
 
 export default modal;

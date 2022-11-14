@@ -22,4 +22,20 @@ defmodule SproutUI.JS do
         to: to,
         detail: %{attribute: name, states: [on, off]}
       )
+
+  def open_modal(to: to), do: open_modal(%JS{}, to: to)
+
+  def open_modal(%JS{} = js, to: to),
+    do:
+      JS.set_attribute(js, {"data-ui-state", "open"}, to: to)
+      |> JS.focus_first(to: "#{to} [role=dialog]")
+      |> JS.dispatch("sprt:modal:open", to: to)
+
+  def close_modal(to: to), do: close_modal(%JS{}, to: to)
+
+  def close_modal(%JS{} = js, to: to),
+    do:
+      JS.set_attribute(js, {"data-ui-state", ""}, to: to)
+      |> JS.pop_focus()
+      |> JS.dispatch("sprt:modal:close", to: to)
 end

@@ -3,61 +3,42 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, default: "modal"
-  attr :element, :string, default: "sprt-modal"
+  attr :id, :string, required: true
   attr :open, :boolean, default: false
   attr :on_open, JS, default: %JS{}
   attr :on_close, JS, default: %JS{}
+  attr :disable_scrolling, :boolean, default: true
   attr :rest, :global
 
   slot :inner_block, required: true
 
-  def modal(assigns) do
-    id = assigns.id
-    state = if assigns.open, do: "open", else: ""
+  def modal(%{id: id, open: open, disable_scrolling: disable_scrolling} = assigns) do
+    maybe_open_on_mounted = fn
+      js, true -> SproutUI.JS.open_modal(js, to: "##{id}")
+      js, false -> js
+    end
+
+    on_mounted_js = JS.dispatch("sprt:modal:init") |> maybe_open_on_mounted.(open)
+    on_removed_js = JS.dispatch("sprt:modal:remove")
 
     setup = %{
-      id: id,
-      modal: %{
-        attrs: %{
-          "id" => id,
-          "data-part" => "modal",
-          "data-ui-state" => state,
-          "data-on-open-js" =>
-            assigns.on_open |> JS.focus_first(to: "##{id} [data-part=container]"),
-          "data-on-close-js" => assigns.on_close |> JS.pop_focus()
-        }
-      },
-      container: %{
-        attrs: %{
-          "role" => "dialog",
-          "data-part" => "container",
-          "aria-modal" => "true",
-          "aria-labelledby" => "#{id}-title",
-          "aria-describedby" => "#{id}-content",
-          "tabindex" => "-1"
-        }
-      },
-      title: %{
-        attrs: %{
-          "id" => "#{id}-title"
-        }
-      },
-      close: %{
-        attrs: %{
-          "role" => "button",
-          "aria-label" => "Modal close button",
-          "phx-click" => JS.set_attribute({"data-ui-state", ""}, to: "##{id}")
-        }
+      modal_attrs: %{
+        "id" => id,
+        "phx-mounted" => on_mounted_js,
+        "phx-remove" => on_removed_js,
+        "data-ui-state" => if(open, do: "open", else: ""),
+        "data-disable-scrolling" => disable_scrolling,
+        "data-on-open-js" => assigns.on_open,
+        "data-on-close-js" => assigns.on_close
       }
     }
 
-    assigns = assigns |> assign(:setup, setup)
+    assigns = assign(assigns, :setup, setup)
 
     ~H"""
-    <.dynamic_tag name={@element} {@setup.modal.attrs} {@rest}>
-      <%= render_slot(@inner_block, @setup) %>
-    </.dynamic_tag>
+    <div {@setup.modal_attrs} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </div>
     """
   end
 
@@ -65,14 +46,14 @@ defmodule SproutUI.Overlay do
 
   def modal_overlay(assigns) do
     ~H"""
-    <div data-part="overlay" aria-hidden="true" {@rest}></div>
+    <div aria-hidden="true" {@rest}></div>
     """
   end
 
-  attr :setup, :any, required: true
+  attr :modal_for, :string, required: true
   attr :rest, :global
 
-  slot :title, requied: false do
+  slot :title, requied: true do
     attr :class, :string
 
     attr :as_child, :boolean
@@ -88,31 +69,56 @@ defmodule SproutUI.Overlay do
     attr :as_child, :boolean
   end
 
-  def modal_body(assigns) do
+  def modal_body(%{modal_for: id} = assigns) do
+    close_modal_js = SproutUI.JS.close_modal(to: "##{id}")
+
+    setup = %{
+      container_attrs: %{
+        "role" => "dialog",
+        "aria-modal" => "true",
+        "aria-labelledby" => "#{id}-title",
+        "aria-describedby" => "#{id}-content",
+        "tabindex" => "-1",
+        "phx-click-away" => close_modal_js,
+        "phx-window-keydown" => close_modal_js,
+        "phx-key" => "escape"
+      },
+      title_attrs: %{
+        "id" => "#{id}-title"
+      },
+      close_attrs: %{
+        "role" => "button",
+        "aria-label" => "Modal close button",
+        "phx-click" => close_modal_js
+      }
+    }
+
+    assigns = assign(assigns, :setup, setup)
+
     ~H"""
-    <section {@setup.container.attrs} {@rest}>
-      <.focus_wrap id={"#{@setup.id}-focus"}>
+    <div {@setup.container_attrs} {@rest}>
+      <.focus_wrap id={"#{@modal_for}-focus-wrapper"}>
         <%= for title <- @title do %>
           <%= unless title[:as_child] do %>
-            <h2 {@setup.title.attrs} class={title[:class]}><%= render_slot(title) %></h2>
+            <h2 {@setup.title_attrs} class={title[:class]}><%= render_slot(title) %></h2>
           <% else %>
-            <%= render_slot(title, @setup.title) %>
+            <%= render_slot(title, @setup.title_attrs) %>
           <% end %>
         <% end %>
 
-        <div :for={content <- @content} id={"#{@setup.id}-content"} class={content[:class]}>
+        <div :for={content <- @content} id={"#{@modal_for}-content"} class={content[:class]}>
           <%= render_slot(content) %>
         </div>
 
         <%= for close <- @close do %>
           <%= unless close[:as_child] do %>
-            <button {@setup.close.attrs} class={close[:class]}><%= render_slot(close) %></button>
+            <button {@setup.close_attrs} class={close[:class]}><%= render_slot(close) %></button>
           <% else %>
-            <%= render_slot(close, @setup.close) %>
+            <%= render_slot(close, @setup.close_attrs) %>
           <% end %>
         <% end %>
       </.focus_wrap>
-    </section>
+    </div>
     """
   end
 end
