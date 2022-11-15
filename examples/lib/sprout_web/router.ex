@@ -20,6 +20,7 @@ defmodule SproutWeb.Router do
     live "/", IndexLive
     live "/modal", ModalLive
     live "/floating", FloatingLive
+    live "/tooltip", TooltipLive
     live "/transition", TransitionLive
   end
 

@@ -81,7 +81,7 @@ defmodule SproutUI.Utility do
   end
 
   attr :element, :string, default: "sprt-floating"
-  attr :is_active, :boolean, default: false
+  attr :active, :boolean, default: false
   attr :anchor, :string, required: true
 
   attr :placement, :string,
@@ -106,13 +106,11 @@ defmodule SproutUI.Utility do
   slot :inner_block, required: true
 
   def floating(assigns) do
-    state = if assigns.is_active, do: "active", else: ""
-
     middleware = assigns.middleware |> Enum.map(fn {k, v} -> transform_middleware(k, v) end)
 
     setup = %{
       attrs: %{
-        "data-ui-state" => state,
+        "data-ui-state" => if(assigns.active, do: "active", else: ""),
         "data-anchor" => assigns.anchor,
         "data-placement" => assigns.placement,
         "data-middleware" => Jason.encode!(middleware)

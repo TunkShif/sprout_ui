@@ -3,6 +3,9 @@ defmodule SproutUI.Overlay do
 
   alias Phoenix.LiveView.JS
 
+  import SproutUI.Utility, only: [floating: 1]
+  import SproutUI.Helper, only: [unique_id: 0]
+
   attr :id, :string, required: true
   attr :open, :boolean, default: false
   attr :on_open, JS, default: %JS{}
@@ -118,6 +121,61 @@ defmodule SproutUI.Overlay do
           <% end %>
         <% end %>
       </.focus_wrap>
+    </div>
+    """
+  end
+
+  attr :id, :string, default: nil
+  attr :active, :boolean, default: false
+  attr :text, :string, default: ""
+  attr :element, :string, default: "sprt-floating"
+
+  attr :placement, :string,
+    default: "top",
+    values: [
+      "top",
+      "top-start",
+      "top-end",
+      "right",
+      "right-start",
+      "right-end",
+      "bottom",
+      "bottom-start",
+      "bottom-end",
+      "left",
+      "left-start",
+      "left-end"
+    ]
+
+  attr :offset, :integer, default: 0
+  attr :middleware, :list, default: nil
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def tooltip(assigns) do
+    id = unless assigns.id, do: "tooltip-wrapper-#{unique_id()}", else: assigns.id
+
+    middleware =
+      unless assigns.middleware,
+        do: [offset: assigns.offset, flip: true, shift: %{"rootBoundary" => "document"}],
+        else: assigns.middleware
+
+    assigns = assign(assigns, id: id, middleware: middleware)
+
+    ~H"""
+    <div id={@id}>
+      <%= render_slot(@inner_block) %>
+      <.floating
+        element={@element}
+        active={@active}
+        anchor={"##{@id}"}
+        placement={@placement}
+        middleware={@middleware}
+        {@rest}
+      >
+        <span><%= @text %></span>
+      </.floating>
     </div>
     """
   end

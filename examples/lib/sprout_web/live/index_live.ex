@@ -1,7 +1,7 @@
 defmodule SproutWeb.IndexLive do
   use SproutWeb, :live_view
 
-  @components ~w(modal floating transition)
+  @components ~w(modal floating tooltip transition )
 
   def mount(_params, _session, socket) do
     socket =

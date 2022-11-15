@@ -28,11 +28,11 @@ defmodule SproutWeb.FloatingLive do
       <div class="relative flex justify-center items-center h-48 overflow-hidden">
         <div id="dashed-box-0" class="h-24 w-24 border-2 border-gray-900 border-dashed rounded"></div>
         <.floating
+          active
           anchor="#dashed-box-0"
           placement={@placement}
           middleware={[offset: 12]}
           class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
-          is_active
         >
           <%= @placement %>
         </.floating>
@@ -65,11 +65,11 @@ defmodule SproutWeb.FloatingLive do
         >
         </div>
         <.floating
+          active
           anchor="#dashed-box-1"
           placement="right"
           middleware={[offset: 12, shift: %{"rootBoundary" => "document"}]}
           class="ui-not-active:hidden absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
-          is_active
         >
           <h3 class="mb-2 font-medium">Popover</h3>
           <p class="text-sm leading-relaxed">
@@ -97,11 +97,11 @@ defmodule SproutWeb.FloatingLive do
         >
         </div>
         <.floating
+          active
           anchor="#dashed-box-2"
           placement="top"
           middleware={[offset: 12, flip: true]}
           class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
-          is_active
         >
           Tooltip
         </.floating>
@@ -119,14 +119,14 @@ defmodule SproutWeb.FloatingLive do
           id="dashed-box-3"
           class="grid place-items-center cursor-pointer h-24 w-24 border-2 border-gray-900 border-dashed rounded"
         >
-          Hover Me
+          with arrow
         </div>
         <.floating
           anchor="#dashed-box-3"
           placement="top"
           middleware={[offset: 12, arrow: %{element: "#arrow"}]}
           class="ui-not-active:hidden absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
-          is_active
+          active
         >
           Tooltip
           <div id="arrow" class="absolute w-2 h-2 bg-gray-700 rotate-45"></div>
