@@ -17,11 +17,8 @@ defmodule SproutWeb.Router do
   scope "/", SproutWeb do
     pipe_through :browser
 
-    live "/", IndexLive
-    live "/modal", ModalLive
-    live "/floating", FloatingLive
-    live "/tooltip", TooltipLive
-    live "/transition", TransitionLive
+    get "/", PageController, :home
+    get "/component/:component", PageController, :component
   end
 
   # Other scopes may use custom stacks.

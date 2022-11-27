@@ -15,7 +15,7 @@ config :sprout, SproutWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Sprout.PubSub,
-  live_view: [signing_salt: "jMIh9RHk"]
+  live_view: [signing_salt: "jfAoZ/FG"]
 
 # Configure esbuild (the version is required)
 config :esbuild,

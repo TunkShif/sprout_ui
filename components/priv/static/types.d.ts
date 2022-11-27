@@ -21,12 +21,12 @@ export interface SproutComponent {
     };
     handleDomChange?: (from: HTMLElement, to: HTMLElement) => void;
 }
-export declare type SproutComponentSetupOptions = {
+export type SproutComponentSetupOptions = {
     hook?: string;
     element?: string;
 };
-export declare type SproutComponentSetup = (opts?: SproutComponentSetupOptions) => SproutComponent;
-export declare type SproutEvent<T = unknown> = CustomEvent<T> & {
+export type SproutComponentSetup = (opts?: SproutComponentSetupOptions) => SproutComponent;
+export type SproutEvent<T = unknown> = CustomEvent<T> & {
     target: HTMLElement;
 };
 export interface SproutHook extends LiveViewHook {

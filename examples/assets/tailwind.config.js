@@ -1,4 +1,4 @@
-const plugin = require("tailwindcss/plugin");
+const plugin = require("tailwindcss/plugin")
 
 module.exports = {
   content: ["./js/**/*.js", "../lib/*_web.ex", "../lib/*_web/**/*.*ex"],
@@ -25,4 +25,4 @@ module.exports = {
       addVariant("phx-change-loading", [".phx-change-loading&", ".phx-change-loading &"])
     )
   ]
-};
+}

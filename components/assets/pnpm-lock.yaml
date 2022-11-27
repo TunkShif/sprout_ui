@@ -3,9 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@floating-ui/dom': ^1.0.4
   '@tunkshif/vanilla-transition': ^0.2.1
-  phoenix: file:../deps/phoenix
-  phoenix_html: file:../deps/phoenix_html
-  phoenix_live_view: file:../deps/phoenix_live_view
+  focus-trap: ^7.1.0
   prettier: ^2.7.1
   tailwindcss: ^3.2.1
   typescript: ^4.8.4
@@ -13,9 +11,7 @@ specifiers:
 dependencies:
   '@floating-ui/dom': 1.0.4
   '@tunkshif/vanilla-transition': 0.2.1
-  phoenix: file:../deps/phoenix
-  phoenix_html: file:../deps/phoenix_html
-  phoenix_live_view: file:../deps/phoenix_live_view
+  focus-trap: 7.1.0
 
 devDependencies:
   prettier: 2.7.1
@@ -177,6 +173,12 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
     dev: true
+
+  /focus-trap/7.1.0:
+    resolution: {integrity: sha512-CuJvwUBfJCWcU6fc4xr3UwMF5vWnox4isXAixCwrPzCsPKOQjP9T+nTlYT2t+vOmQL8MOQ16eim99XhjQHAuiQ==}
+    dependencies:
+      tabbable: 6.0.1
+    dev: false
 
   /fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
@@ -425,6 +427,10 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
+  /tabbable/6.0.1:
+    resolution: {integrity: sha512-SYJSIgeyXW7EuX1ytdneO5e8jip42oHWg9xl/o3oTYhmXusZVgiA+VlPvjIN+kHii9v90AmzTZEBcsEvuAY+TA==}
+    dev: false
+
   /tailwindcss/3.2.1:
     resolution: {integrity: sha512-Uw+GVSxp5CM48krnjHObqoOwlCt5Qo6nw1jlCRwfGy68dSYb/LwS9ZFidYGRiM+w6rMawkZiu1mEMAsHYAfoLg==}
     engines: {node: '>=12.13.0'}
@@ -483,21 +489,3 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
     dev: true
-
-  file:../deps/phoenix:
-    resolution: {directory: ../deps/phoenix, type: directory}
-    name: phoenix
-    version: 1.7.0-rc.0
-    dev: false
-
-  file:../deps/phoenix_html:
-    resolution: {directory: ../deps/phoenix_html, type: directory}
-    name: phoenix_html
-    version: 3.2.0
-    dev: false
-
-  file:../deps/phoenix_live_view:
-    resolution: {directory: ../deps/phoenix_live_view, type: directory}
-    name: phoenix_live_view
-    version: 0.18.3
-    dev: false

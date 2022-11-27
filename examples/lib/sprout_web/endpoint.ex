@@ -7,7 +7,7 @@ defmodule SproutWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_sprout_key",
-    signing_salt: "xp1KrxgD",
+    signing_salt: "oknwL+y8",
     same_site: "Lax"
   ]
 

@@ -1,8 +1,8 @@
 import type { SproutComponent, SproutHook } from "./types";
-declare type CreateSproutConfigOptions = {
+type CreateSproutConfigOptions = {
     components: SproutComponent[];
 };
-declare type CreateSproutConfig = (opts: CreateSproutConfigOptions) => {
+type CreateSproutConfig = (opts: CreateSproutConfigOptions) => {
     initComponents: () => void;
     hooks: {
         [key: string]: SproutHook;

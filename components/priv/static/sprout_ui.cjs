@@ -26,18 +26,34 @@ var __publicField = (obj, key, value) => {
 var sprout_ui_exports = {};
 __export(sprout_ui_exports, {
   default: () => sprout_ui_default,
+  dialog: () => dialog_default,
   floating: () => floating_default,
-  modal: () => modal_default,
   transition: () => transition_default
 });
 module.exports = __toCommonJS(sprout_ui_exports);
 
+// js/sprout_ui/utils/body-scroll.ts
+var toggleBodyScroll = (state) => {
+  switch (state) {
+    case "on":
+      Object.assign(document.body.style, { overflow: "" });
+      break;
+    case "off":
+      Object.assign(document.body.style, { overflow: "hidden" });
+      break;
+  }
+};
+
 // js/sprout_ui/components/global.ts
 var init = () => {
-  window.addEventListener("sprt:toggle_attribute", (e2) => {
+  window.addEventListener("sp:toggle-attribute", (e2) => {
     const { target, detail } = e2;
     const state = target.getAttribute(detail.attribute) === detail.states[0] ? detail.states[1] : detail.states[0];
     target.setAttribute(detail.attribute, state);
+  });
+  window.addEventListener("sp:toggle-body-scroll", (e2) => {
+    const { detail } = e2;
+    toggleBodyScroll(detail.state);
   });
 };
 var global = () => ({
@@ -45,70 +61,959 @@ var global = () => ({
 });
 var global_default = global;
 
-// js/sprout_ui/components/modal.ts
-var Modal = class {
-  constructor(el) {
-    __publicField(this, "modal");
-    __publicField(this, "handleModalOpen", () => {
-      this.execOnOpenJS();
-      this.toggleScrolling("off");
-    });
-    __publicField(this, "handleModalClose", () => {
-      this.execOnCloseJS();
-      this.toggleScrolling("on");
-    });
-    this.modal = el;
+// node_modules/.pnpm/tabbable@6.0.1/node_modules/tabbable/dist/index.esm.js
+var candidateSelectors = ["input", "select", "textarea", "a[href]", "button", "[tabindex]:not(slot)", "audio[controls]", "video[controls]", '[contenteditable]:not([contenteditable="false"])', "details>summary:first-of-type", "details"];
+var candidateSelector = /* @__PURE__ */ candidateSelectors.join(",");
+var NoElement = typeof Element === "undefined";
+var matches = NoElement ? function() {
+} : Element.prototype.matches || Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+var getRootNode = !NoElement && Element.prototype.getRootNode ? function(element) {
+  return element.getRootNode();
+} : function(element) {
+  return element.ownerDocument;
+};
+var getCandidates = function getCandidates2(el, includeContainer, filter) {
+  var candidates = Array.prototype.slice.apply(el.querySelectorAll(candidateSelector));
+  if (includeContainer && matches.call(el, candidateSelector)) {
+    candidates.unshift(el);
   }
-  init() {
-    this.modal.addEventListener("sprt:modal:open", this.handleModalOpen);
-    this.modal.addEventListener("sprt:modal:close", this.handleModalClose);
-  }
-  cleanup() {
-    this.modal.removeEventListener("sprt:modal:open", this.handleModalOpen);
-    this.modal.removeEventListener("sprt:modal:close", this.handleModalClose);
-  }
-  get disableScrolling() {
-    return !!this.modal.dataset.disableScrolling;
-  }
-  execOnOpenJS() {
-    if (this.modal.dataset.onOpenJs) {
-      window.liveSocket.execJS(this.modal, this.modal.dataset.onOpenJs);
+  candidates = candidates.filter(filter);
+  return candidates;
+};
+var getCandidatesIteratively = function getCandidatesIteratively2(elements, includeContainer, options) {
+  var candidates = [];
+  var elementsToCheck = Array.from(elements);
+  while (elementsToCheck.length) {
+    var element = elementsToCheck.shift();
+    if (element.tagName === "SLOT") {
+      var assigned = element.assignedElements();
+      var content = assigned.length ? assigned : element.children;
+      var nestedCandidates = getCandidatesIteratively2(content, true, options);
+      if (options.flatten) {
+        candidates.push.apply(candidates, nestedCandidates);
+      } else {
+        candidates.push({
+          scopeParent: element,
+          candidates: nestedCandidates
+        });
+      }
+    } else {
+      var validCandidate = matches.call(element, candidateSelector);
+      if (validCandidate && options.filter(element) && (includeContainer || !elements.includes(element))) {
+        candidates.push(element);
+      }
+      var shadowRoot = element.shadowRoot || typeof options.getShadowRoot === "function" && options.getShadowRoot(element);
+      var validShadowRoot = !options.shadowRootFilter || options.shadowRootFilter(element);
+      if (shadowRoot && validShadowRoot) {
+        var _nestedCandidates = getCandidatesIteratively2(shadowRoot === true ? element.children : shadowRoot.children, true, options);
+        if (options.flatten) {
+          candidates.push.apply(candidates, _nestedCandidates);
+        } else {
+          candidates.push({
+            scopeParent: element,
+            candidates: _nestedCandidates
+          });
+        }
+      } else {
+        elementsToCheck.unshift.apply(elementsToCheck, element.children);
+      }
     }
   }
-  execOnCloseJS() {
-    if (this.modal.dataset.onCloseJs) {
-      window.liveSocket.execJS(this.modal, this.modal.dataset.onCloseJs);
+  return candidates;
+};
+var getTabindex = function getTabindex2(node, isScope) {
+  if (node.tabIndex < 0) {
+    if ((isScope || /^(AUDIO|VIDEO|DETAILS)$/.test(node.tagName) || node.isContentEditable) && isNaN(parseInt(node.getAttribute("tabindex"), 10))) {
+      return 0;
     }
   }
-  toggleScrolling(state) {
-    if (!this.disableScrolling)
+  return node.tabIndex;
+};
+var sortOrderedTabbables = function sortOrderedTabbables2(a3, b3) {
+  return a3.tabIndex === b3.tabIndex ? a3.documentOrder - b3.documentOrder : a3.tabIndex - b3.tabIndex;
+};
+var isInput = function isInput2(node) {
+  return node.tagName === "INPUT";
+};
+var isHiddenInput = function isHiddenInput2(node) {
+  return isInput(node) && node.type === "hidden";
+};
+var isDetailsWithSummary = function isDetailsWithSummary2(node) {
+  var r3 = node.tagName === "DETAILS" && Array.prototype.slice.apply(node.children).some(function(child) {
+    return child.tagName === "SUMMARY";
+  });
+  return r3;
+};
+var getCheckedRadio = function getCheckedRadio2(nodes, form) {
+  for (var i3 = 0; i3 < nodes.length; i3++) {
+    if (nodes[i3].checked && nodes[i3].form === form) {
+      return nodes[i3];
+    }
+  }
+};
+var isTabbableRadio = function isTabbableRadio2(node) {
+  if (!node.name) {
+    return true;
+  }
+  var radioScope = node.form || getRootNode(node);
+  var queryRadios = function queryRadios2(name) {
+    return radioScope.querySelectorAll('input[type="radio"][name="' + name + '"]');
+  };
+  var radioSet;
+  if (typeof window !== "undefined" && typeof window.CSS !== "undefined" && typeof window.CSS.escape === "function") {
+    radioSet = queryRadios(window.CSS.escape(node.name));
+  } else {
+    try {
+      radioSet = queryRadios(node.name);
+    } catch (err) {
+      console.error("Looks like you have a radio button with a name attribute containing invalid CSS selector characters and need the CSS.escape polyfill: %s", err.message);
+      return false;
+    }
+  }
+  var checked = getCheckedRadio(radioSet, node.form);
+  return !checked || checked === node;
+};
+var isRadio = function isRadio2(node) {
+  return isInput(node) && node.type === "radio";
+};
+var isNonTabbableRadio = function isNonTabbableRadio2(node) {
+  return isRadio(node) && !isTabbableRadio(node);
+};
+var isNodeAttached = function isNodeAttached2(node) {
+  var _nodeRootHost;
+  var nodeRootHost = getRootNode(node).host;
+  var attached = !!((_nodeRootHost = nodeRootHost) !== null && _nodeRootHost !== void 0 && _nodeRootHost.ownerDocument.contains(nodeRootHost) || node.ownerDocument.contains(node));
+  while (!attached && nodeRootHost) {
+    var _nodeRootHost2;
+    nodeRootHost = getRootNode(nodeRootHost).host;
+    attached = !!((_nodeRootHost2 = nodeRootHost) !== null && _nodeRootHost2 !== void 0 && _nodeRootHost2.ownerDocument.contains(nodeRootHost));
+  }
+  return attached;
+};
+var isZeroArea = function isZeroArea2(node) {
+  var _node$getBoundingClie = node.getBoundingClientRect(), width = _node$getBoundingClie.width, height = _node$getBoundingClie.height;
+  return width === 0 && height === 0;
+};
+var isHidden = function isHidden2(node, _ref) {
+  var displayCheck = _ref.displayCheck, getShadowRoot = _ref.getShadowRoot;
+  if (getComputedStyle(node).visibility === "hidden") {
+    return true;
+  }
+  var isDirectSummary = matches.call(node, "details>summary:first-of-type");
+  var nodeUnderDetails = isDirectSummary ? node.parentElement : node;
+  if (matches.call(nodeUnderDetails, "details:not([open]) *")) {
+    return true;
+  }
+  if (!displayCheck || displayCheck === "full" || displayCheck === "legacy-full") {
+    if (typeof getShadowRoot === "function") {
+      var originalNode = node;
+      while (node) {
+        var parentElement = node.parentElement;
+        var rootNode = getRootNode(node);
+        if (parentElement && !parentElement.shadowRoot && getShadowRoot(parentElement) === true) {
+          return isZeroArea(node);
+        } else if (node.assignedSlot) {
+          node = node.assignedSlot;
+        } else if (!parentElement && rootNode !== node.ownerDocument) {
+          node = rootNode.host;
+        } else {
+          node = parentElement;
+        }
+      }
+      node = originalNode;
+    }
+    if (isNodeAttached(node)) {
+      return !node.getClientRects().length;
+    }
+    if (displayCheck !== "legacy-full") {
+      return true;
+    }
+  } else if (displayCheck === "non-zero-area") {
+    return isZeroArea(node);
+  }
+  return false;
+};
+var isDisabledFromFieldset = function isDisabledFromFieldset2(node) {
+  if (/^(INPUT|BUTTON|SELECT|TEXTAREA)$/.test(node.tagName)) {
+    var parentNode = node.parentElement;
+    while (parentNode) {
+      if (parentNode.tagName === "FIELDSET" && parentNode.disabled) {
+        for (var i3 = 0; i3 < parentNode.children.length; i3++) {
+          var child = parentNode.children.item(i3);
+          if (child.tagName === "LEGEND") {
+            return matches.call(parentNode, "fieldset[disabled] *") ? true : !child.contains(node);
+          }
+        }
+        return true;
+      }
+      parentNode = parentNode.parentElement;
+    }
+  }
+  return false;
+};
+var isNodeMatchingSelectorFocusable = function isNodeMatchingSelectorFocusable2(options, node) {
+  if (node.disabled || isHiddenInput(node) || isHidden(node, options) || isDetailsWithSummary(node) || isDisabledFromFieldset(node)) {
+    return false;
+  }
+  return true;
+};
+var isNodeMatchingSelectorTabbable = function isNodeMatchingSelectorTabbable2(options, node) {
+  if (isNonTabbableRadio(node) || getTabindex(node) < 0 || !isNodeMatchingSelectorFocusable(options, node)) {
+    return false;
+  }
+  return true;
+};
+var isValidShadowRootTabbable = function isValidShadowRootTabbable2(shadowHostNode) {
+  var tabIndex = parseInt(shadowHostNode.getAttribute("tabindex"), 10);
+  if (isNaN(tabIndex) || tabIndex >= 0) {
+    return true;
+  }
+  return false;
+};
+var sortByOrder = function sortByOrder2(candidates) {
+  var regularTabbables = [];
+  var orderedTabbables = [];
+  candidates.forEach(function(item, i3) {
+    var isScope = !!item.scopeParent;
+    var element = isScope ? item.scopeParent : item;
+    var candidateTabindex = getTabindex(element, isScope);
+    var elements = isScope ? sortByOrder2(item.candidates) : element;
+    if (candidateTabindex === 0) {
+      isScope ? regularTabbables.push.apply(regularTabbables, elements) : regularTabbables.push(element);
+    } else {
+      orderedTabbables.push({
+        documentOrder: i3,
+        tabIndex: candidateTabindex,
+        item,
+        isScope,
+        content: elements
+      });
+    }
+  });
+  return orderedTabbables.sort(sortOrderedTabbables).reduce(function(acc, sortable) {
+    sortable.isScope ? acc.push.apply(acc, sortable.content) : acc.push(sortable.content);
+    return acc;
+  }, []).concat(regularTabbables);
+};
+var tabbable = function tabbable2(el, options) {
+  options = options || {};
+  var candidates;
+  if (options.getShadowRoot) {
+    candidates = getCandidatesIteratively([el], options.includeContainer, {
+      filter: isNodeMatchingSelectorTabbable.bind(null, options),
+      flatten: false,
+      getShadowRoot: options.getShadowRoot,
+      shadowRootFilter: isValidShadowRootTabbable
+    });
+  } else {
+    candidates = getCandidates(el, options.includeContainer, isNodeMatchingSelectorTabbable.bind(null, options));
+  }
+  return sortByOrder(candidates);
+};
+var focusable = function focusable2(el, options) {
+  options = options || {};
+  var candidates;
+  if (options.getShadowRoot) {
+    candidates = getCandidatesIteratively([el], options.includeContainer, {
+      filter: isNodeMatchingSelectorFocusable.bind(null, options),
+      flatten: true,
+      getShadowRoot: options.getShadowRoot
+    });
+  } else {
+    candidates = getCandidates(el, options.includeContainer, isNodeMatchingSelectorFocusable.bind(null, options));
+  }
+  return candidates;
+};
+var isTabbable = function isTabbable2(node, options) {
+  options = options || {};
+  if (!node) {
+    throw new Error("No node provided");
+  }
+  if (matches.call(node, candidateSelector) === false) {
+    return false;
+  }
+  return isNodeMatchingSelectorTabbable(options, node);
+};
+var focusableCandidateSelector = /* @__PURE__ */ candidateSelectors.concat("iframe").join(",");
+var isFocusable = function isFocusable2(node, options) {
+  options = options || {};
+  if (!node) {
+    throw new Error("No node provided");
+  }
+  if (matches.call(node, focusableCandidateSelector) === false) {
+    return false;
+  }
+  return isNodeMatchingSelectorFocusable(options, node);
+};
+
+// node_modules/.pnpm/focus-trap@7.1.0/node_modules/focus-trap/dist/focus-trap.esm.js
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    enumerableOnly && (symbols = symbols.filter(function(sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
+  }
+  return keys;
+}
+function _objectSpread2(target) {
+  for (var i3 = 1; i3 < arguments.length; i3++) {
+    var source = null != arguments[i3] ? arguments[i3] : {};
+    i3 % 2 ? ownKeys(Object(source), true).forEach(function(key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function(key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
+  }
+  return target;
+}
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+var rooTrapStack = [];
+var activeFocusTraps = {
+  activateTrap: function activateTrap(trapStack, trap) {
+    if (trapStack.length > 0) {
+      var activeTrap = trapStack[trapStack.length - 1];
+      if (activeTrap !== trap) {
+        activeTrap.pause();
+      }
+    }
+    var trapIndex = trapStack.indexOf(trap);
+    if (trapIndex === -1) {
+      trapStack.push(trap);
+    } else {
+      trapStack.splice(trapIndex, 1);
+      trapStack.push(trap);
+    }
+  },
+  deactivateTrap: function deactivateTrap(trapStack, trap) {
+    var trapIndex = trapStack.indexOf(trap);
+    if (trapIndex !== -1) {
+      trapStack.splice(trapIndex, 1);
+    }
+    if (trapStack.length > 0) {
+      trapStack[trapStack.length - 1].unpause();
+    }
+  }
+};
+var isSelectableInput = function isSelectableInput2(node) {
+  return node.tagName && node.tagName.toLowerCase() === "input" && typeof node.select === "function";
+};
+var isEscapeEvent = function isEscapeEvent2(e2) {
+  return e2.key === "Escape" || e2.key === "Esc" || e2.keyCode === 27;
+};
+var isTabEvent = function isTabEvent2(e2) {
+  return e2.key === "Tab" || e2.keyCode === 9;
+};
+var delay = function delay2(fn) {
+  return setTimeout(fn, 0);
+};
+var findIndex = function findIndex2(arr, fn) {
+  var idx = -1;
+  arr.every(function(value, i3) {
+    if (fn(value)) {
+      idx = i3;
+      return false;
+    }
+    return true;
+  });
+  return idx;
+};
+var valueOrHandler = function valueOrHandler2(value) {
+  for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    params[_key - 1] = arguments[_key];
+  }
+  return typeof value === "function" ? value.apply(void 0, params) : value;
+};
+var getActualTarget = function getActualTarget2(event) {
+  return event.target.shadowRoot && typeof event.composedPath === "function" ? event.composedPath()[0] : event.target;
+};
+var createFocusTrap = function createFocusTrap2(elements, userOptions) {
+  var doc = (userOptions === null || userOptions === void 0 ? void 0 : userOptions.document) || document;
+  var trapStack = (userOptions === null || userOptions === void 0 ? void 0 : userOptions.trapStack) || rooTrapStack;
+  var config = _objectSpread2({
+    returnFocusOnDeactivate: true,
+    escapeDeactivates: true,
+    delayInitialFocus: true
+  }, userOptions);
+  var state = {
+    containers: [],
+    containerGroups: [],
+    tabbableGroups: [],
+    nodeFocusedBeforeActivation: null,
+    mostRecentlyFocusedNode: null,
+    active: false,
+    paused: false,
+    delayInitialFocusTimer: void 0
+  };
+  var trap;
+  var getOption = function getOption2(configOverrideOptions, optionName, configOptionName) {
+    return configOverrideOptions && configOverrideOptions[optionName] !== void 0 ? configOverrideOptions[optionName] : config[configOptionName || optionName];
+  };
+  var findContainerIndex = function findContainerIndex2(element) {
+    return state.containerGroups.findIndex(function(_ref) {
+      var container = _ref.container, tabbableNodes = _ref.tabbableNodes;
+      return container.contains(element) || tabbableNodes.find(function(node) {
+        return node === element;
+      });
+    });
+  };
+  var getNodeForOption = function getNodeForOption2(optionName) {
+    var optionValue = config[optionName];
+    if (typeof optionValue === "function") {
+      for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        params[_key2 - 1] = arguments[_key2];
+      }
+      optionValue = optionValue.apply(void 0, params);
+    }
+    if (optionValue === true) {
+      optionValue = void 0;
+    }
+    if (!optionValue) {
+      if (optionValue === void 0 || optionValue === false) {
+        return optionValue;
+      }
+      throw new Error("`".concat(optionName, "` was specified but was not a node, or did not return a node"));
+    }
+    var node = optionValue;
+    if (typeof optionValue === "string") {
+      node = doc.querySelector(optionValue);
+      if (!node) {
+        throw new Error("`".concat(optionName, "` as selector refers to no known node"));
+      }
+    }
+    return node;
+  };
+  var getInitialFocusNode = function getInitialFocusNode2() {
+    var node = getNodeForOption("initialFocus");
+    if (node === false) {
+      return false;
+    }
+    if (node === void 0) {
+      if (findContainerIndex(doc.activeElement) >= 0) {
+        node = doc.activeElement;
+      } else {
+        var firstTabbableGroup = state.tabbableGroups[0];
+        var firstTabbableNode = firstTabbableGroup && firstTabbableGroup.firstTabbableNode;
+        node = firstTabbableNode || getNodeForOption("fallbackFocus");
+      }
+    }
+    if (!node) {
+      throw new Error("Your focus-trap needs to have at least one focusable element");
+    }
+    return node;
+  };
+  var updateTabbableNodes = function updateTabbableNodes2() {
+    state.containerGroups = state.containers.map(function(container) {
+      var tabbableNodes = tabbable(container, config.tabbableOptions);
+      var focusableNodes = focusable(container, config.tabbableOptions);
+      return {
+        container,
+        tabbableNodes,
+        focusableNodes,
+        firstTabbableNode: tabbableNodes.length > 0 ? tabbableNodes[0] : null,
+        lastTabbableNode: tabbableNodes.length > 0 ? tabbableNodes[tabbableNodes.length - 1] : null,
+        nextTabbableNode: function nextTabbableNode(node) {
+          var forward = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : true;
+          var nodeIdx = focusableNodes.findIndex(function(n3) {
+            return n3 === node;
+          });
+          if (nodeIdx < 0) {
+            return void 0;
+          }
+          if (forward) {
+            return focusableNodes.slice(nodeIdx + 1).find(function(n3) {
+              return isTabbable(n3, config.tabbableOptions);
+            });
+          }
+          return focusableNodes.slice(0, nodeIdx).reverse().find(function(n3) {
+            return isTabbable(n3, config.tabbableOptions);
+          });
+        }
+      };
+    });
+    state.tabbableGroups = state.containerGroups.filter(function(group) {
+      return group.tabbableNodes.length > 0;
+    });
+    if (state.tabbableGroups.length <= 0 && !getNodeForOption("fallbackFocus")) {
+      throw new Error("Your focus-trap must have at least one container with at least one tabbable node in it at all times");
+    }
+  };
+  var tryFocus = function tryFocus2(node) {
+    if (node === false) {
       return;
-    switch (state) {
-      case "on":
-        Object.assign(document.body.style, { overflow: "" });
-        break;
-      case "off":
-        Object.assign(document.body.style, { overflow: "hidden" });
-        break;
+    }
+    if (node === doc.activeElement) {
+      return;
+    }
+    if (!node || !node.focus) {
+      tryFocus2(getInitialFocusNode());
+      return;
+    }
+    node.focus({
+      preventScroll: !!config.preventScroll
+    });
+    state.mostRecentlyFocusedNode = node;
+    if (isSelectableInput(node)) {
+      node.select();
+    }
+  };
+  var getReturnFocusNode = function getReturnFocusNode2(previousActiveElement) {
+    var node = getNodeForOption("setReturnFocus", previousActiveElement);
+    return node ? node : node === false ? false : previousActiveElement;
+  };
+  var checkPointerDown = function checkPointerDown2(e2) {
+    var target = getActualTarget(e2);
+    if (findContainerIndex(target) >= 0) {
+      return;
+    }
+    if (valueOrHandler(config.clickOutsideDeactivates, e2)) {
+      trap.deactivate({
+        returnFocus: config.returnFocusOnDeactivate && !isFocusable(target, config.tabbableOptions)
+      });
+      return;
+    }
+    if (valueOrHandler(config.allowOutsideClick, e2)) {
+      return;
+    }
+    e2.preventDefault();
+  };
+  var checkFocusIn = function checkFocusIn2(e2) {
+    var target = getActualTarget(e2);
+    var targetContained = findContainerIndex(target) >= 0;
+    if (targetContained || target instanceof Document) {
+      if (targetContained) {
+        state.mostRecentlyFocusedNode = target;
+      }
+    } else {
+      e2.stopImmediatePropagation();
+      tryFocus(state.mostRecentlyFocusedNode || getInitialFocusNode());
+    }
+  };
+  var checkTab = function checkTab2(e2) {
+    var target = getActualTarget(e2);
+    updateTabbableNodes();
+    var destinationNode = null;
+    if (state.tabbableGroups.length > 0) {
+      var containerIndex = findContainerIndex(target);
+      var containerGroup = containerIndex >= 0 ? state.containerGroups[containerIndex] : void 0;
+      if (containerIndex < 0) {
+        if (e2.shiftKey) {
+          destinationNode = state.tabbableGroups[state.tabbableGroups.length - 1].lastTabbableNode;
+        } else {
+          destinationNode = state.tabbableGroups[0].firstTabbableNode;
+        }
+      } else if (e2.shiftKey) {
+        var startOfGroupIndex = findIndex(state.tabbableGroups, function(_ref2) {
+          var firstTabbableNode = _ref2.firstTabbableNode;
+          return target === firstTabbableNode;
+        });
+        if (startOfGroupIndex < 0 && (containerGroup.container === target || isFocusable(target, config.tabbableOptions) && !isTabbable(target, config.tabbableOptions) && !containerGroup.nextTabbableNode(target, false))) {
+          startOfGroupIndex = containerIndex;
+        }
+        if (startOfGroupIndex >= 0) {
+          var destinationGroupIndex = startOfGroupIndex === 0 ? state.tabbableGroups.length - 1 : startOfGroupIndex - 1;
+          var destinationGroup = state.tabbableGroups[destinationGroupIndex];
+          destinationNode = destinationGroup.lastTabbableNode;
+        }
+      } else {
+        var lastOfGroupIndex = findIndex(state.tabbableGroups, function(_ref3) {
+          var lastTabbableNode = _ref3.lastTabbableNode;
+          return target === lastTabbableNode;
+        });
+        if (lastOfGroupIndex < 0 && (containerGroup.container === target || isFocusable(target, config.tabbableOptions) && !isTabbable(target, config.tabbableOptions) && !containerGroup.nextTabbableNode(target))) {
+          lastOfGroupIndex = containerIndex;
+        }
+        if (lastOfGroupIndex >= 0) {
+          var _destinationGroupIndex = lastOfGroupIndex === state.tabbableGroups.length - 1 ? 0 : lastOfGroupIndex + 1;
+          var _destinationGroup = state.tabbableGroups[_destinationGroupIndex];
+          destinationNode = _destinationGroup.firstTabbableNode;
+        }
+      }
+    } else {
+      destinationNode = getNodeForOption("fallbackFocus");
+    }
+    if (destinationNode) {
+      e2.preventDefault();
+      tryFocus(destinationNode);
+    }
+  };
+  var checkKey = function checkKey2(e2) {
+    if (isEscapeEvent(e2) && valueOrHandler(config.escapeDeactivates, e2) !== false) {
+      e2.preventDefault();
+      trap.deactivate();
+      return;
+    }
+    if (isTabEvent(e2)) {
+      checkTab(e2);
+      return;
+    }
+  };
+  var checkClick = function checkClick2(e2) {
+    var target = getActualTarget(e2);
+    if (findContainerIndex(target) >= 0) {
+      return;
+    }
+    if (valueOrHandler(config.clickOutsideDeactivates, e2)) {
+      return;
+    }
+    if (valueOrHandler(config.allowOutsideClick, e2)) {
+      return;
+    }
+    e2.preventDefault();
+    e2.stopImmediatePropagation();
+  };
+  var addListeners = function addListeners2() {
+    if (!state.active) {
+      return;
+    }
+    activeFocusTraps.activateTrap(trapStack, trap);
+    state.delayInitialFocusTimer = config.delayInitialFocus ? delay(function() {
+      tryFocus(getInitialFocusNode());
+    }) : tryFocus(getInitialFocusNode());
+    doc.addEventListener("focusin", checkFocusIn, true);
+    doc.addEventListener("mousedown", checkPointerDown, {
+      capture: true,
+      passive: false
+    });
+    doc.addEventListener("touchstart", checkPointerDown, {
+      capture: true,
+      passive: false
+    });
+    doc.addEventListener("click", checkClick, {
+      capture: true,
+      passive: false
+    });
+    doc.addEventListener("keydown", checkKey, {
+      capture: true,
+      passive: false
+    });
+    return trap;
+  };
+  var removeListeners = function removeListeners2() {
+    if (!state.active) {
+      return;
+    }
+    doc.removeEventListener("focusin", checkFocusIn, true);
+    doc.removeEventListener("mousedown", checkPointerDown, true);
+    doc.removeEventListener("touchstart", checkPointerDown, true);
+    doc.removeEventListener("click", checkClick, true);
+    doc.removeEventListener("keydown", checkKey, true);
+    return trap;
+  };
+  trap = {
+    get active() {
+      return state.active;
+    },
+    get paused() {
+      return state.paused;
+    },
+    activate: function activate(activateOptions) {
+      if (state.active) {
+        return this;
+      }
+      var onActivate = getOption(activateOptions, "onActivate");
+      var onPostActivate = getOption(activateOptions, "onPostActivate");
+      var checkCanFocusTrap = getOption(activateOptions, "checkCanFocusTrap");
+      if (!checkCanFocusTrap) {
+        updateTabbableNodes();
+      }
+      state.active = true;
+      state.paused = false;
+      state.nodeFocusedBeforeActivation = doc.activeElement;
+      if (onActivate) {
+        onActivate();
+      }
+      var finishActivation = function finishActivation2() {
+        if (checkCanFocusTrap) {
+          updateTabbableNodes();
+        }
+        addListeners();
+        if (onPostActivate) {
+          onPostActivate();
+        }
+      };
+      if (checkCanFocusTrap) {
+        checkCanFocusTrap(state.containers.concat()).then(finishActivation, finishActivation);
+        return this;
+      }
+      finishActivation();
+      return this;
+    },
+    deactivate: function deactivate(deactivateOptions) {
+      if (!state.active) {
+        return this;
+      }
+      var options = _objectSpread2({
+        onDeactivate: config.onDeactivate,
+        onPostDeactivate: config.onPostDeactivate,
+        checkCanReturnFocus: config.checkCanReturnFocus
+      }, deactivateOptions);
+      clearTimeout(state.delayInitialFocusTimer);
+      state.delayInitialFocusTimer = void 0;
+      removeListeners();
+      state.active = false;
+      state.paused = false;
+      activeFocusTraps.deactivateTrap(trapStack, trap);
+      var onDeactivate = getOption(options, "onDeactivate");
+      var onPostDeactivate = getOption(options, "onPostDeactivate");
+      var checkCanReturnFocus = getOption(options, "checkCanReturnFocus");
+      var returnFocus = getOption(options, "returnFocus", "returnFocusOnDeactivate");
+      if (onDeactivate) {
+        onDeactivate();
+      }
+      var finishDeactivation = function finishDeactivation2() {
+        delay(function() {
+          if (returnFocus) {
+            tryFocus(getReturnFocusNode(state.nodeFocusedBeforeActivation));
+          }
+          if (onPostDeactivate) {
+            onPostDeactivate();
+          }
+        });
+      };
+      if (returnFocus && checkCanReturnFocus) {
+        checkCanReturnFocus(getReturnFocusNode(state.nodeFocusedBeforeActivation)).then(finishDeactivation, finishDeactivation);
+        return this;
+      }
+      finishDeactivation();
+      return this;
+    },
+    pause: function pause() {
+      if (state.paused || !state.active) {
+        return this;
+      }
+      state.paused = true;
+      removeListeners();
+      return this;
+    },
+    unpause: function unpause() {
+      if (!state.paused || !state.active) {
+        return this;
+      }
+      state.paused = false;
+      updateTabbableNodes();
+      addListeners();
+      return this;
+    },
+    updateContainerElements: function updateContainerElements(containerElements) {
+      var elementsAsArray = [].concat(containerElements).filter(Boolean);
+      state.containers = elementsAsArray.map(function(element) {
+        return typeof element === "string" ? doc.querySelector(element) : element;
+      });
+      if (state.active) {
+        updateTabbableNodes();
+      }
+      return this;
+    }
+  };
+  trap.updateContainerElements(elements);
+  return trap;
+};
+
+// js/sprout_ui/internal/sprout-element.ts
+var SproutElement = class extends HTMLElement {
+  get state() {
+    return this.dataset.state;
+  }
+  set state(value) {
+    this.dataset.state = value;
+  }
+  attributeChangedCallback(attribute, oldValue, newValue) {
+    if (oldValue === null && newValue !== null)
+      return;
+    if (oldValue === newValue)
+      return;
+    this.updatedCallback(attribute, oldValue, newValue);
+  }
+  updatedCallback(_attribute, _oldValue, _newValue) {
+  }
+  executeJs(command) {
+    window.liveSocket.execJS(this, command || "[]");
+  }
+};
+
+// js/sprout_ui/utils/disposables.ts
+function disposables() {
+  const disposables2 = [];
+  const api = {
+    add(callback) {
+      disposables2.push(callback);
+      return () => {
+        let idx = disposables2.indexOf(callback);
+        if (idx >= 0) {
+          let [dispose] = disposables2.splice(idx, 1);
+          dispose();
+        }
+      };
+    },
+    nextFrame(callback) {
+      const raf = requestAnimationFrame(() => requestAnimationFrame(callback));
+      return api.add(() => cancelAnimationFrame(raf));
+    },
+    addEventListener(element, event, listener, options) {
+      element.addEventListener(event, listener, options);
+      return api.add(() => element.removeEventListener(event, listener));
+    },
+    dispose() {
+      disposables2.forEach((d4) => d4());
+    }
+  };
+  return api;
+}
+
+// js/sprout_ui/internal/transition.ts
+var getTransitionClasses = (element) => Object.fromEntries(
+  ["enter", "leave"].map((v4) => [v4, `${v4}From`, `${v4}To`]).flat().map((key) => {
+    var _a, _b, _c;
+    return [key, (_c = (_b = (_a = element.dataset[key]) == null ? void 0 : _a.split(" ")) == null ? void 0 : _b.filter(Boolean)) != null ? _c : []];
+  })
+);
+var waitForTransition = (element, onDone) => {
+  let { transitionDuration, transitionDelay } = getComputedStyle(element);
+  let totalDuration = [transitionDuration, transitionDelay].map((value) => {
+    let [resolvedValue = 0] = value.split(",").filter(Boolean).map((v4) => v4.includes("ms") ? parseFloat(v4) : parseFloat(v4) * 1e3).sort((a3, z2) => z2 - a3);
+    return resolvedValue;
+  }).reduce((a3, b3) => a3 + b3, 0);
+  const d4 = disposables();
+  if (totalDuration === 0) {
+    onDone("ended");
+  } else {
+    const listeners = [];
+    listeners.push(
+      d4.addEventListener(element, "transitionrun", (event) => {
+        if (event.target !== event.currentTarget)
+          return;
+        listeners.splice(0).forEach((d5) => d5());
+        listeners.push(
+          d4.addEventListener(element, "transitionend", (event2) => {
+            if (event2.target !== event2.currentTarget)
+              return;
+            onDone("ended");
+            listeners.splice(0).forEach((d5) => d5());
+          }),
+          d4.addEventListener(element, "transitioncancel", (event2) => {
+            if (event2.target !== event2.currentTarget)
+              return;
+            onDone("canceled");
+            listeners.splice(0).forEach((d5) => d5());
+          })
+        );
+      })
+    );
+  }
+  d4.add(() => onDone("canceled"));
+  return d4.dispose;
+};
+var doTransition = (element, stage, classes, callbacks) => {
+  var _a;
+  let base;
+  let from;
+  let to;
+  switch (stage) {
+    case "enter":
+      base = classes.enter;
+      from = classes.enterFrom;
+      to = classes.enterTo;
+      break;
+    case "leave":
+      base = classes.leave;
+      from = classes.leaveFrom;
+      to = classes.leaveTo;
+      break;
+  }
+  (_a = callbacks.onStart) == null ? void 0 : _a.call(callbacks, stage);
+  element.classList.add(...base, ...from);
+  const d4 = disposables();
+  d4.nextFrame(() => {
+    element.classList.remove(...from);
+    element.classList.add(...to);
+    waitForTransition(element, (status) => {
+      var _a2;
+      if (status === "ended") {
+        element.classList.remove(...base);
+      }
+      (_a2 = callbacks.onDone) == null ? void 0 : _a2.call(callbacks, stage, status);
+    });
+  });
+  return d4.dispose;
+};
+var transitionElement = (element, stage) => new Promise((resolve) => {
+  if (!element.hasAttribute("data-transition")) {
+    resolve(void 0);
+    return;
+  }
+  const classes = getTransitionClasses(element);
+  doTransition(element, stage, classes, {
+    onDone: (_stage, status) => resolve(status)
+  });
+});
+
+// js/sprout_ui/components/dialog.ts
+var DialogElement = class extends SproutElement {
+  constructor() {
+    super();
+    __publicField(this, "dialog");
+    __publicField(this, "backdrop");
+    __publicField(this, "panel");
+    __publicField(this, "disposables", disposables());
+    const dialog2 = this.querySelector(`[data-part="container"]`);
+    const backdrop = this.querySelector(`[data-part="backdrop"]`);
+    const panel = this.querySelector(`[data-part="panel"]`);
+    if (!dialog2 || !backdrop || !panel)
+      throw new Error("Dialog must have a backdrop element and a panel element.");
+    this.dialog = dialog2;
+    this.backdrop = backdrop;
+    this.panel = panel;
+  }
+  static get observedAttributes() {
+    return ["data-state"];
+  }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
+  disconnectedCallback() {
+    this.disposables.dispose();
+  }
+  handleStateChange() {
+    const parts = [this.backdrop, this.panel];
+    const trap = createFocusTrap(this.panel, {
+      escapeDeactivates: false,
+      allowOutsideClick: true
+    });
+    if (this.state === "open") {
+      this.executeJs(this.dataset.onOpenJs);
+      this.dialog.hidden = false;
+      this.disposables.nextFrame(() => trap.activate());
+      Promise.all(parts.map((part) => transitionElement(part, "enter")));
+    } else {
+      this.executeJs(this.dataset.onCloseJs);
+      trap.deactivate();
+      Promise.all(parts.map((part) => transitionElement(part, "leave"))).then(
+        () => this.dialog.hidden = true
+      );
     }
   }
 };
-var init2 = () => {
-  const modals = /* @__PURE__ */ new WeakMap();
-  window.addEventListener("sprt:modal:init", (e2) => {
-    const { target } = e2;
-    modals.set(target, new Modal(target));
-  });
-  window.addEventListener("sprt:modal:remove", (e2) => {
-    const { target } = e2;
-    const modal2 = modals.get(target);
-    modal2 == null ? void 0 : modal2.cleanup();
-  });
-};
-var modal = () => ({
-  init: init2
+var dialog = (_opts) => ({
+  init: () => {
+    customElements.define("sp-dialog", DialogElement);
+  }
 });
-var modal_default = modal;
+var dialog_default = dialog;
 
 // node_modules/.pnpm/@floating-ui+core@1.0.1/node_modules/@floating-ui/core/dist/floating-ui.core.browser.min.mjs
 function t(t2) {
@@ -663,7 +1568,7 @@ var Transition = class {
     this.cleanup = v3(this.element, observing, this.config.options);
   }
 };
-var init3 = () => {
+var init2 = () => {
   const transitions = /* @__PURE__ */ new WeakMap();
   window.addEventListener("sprt:transition:init", (e2) => {
     const { target, detail } = e2;
@@ -679,7 +1584,7 @@ var init3 = () => {
   });
 };
 var transition = () => ({
-  init: init3,
+  init: init2,
   handleDomChange: (from, to) => {
     if (from.hasAttribute("data-transition")) {
       if (from.getAttribute("style") === null) {
@@ -720,4 +1625,12 @@ var createSproutConfig = (opts) => {
   };
 };
 var sprout_ui_default = createSproutConfig;
+/*!
+* focus-trap 7.1.0
+* @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+*/
+/*!
+* tabbable 6.0.1
+* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+*/
 //# sourceMappingURL=sprout_ui.cjs.map

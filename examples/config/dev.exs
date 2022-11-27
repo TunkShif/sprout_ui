@@ -13,7 +13,7 @@ config :sprout, SproutWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "6UPqE/R/3DdkXSv41Pp9qyRzBBKIIPPPHObrV/tqCOSsFeJSv9fonyMwrQxlas7L",
+  secret_key_base: "rrgd1R8caBTOG2ZVxWGsr4XXk66To3LEpaw+eB6jLmU3y+sZkU4mx3cBwf+JqXnB",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
