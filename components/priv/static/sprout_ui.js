@@ -46,9 +46,14 @@ var SproutUI = (() => {
     return to;
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
+  var __decorateClass = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+    for (var i3 = decorators.length - 1, decorator; i3 >= 0; i3--)
+      if (decorator = decorators[i3])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result)
+      __defProp(target, key, result);
+    return result;
   };
   var __async = (__this, __arguments, generator) => {
     return new Promise((resolve, reject) => {
@@ -82,6 +87,8 @@ var SproutUI = (() => {
 
   // js/sprout_ui/utils/body-scroll.ts
   var toggleBodyScroll = (state) => {
+    if (!state)
+      return;
     switch (state) {
       case "on":
         Object.assign(document.body.style, { overflow: "" });
@@ -871,14 +878,36 @@ var SproutUI = (() => {
     return trap;
   };
 
+  // js/sprout_ui/internal/decorators.ts
+  var query = (part) => (target, propertyKey) => {
+    const key = `_${propertyKey}`;
+    Reflect.defineProperty(target, propertyKey, {
+      get() {
+        if (this[key] === void 0) {
+          this[key] = this.querySelector(`[data-part="${part}"]`);
+        }
+        return this[key];
+      },
+      enumerable: true,
+      configurable: true
+    });
+  };
+  var attr = (name, converter) => (target, propertyKey) => {
+    Reflect.defineProperty(target, propertyKey, {
+      get() {
+        const value = this.getAttribute(name);
+        return !!converter ? converter(value) : value;
+      },
+      set(value) {
+        this.setAttribute(name, value);
+      },
+      enumerable: true,
+      configurable: true
+    });
+  };
+
   // js/sprout_ui/internal/sprout-element.ts
   var SproutElement = class extends HTMLElement {
-    get state() {
-      return this.dataset.state;
-    }
-    set state(value) {
-      this.dataset.state = value;
-    }
     attributeChangedCallback(attribute, oldValue, newValue) {
       if (oldValue === null && newValue !== null)
         return;
@@ -892,35 +921,37 @@ var SproutUI = (() => {
       window.liveSocket.execJS(this, command || "[]");
     }
   };
+  __decorateClass([
+    attr("data-state")
+  ], SproutElement.prototype, "state", 2);
 
   // js/sprout_ui/utils/disposables.ts
-  function disposables() {
-    const disposables2 = [];
-    const api = {
-      add(callback) {
-        disposables2.push(callback);
-        return () => {
-          let idx = disposables2.indexOf(callback);
-          if (idx >= 0) {
-            let [dispose] = disposables2.splice(idx, 1);
-            dispose();
-          }
-        };
-      },
-      nextFrame(callback) {
-        const raf = requestAnimationFrame(() => requestAnimationFrame(callback));
-        return api.add(() => cancelAnimationFrame(raf));
-      },
-      addEventListener(element, event, listener, options) {
-        element.addEventListener(event, listener, options);
-        return api.add(() => element.removeEventListener(event, listener));
-      },
-      dispose() {
-        disposables2.forEach((d4) => d4());
-      }
-    };
-    return api;
-  }
+  var Disposables = class {
+    constructor() {
+      this.disposables = [];
+    }
+    add(callback) {
+      this.disposables.push(callback);
+      return () => {
+        let idx = this.disposables.indexOf(callback);
+        if (idx >= 0) {
+          let [dispose] = this.disposables.splice(idx, 1);
+          dispose();
+        }
+      };
+    }
+    nextFrame(callback) {
+      const raf = requestAnimationFrame(() => requestAnimationFrame(callback));
+      return this.add(() => cancelAnimationFrame(raf));
+    }
+    addEventListener(element, event, listener, options) {
+      element.addEventListener(event, listener, options);
+      return this.add(() => element.removeEventListener(event, listener));
+    }
+    dispose() {
+      this.disposables.splice(0).forEach((d4) => d4());
+    }
+  };
 
   // js/sprout_ui/internal/transition.ts
   var getTransitionClasses = (element) => Object.fromEntries(
@@ -935,7 +966,7 @@ var SproutUI = (() => {
       let [resolvedValue = 0] = value.split(",").filter(Boolean).map((v4) => v4.includes("ms") ? parseFloat(v4) : parseFloat(v4) * 1e3).sort((a3, z2) => z2 - a3);
       return resolvedValue;
     }).reduce((a3, b3) => a3 + b3, 0);
-    const d4 = disposables();
+    const d4 = new Disposables();
     if (totalDuration === 0) {
       onDone("ended");
     } else {
@@ -984,7 +1015,7 @@ var SproutUI = (() => {
     }
     (_a = callbacks.onStart) == null ? void 0 : _a.call(callbacks, stage);
     element.classList.add(...base, ...from);
-    const d4 = disposables();
+    const d4 = new Disposables();
     d4.nextFrame(() => {
       element.classList.remove(...from);
       element.classList.add(...to);
@@ -1012,50 +1043,56 @@ var SproutUI = (() => {
   // js/sprout_ui/components/dialog.ts
   var DialogElement = class extends SproutElement {
     constructor() {
-      super();
-      __publicField(this, "dialog");
-      __publicField(this, "backdrop");
-      __publicField(this, "panel");
-      __publicField(this, "disposables", disposables());
-      const dialog2 = this.querySelector(`[data-part="container"]`);
-      const backdrop = this.querySelector(`[data-part="backdrop"]`);
-      const panel = this.querySelector(`[data-part="panel"]`);
-      if (!dialog2 || !backdrop || !panel)
-        throw new Error("Dialog must have a backdrop element and a panel element.");
-      this.dialog = dialog2;
-      this.backdrop = backdrop;
-      this.panel = panel;
+      super(...arguments);
+      this.disposables = new Disposables();
     }
     static get observedAttributes() {
       return ["data-state"];
+    }
+    connectedCallback() {
+      if (!this.dialog || !this.backdrop || !this.panel)
+        throw new Error("Dialog must have a backdrop element and a panel element.");
     }
     updatedCallback(attribute, _oldValue, _newValue) {
       if (attribute === "data-state")
         this.handleStateChange();
     }
-    disconnectedCallback() {
-      this.disposables.dispose();
-    }
     handleStateChange() {
-      const parts = [this.backdrop, this.panel];
-      const trap = createFocusTrap(this.panel, {
-        escapeDeactivates: false,
-        allowOutsideClick: true
+      return __async(this, null, function* () {
+        const parts = [this.backdrop, this.panel];
+        if (this.state === "open") {
+          this.executeJs(this.dataset.onOpenJs);
+          this.dialog.hidden = false;
+          const focusTrap = createFocusTrap(this.panel, {
+            escapeDeactivates: false,
+            allowOutsideClick: true
+          });
+          this.disposables.add(() => focusTrap.deactivate());
+          this.disposables.nextFrame(() => focusTrap.activate());
+          toggleBodyScroll(this.preventScroll ? "off" : void 0);
+          yield Promise.all(parts.map((part) => transitionElement(part, "enter")));
+        } else {
+          this.executeJs(this.dataset.onCloseJs);
+          this.disposables.dispose();
+          yield Promise.all(parts.map((part) => transitionElement(part, "leave")));
+          toggleBodyScroll(this.preventScroll ? "on" : void 0);
+          this.dialog.hidden = true;
+        }
       });
-      if (this.state === "open") {
-        this.executeJs(this.dataset.onOpenJs);
-        this.dialog.hidden = false;
-        this.disposables.nextFrame(() => trap.activate());
-        Promise.all(parts.map((part) => transitionElement(part, "enter")));
-      } else {
-        this.executeJs(this.dataset.onCloseJs);
-        trap.deactivate();
-        Promise.all(parts.map((part) => transitionElement(part, "leave"))).then(
-          () => this.dialog.hidden = true
-        );
-      }
     }
   };
+  __decorateClass([
+    query("container")
+  ], DialogElement.prototype, "dialog", 2);
+  __decorateClass([
+    query("backdrop")
+  ], DialogElement.prototype, "backdrop", 2);
+  __decorateClass([
+    query("panel")
+  ], DialogElement.prototype, "panel", 2);
+  __decorateClass([
+    attr("data-prevent-scroll", (val) => val !== null && val !== void 0)
+  ], DialogElement.prototype, "preventScroll", 2);
   var dialog = (_opts) => ({
     init: () => {
       customElements.define("sp-dialog", DialogElement);
@@ -1479,11 +1516,7 @@ var SproutUI = (() => {
   var FloatingElement = class extends HTMLElement {
     constructor() {
       super();
-      __publicField(this, "active", false);
-      __publicField(this, "anchorEl");
-      __publicField(this, "arrowEl");
-      __publicField(this, "middleware");
-      __publicField(this, "cleanup");
+      this.active = false;
       this.anchorEl = this.getAnchorEl();
       this.middleware = this.getMiddleware();
     }
@@ -1617,9 +1650,6 @@ var SproutUI = (() => {
   // js/sprout_ui/components/transition.ts
   var Transition = class {
     constructor(element, config) {
-      __publicField(this, "cleanup");
-      __publicField(this, "element");
-      __publicField(this, "config");
       this.element = element;
       this.config = config;
     }

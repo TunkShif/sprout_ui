@@ -1,4 +1,5 @@
-export const toggleBodyScroll = (state: "on" | "off") => {
+export const toggleBodyScroll = (state?: "on" | "off") => {
+  if (!state) return
   switch (state) {
     case "on":
       Object.assign(document.body.style, { overflow: "" })

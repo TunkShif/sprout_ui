@@ -1,10 +1,8 @@
+import { attr } from "./decorators"
+
 export default class SproutElement<UIState extends string> extends HTMLElement {
-  get state() {
-    return this.dataset.state as UIState
-  }
-  set state(value: UIState) {
-    this.dataset.state = value
-  }
+  @attr("data-state")
+  state: UIState
 
   attributeChangedCallback(
     attribute: string,

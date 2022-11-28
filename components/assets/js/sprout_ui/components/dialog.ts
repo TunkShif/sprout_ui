@@ -1,64 +1,72 @@
 import { createFocusTrap } from "focus-trap"
+import { query, attr } from "../internal/decorators"
 import SproutElement from "../internal/sprout-element"
 import { transitionElement } from "../internal/transition"
 import type { SproutComponentSetup } from "../types"
-import disposables from "../utils/disposables"
+import { toggleBodyScroll } from "../utils/body-scroll"
+import Disposables from "../utils/disposables"
 
 type DialogUIState = "open" | "closed"
 
 class DialogElement extends SproutElement<DialogUIState> {
-  private dialog: HTMLElement
-  private backdrop: HTMLElement
-  private panel: HTMLElement
-  private disposables = disposables()
+  @query("container")
+  dialog: HTMLElement
+  @query("backdrop")
+  backdrop: HTMLElement
+  @query("panel")
+  panel: HTMLElement
+
+  @attr("data-prevent-scroll", (val) => val !== null && val !== undefined)
+  preventScroll: boolean
+
+  private disposables = new Disposables()
 
   static get observedAttributes() {
     return ["data-state"]
   }
 
-  constructor() {
-    super()
-    const dialog = this.querySelector<HTMLElement>(`[data-part="container"]`)
-    const backdrop = this.querySelector<HTMLElement>(`[data-part="backdrop"]`)
-    const panel = this.querySelector<HTMLElement>(`[data-part="panel"]`)
-    if (!dialog || !backdrop || !panel)
+  connectedCallback() {
+    if (!this.dialog || !this.backdrop || !this.panel)
       throw new Error("Dialog must have a backdrop element and a panel element.")
-
-    this.dialog = dialog
-    this.backdrop = backdrop
-    this.panel = panel
   }
 
   updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown) {
     if (attribute === "data-state") this.handleStateChange()
   }
 
-  disconnectedCallback() {
-    this.disposables.dispose()
-  }
-
-  handleStateChange() {
+  async handleStateChange() {
     const parts = [this.backdrop, this.panel]
 
-    // TODO: prevent scroll
-    const trap = createFocusTrap(this.panel, {
-      escapeDeactivates: false,
-      allowOutsideClick: true
-    })
-
     if (this.state === "open") {
+      // execute LiveView JS commands first
       this.executeJs(this.dataset.onOpenJs)
 
+      // make dialog visible to make sure transition is able to happen
       this.dialog.hidden = false
-      this.disposables.nextFrame(() => trap.activate())
-      Promise.all(parts.map((part) => transitionElement(part, "enter")))
+
+      // create a focus trap and activate it in the next frame
+      // add the deactivate callback to disposables
+      const focusTrap = createFocusTrap(this.panel, {
+        escapeDeactivates: false,
+        allowOutsideClick: true
+      })
+      this.disposables.add(() => focusTrap.deactivate())
+      this.disposables.nextFrame(() => focusTrap.activate())
+
+      toggleBodyScroll(this.preventScroll ? "off" : undefined)
+
+      // wait for transition done
+      await Promise.all(parts.map((part) => transitionElement(part, "enter")))
     } else {
       this.executeJs(this.dataset.onCloseJs)
 
-      trap.deactivate()
-      Promise.all(parts.map((part) => transitionElement(part, "leave"))).then(
-        () => (this.dialog.hidden = true)
-      )
+      // deactivate focus trap
+      this.disposables.dispose()
+
+      await Promise.all(parts.map((part) => transitionElement(part, "leave")))
+
+      toggleBodyScroll(this.preventScroll ? "on" : undefined)
+      this.dialog.hidden = true
     }
   }
 }

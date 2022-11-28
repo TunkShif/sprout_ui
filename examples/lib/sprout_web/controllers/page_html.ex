@@ -1,14 +1,13 @@
 defmodule SproutWeb.PageHTML do
   use SproutWeb, :html
 
-  alias Phoenix.LiveView.JS
   alias SproutUI.Overlay
 
   embed_templates("page_html/*")
 
   def component(%{component: "dialog"} = assigns) do
     ~H"""
-    <Overlay.dialog :let={api} on_open={JS.dispatch("test:open")} on_close={JS.dispatch("test:close")}>
+    <Overlay.dialog :let={api}>
       <button
         class={[
           "block px-5 py-2.5 text-center text-sm text-white font-medium rounded-lg",

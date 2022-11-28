@@ -1,4 +1,4 @@
-import disposables from "../utils/disposables"
+import Disposables from "../utils/disposables"
 
 type TransitionStatus = "ended" | "canceled"
 type TransitionStage = "enter" | "leave"
@@ -35,7 +35,7 @@ const waitForTransition = (element: HTMLElement, onDone: (status: TransitionStat
     })
     .reduce((a, b) => a + b, 0)
 
-  const d = disposables()
+  const d = new Disposables()
 
   if (totalDuration === 0) {
     onDone("ended")
@@ -98,7 +98,7 @@ export const doTransition = (
 
   element.classList.add(...base, ...from)
 
-  const d = disposables()
+  const d = new Disposables()
   d.nextFrame(() => {
     element.classList.remove(...from)
     element.classList.add(...to)

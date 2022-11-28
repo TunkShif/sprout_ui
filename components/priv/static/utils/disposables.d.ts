@@ -1,6 +1,7 @@
-export default function disposables(): {
+export default class Disposables {
+    private disposables;
     add(callback: () => void): () => void;
     nextFrame(callback: () => void): () => void;
-    addEventListener<TEvent extends keyof HTMLElementEventMap>(element: HTMLElement, event: string | TEvent, listener: (event: Event | HTMLElementEventMap[TEvent]) => any, options?: boolean | AddEventListenerOptions | undefined): () => void;
+    addEventListener<TEvent extends keyof HTMLElementEventMap>(element: HTMLElement, event: TEvent | string, listener: (event: HTMLElementEventMap[TEvent] | Event) => any, options?: boolean | AddEventListenerOptions | undefined): () => void;
     dispose(): void;
-};
+}

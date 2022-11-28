@@ -4,19 +4,22 @@ defmodule SproutUI.Overlay do
   alias Phoenix.LiveView.JS
 
   import SproutUI.Helper
-  import SproutUI.Utility, only: [floating: 1]
 
   attr :open, :boolean, default: false
   attr :on_open, JS, default: %JS{}
   attr :on_close, JS, default: %JS{}
   attr :prevent_scroll, :boolean, default: true
+  attr :close_on_esc, :boolean, default: true
+  attr :close_on_click_away, :boolean, default: true
   attr :rest, :global
 
   slot :inner_block, required: true
 
   def dialog(assigns) do
+    %{open: open, close_on_esc: close_on_esc, close_on_click_away: close_on_click_away} = assigns
+
     id = unique_id()
-    state = if assigns.open, do: "open", else: "closed"
+    state = if open, do: "open", else: "closed"
     open_modal_js = JS.set_attribute({"data-state", "open"}, to: "#dialog-#{id}")
     close_modal_js = JS.set_attribute({"data-state", "closed"}, to: "#dialog-#{id}")
 
@@ -42,9 +45,9 @@ defmodule SproutUI.Overlay do
         "aria-modal" => "true",
         "aria-labelledby" => "title-#{id}",
         "aria-describedby" => "content-#{id}",
-        "phx-click-away" => close_modal_js,
-        "phx-key" => "escape",
-        "phx-window-keydown" => close_modal_js
+        "phx-click-away" => close_on_click_away && close_modal_js,
+        "phx-key" => close_on_esc && "escape",
+        "phx-window-keydown" => close_on_esc && close_modal_js
       },
       title_attrs: %{
         "data-part" => "title",
@@ -68,6 +71,7 @@ defmodule SproutUI.Overlay do
       data-state={@state}
       data-on-open-js={@on_open}
       data-on-close-js={@on_close}
+      data-prevent-scroll={@prevent_scroll}
       phx-mounted={@open && @api.open_modal_js}
       {@rest}
     >
@@ -76,10 +80,7 @@ defmodule SproutUI.Overlay do
     """
   end
 
-  attr :id, :string, default: nil
   attr :active, :boolean, default: false
-  attr :text, :string, default: ""
-  attr :element, :string, default: "sprt-floating"
 
   attr :placement, :string,
     default: "top",
@@ -98,36 +99,32 @@ defmodule SproutUI.Overlay do
       "left-end"
     ]
 
-  attr :offset, :integer, default: 0
-  attr :middleware, :list, default: nil
   attr :rest, :global
 
   slot :inner_block, required: true
 
   def tooltip(assigns) do
-    id = unless assigns.id, do: "tooltip-wrapper-#{unique_id()}", else: assigns.id
+    id = unique_id()
+    state = if assigns.active, do: "active", else: "inactive"
 
-    middleware =
-      unless assigns.middleware,
-        do: [offset: assigns.offset, flip: true, shift: %{"rootBoundary" => "document"}],
-        else: assigns.middleware
+    api = %{
+      trigger_attrs: %{
+        "data-part" => "trigger"
+      },
+      container_attrs: %{
+        "data-part" => "container"
+      },
+      arrow_attrs: %{
+        "data-part" => "arrow"
+      }
+    }
 
-    assigns = assign(assigns, id: id, middleware: middleware)
+    assigns = assign(assigns, id: id, state: state, api: api)
 
     ~H"""
-    <div id={@id}>
-      <%= render_slot(@inner_block) %>
-      <.floating
-        element={@element}
-        active={@active}
-        anchor={"##{@id}"}
-        placement={@placement}
-        middleware={@middleware}
-        {@rest}
-      >
-        <span><%= @text %></span>
-      </.floating>
-    </div>
+    <sp-tooltip id={"tooltip-#{@id}"} placement={@placement} data-state={@state} {@rest}>
+      <%= render_slot(@inner_block, @api) %>
+    </sp-tooltip>
     """
   end
 end
