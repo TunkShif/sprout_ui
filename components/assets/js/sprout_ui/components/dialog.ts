@@ -3,12 +3,11 @@ import { query, attr } from "../internal/decorators"
 import SproutElement from "../internal/sprout-element"
 import { transitionElement } from "../internal/transition"
 import type { SproutComponentSetup } from "../types"
+import { isTruthy } from "../utils"
 import { toggleBodyScroll } from "../utils/body-scroll"
 import Disposables from "../utils/disposables"
 
-type DialogUIState = "open" | "closed"
-
-class DialogElement extends SproutElement<DialogUIState> {
+class DialogElement extends SproutElement {
   @query("container")
   dialog: HTMLElement
   @query("backdrop")
@@ -16,7 +15,7 @@ class DialogElement extends SproutElement<DialogUIState> {
   @query("panel")
   panel: HTMLElement
 
-  @attr("data-prevent-scroll", (val) => val !== null && val !== undefined)
+  @attr("data-prevent-scroll", isTruthy)
   preventScroll: boolean
 
   private disposables = new Disposables()

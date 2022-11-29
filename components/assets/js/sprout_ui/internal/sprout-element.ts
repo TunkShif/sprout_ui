@@ -1,6 +1,6 @@
 import { attr } from "./decorators"
 
-export default class SproutElement<UIState extends string> extends HTMLElement {
+export default class SproutElement<UIState extends string = "open" | "closed"> extends HTMLElement {
   @attr("data-state")
   state: UIState
 

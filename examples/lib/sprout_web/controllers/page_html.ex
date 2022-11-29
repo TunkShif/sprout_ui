@@ -68,4 +68,87 @@ defmodule SproutWeb.PageHTML do
     </Overlay.dialog>
     """
   end
+
+  def component(%{component: "floating"} = assigns) do
+    ~H"""
+    <hr class="my-4" />
+
+    <h3>Shift</h3>
+    <div
+      class="relative h-[400px] overflow-hidden overflow-y-auto"
+      phx-mounted={JS.dispatch("demo:floating:scroll")}
+    >
+      <div class="h-[360px] w-1"></div>
+      <div
+        id="dashed-box-1"
+        class="inline-block ml-[calc(50%-110px)] h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+      >
+      </div>
+      <div
+        is="floating-element"
+        anchor="#dashed-box-1"
+        placement="right"
+        offset="12"
+        shift
+        class="absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
+      >
+        <h3 class="mb-2 font-medium">Popover</h3>
+        <p class="text-sm leading-relaxed">
+          Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi.
+          Lorem pariatur mollit ex esse exercitation amet.
+        </p>
+      </div>
+      <div class="h-[360px] w-1"></div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h3>Flip</h3>
+    <div
+      class="relative h-[400px] grid place-items-center overflow-hidden overflow-y-auto"
+      phx-mounted={JS.dispatch("demo:floating:scroll")}
+    >
+      <div class="h-[360px] w-1"></div>
+      <div
+        id="dashed-box-2"
+        class="inline-block h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+      >
+      </div>
+      <div
+        is="floating-element"
+        anchor="#dashed-box-2"
+        placement="top"
+        offset="12"
+        flip
+        class="absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
+      >
+        Tooltip
+      </div>
+      <div class="h-[360px] w-1"></div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h3>Arrow</h3>
+    <div class="relative flex justify-center items-center h-48 overflow-hidden">
+      <div
+        id="dashed-box-3"
+        class="grid place-items-center h-24 w-24 border-2 border-gray-900 border-dashed rounded"
+      >
+        with arrow
+      </div>
+      <div
+        is="floating-element"
+        anchor="#dashed-box-3"
+        placement="top"
+        offset="12"
+        class="absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
+        active
+      >
+        Tooltip
+        <div data-part="arrow" class="absolute w-2 h-2 bg-gray-700 rotate-45"></div>
+      </div>
+    </div>
+    """
+  end
 end

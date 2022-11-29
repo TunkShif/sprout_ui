@@ -9,7 +9,6 @@ type CreateSproutConfig = (opts: CreateSproutConfigOptions) => {
     };
     handleDomChange: (from: HTMLElement, to: HTMLElement) => void;
 };
-declare const createSproutConfig: CreateSproutConfig;
-export default createSproutConfig;
+export declare const createSproutConfig: CreateSproutConfig;
 export * from "./components";
 export * from "./types";

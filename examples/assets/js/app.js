@@ -2,10 +2,10 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import createSproutConfig, { dialog } from "sprout_ui"
+import { createSproutConfig, dialog, floating } from "sprout_ui"
 
 const { initComponents, hooks, handleDomChange } = createSproutConfig({
-  components: [dialog()]
+  components: [dialog(), floating()]
 })
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
@@ -30,3 +30,7 @@ window.addEventListener("phx:page-loading-stop", (_info) => topbar.hide())
 
 liveSocket.connect()
 window.liveSocket = liveSocket
+
+window.addEventListener("demo:floating:scroll", ({ target }) => {
+  target.scrollTo({ top: target.offsetHeight / 2 })
+})

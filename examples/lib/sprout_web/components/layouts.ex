@@ -3,7 +3,7 @@ defmodule SproutWeb.Layouts do
 
   embed_templates "layouts/*"
 
-  @components ["dialog"]
+  @components ["dialog", "floating"]
   def sidebar_navigation(assigns) do
     assigns = assign(assigns, components: @components)
 
