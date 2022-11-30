@@ -879,6 +879,10 @@ var Disposables = class {
     element.addEventListener(event, listener, options);
     return this.add(() => element.removeEventListener(event, listener));
   }
+  setTimeout(handler, timeout) {
+    const id = window.setTimeout(handler, timeout);
+    return this.add(() => clearTimeout(id));
+  }
   dispose() {
     this.disposables.splice(0).forEach((d3) => d3());
   }
@@ -1628,12 +1632,100 @@ __decorateClass([
 __decorateClass([
   query("panel")
 ], PopoverElement.prototype, "panel", 2);
-var popover = (_opts) => ({
+var popover = () => ({
   init: () => {
     customElements.define("sp-popover", PopoverElement);
   }
 });
 var popover_default = popover;
+
+// js/sprout-ui/components/tooltip.ts
+var TooltipElement = class extends SproutElement {
+  constructor() {
+    super(...arguments);
+    this.disposables = new Disposables();
+    this.listeners = new Disposables();
+  }
+  static get observedAttributes() {
+    return ["data-state"];
+  }
+  connectedCallback() {
+    if (!this.container || !this.trigger)
+      throw new Error("Tooltip must have a trigger element and a container element.");
+    this.addEventListeners();
+  }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
+  disconnectedCallback() {
+    this.disposables.dispose();
+    this.removeEventListeners();
+  }
+  addEventListeners() {
+    this.listeners.addEventListener(this.trigger, "mouseover", () => {
+      this.disposables.dispose();
+      this.disposables.setTimeout(() => this.state = "open", this.openDelay);
+    });
+    this.listeners.addEventListener(this.trigger, "mouseout", () => {
+      this.disposables.dispose();
+      this.disposables.setTimeout(() => this.state = "closed", this.closeDelay);
+    });
+    this.listeners.addEventListener(this.trigger, "focus", () => {
+      this.disposables.dispose();
+      this.state = "open";
+    });
+    this.listeners.addEventListener(this.trigger, "blur", () => {
+      this.disposables.dispose();
+      this.state = "closed";
+    });
+    this.listeners.addEventListener(this.trigger, "click", () => {
+      this.disposables.dispose();
+      this.state = "open";
+    });
+    this.listeners.addEventListener(document, "keydown", (event) => {
+      const { key } = event;
+      if (this.state === "open" && key === "Escape") {
+        this.state = "closed";
+        event.stopPropagation();
+      }
+    });
+  }
+  removeEventListeners() {
+    this.listeners.dispose();
+  }
+  handleStateChange() {
+    return __async(this, null, function* () {
+      if (this.state === "open") {
+        this.executeJs(this.dataset.onOpenJs);
+        this.container.hidden = false;
+        transitionElement(this.container, "enter");
+      } else {
+        this.executeJs(this.dataset.onCloseJs);
+        yield transitionElement(this.container, "leave");
+        this.container.hidden = true;
+      }
+    });
+  }
+};
+__decorateClass([
+  query("trigger")
+], TooltipElement.prototype, "trigger", 2);
+__decorateClass([
+  query("container")
+], TooltipElement.prototype, "container", 2);
+__decorateClass([
+  attr("data-open-delay", Number)
+], TooltipElement.prototype, "openDelay", 2);
+__decorateClass([
+  attr("data-close-delay", Number)
+], TooltipElement.prototype, "closeDelay", 2);
+var tooltip = () => ({
+  init: () => {
+    customElements.define("sp-tooltip", TooltipElement);
+  }
+});
+var tooltip_default = tooltip;
 
 // js/sprout-ui/index.ts
 var createSproutConfig = (opts) => {
@@ -1661,7 +1753,8 @@ export {
   createSproutConfig,
   dialog_default as dialog,
   floating_default as floating,
-  popover_default as popover
+  popover_default as popover,
+  tooltip_default as tooltip
 };
 /*!
 * focus-trap 7.1.0

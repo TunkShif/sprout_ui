@@ -167,7 +167,7 @@ defmodule SproutUI.Overlay do
     """
   end
 
-  attr :active, :boolean, default: false
+  attr :open, :boolean, default: false
 
   attr :placement, :string,
     default: "top",
@@ -186,20 +186,40 @@ defmodule SproutUI.Overlay do
       "left-end"
     ]
 
+  attr :offset, :integer, default: nil
+  attr :open_delay, :integer, default: 200
+  attr :close_delay, :integer, default: 300
+  attr :on_open, JS, default: %JS{}
+  attr :on_close, JS, default: %JS{}
   attr :rest, :global
 
   slot :inner_block, required: true
 
   def tooltip(assigns) do
+    %{
+      open: open,
+      placement: placement,
+      offset: offset
+    } = assigns
+
     id = unique_id()
-    state = if assigns.active, do: "active", else: "inactive"
+    state = if open, do: "open", else: "closed"
 
     api = %{
       trigger_attrs: %{
-        "data-part" => "trigger"
+        "data-part" => "trigger",
+        "id" => "tooltip-trigger-#{id}"
       },
       container_attrs: %{
-        "data-part" => "container"
+        "data-part" => "container",
+        "is" => "floating-element",
+        "id" => "tooltip-container-#{id}",
+        "data-anchor" => "#tooltip-trigger-#{id}",
+        "data-placement" => placement,
+        "data-offset" => offset,
+        "data-shift" => true,
+        "data-flip" => true,
+        "hidden" => !open
       },
       arrow_attrs: %{
         "data-part" => "arrow"
@@ -209,7 +229,15 @@ defmodule SproutUI.Overlay do
     assigns = assign(assigns, id: id, state: state, api: api)
 
     ~H"""
-    <sp-tooltip id={"tooltip-#{@id}"} placement={@placement} data-state={@state} {@rest}>
+    <sp-tooltip
+      id={"tooltip-#{@id}"}
+      data-state={@state}
+      data-open-delay={@open_delay}
+      data-close-delay={@close_delay}
+      data-on-open-js={@on_open}
+      data-on-close-js={@on_close}
+      {@rest}
+    >
       <%= render_slot(@inner_block, @api) %>
     </sp-tooltip>
     """

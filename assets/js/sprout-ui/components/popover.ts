@@ -67,7 +67,7 @@ class PopoverElement extends SproutElement {
   }
 }
 
-const popover: SproutComponentSetup = (_opts) => ({
+const popover: SproutComponentSetup = () => ({
   init: () => {
     customElements.define("sp-popover", PopoverElement)
   }

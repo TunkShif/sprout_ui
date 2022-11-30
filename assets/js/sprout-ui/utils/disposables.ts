@@ -27,6 +27,11 @@ export default class Disposables {
     return this.add(() => element.removeEventListener(event, listener))
   }
 
+  setTimeout(handler: () => void, timeout?: number) {
+    const id = window.setTimeout(handler, timeout)
+    return this.add(() => clearTimeout(id))
+  }
+
   dispose() {
     this.disposables.splice(0).forEach((d) => d())
   }

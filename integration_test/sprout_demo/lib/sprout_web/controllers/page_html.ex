@@ -208,4 +208,33 @@ defmodule SproutWeb.PageHTML do
     </Overlay.popover>
     """
   end
+
+  def component(%{component: "tooltip"} = assigns) do
+    ~H"""
+    <div class="relative flex justify-center items-center h-48 overflow-hidden">
+      <Overlay.tooltip :let={api} placement="top" offset={12}>
+        <button
+          class="grid place-items-center h-24 w-24 border-2 border-gray-900 border-dashed rounded cursor-pointer outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+          {api.trigger_attrs}
+        >
+          with arrow
+        </button>
+        <div
+          class="absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
+          data-transition
+          data-enter="transition duration-300"
+          data-enter-from="opacity-0"
+          data-enter-to="opacity-100"
+          data-leave="transition duration-300"
+          data-leave-from="opacity-100"
+          data-leave-to="opacity-0"
+          {api.container_attrs}
+        >
+          Tooltip
+          <div class="absolute w-2 h-2 bg-gray-700 rotate-45" {api.arrow_attrs}></div>
+        </div>
+      </Overlay.tooltip>
+    </div>
+    """
+  end
 end
