@@ -11,7 +11,7 @@ module.exports = {
   },
   plugins: [
     require("@tailwindcss/forms"),
-    require("sprout_ui/tailwind"),
+    require("sprout-ui/tailwind"),
     plugin(({ addVariant }) =>
       addVariant("phx-no-feedback", [".phx-no-feedback&", ".phx-no-feedback &"])
     ),

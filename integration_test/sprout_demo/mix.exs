@@ -45,7 +45,7 @@ defmodule Sprout.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:wallaby, "~> 0.30.0", runtime: false, only: :test},
-      {:sprout_ui, path: "../components/"}
+      {:sprout_ui, path: "../../"}
     ]
   end
 

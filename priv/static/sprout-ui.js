@@ -76,7 +76,7 @@ var SproutUI = (() => {
     });
   };
 
-  // js/sprout_ui/index.ts
+  // js/sprout-ui/index.ts
   var sprout_ui_exports = {};
   __export(sprout_ui_exports, {
     createSproutConfig: () => createSproutConfig,
@@ -84,7 +84,7 @@ var SproutUI = (() => {
     floating: () => floating_default
   });
 
-  // js/sprout_ui/utils/body-scroll.ts
+  // js/sprout-ui/utils/body-scroll.ts
   var toggleBodyScroll = (state) => {
     if (!state)
       return;
@@ -98,7 +98,7 @@ var SproutUI = (() => {
     }
   };
 
-  // js/sprout_ui/components/global.ts
+  // js/sprout-ui/components/global.ts
   var init = () => {
     window.addEventListener("sp:toggle-attribute", (e2) => {
       const { target, detail } = e2;
@@ -877,7 +877,7 @@ var SproutUI = (() => {
     return trap;
   };
 
-  // js/sprout_ui/internal/decorators.ts
+  // js/sprout-ui/internal/decorators.ts
   var query = (part) => (target, propertyKey) => {
     const key = `_${propertyKey}`;
     Reflect.defineProperty(target, propertyKey, {
@@ -905,7 +905,7 @@ var SproutUI = (() => {
     });
   };
 
-  // js/sprout_ui/internal/sprout-element.ts
+  // js/sprout-ui/internal/sprout-element.ts
   var SproutElement = class extends HTMLElement {
     attributeChangedCallback(attribute, oldValue, newValue) {
       if (oldValue === null && newValue !== null)
@@ -924,7 +924,7 @@ var SproutUI = (() => {
     attr("data-state")
   ], SproutElement.prototype, "state", 2);
 
-  // js/sprout_ui/utils/disposables.ts
+  // js/sprout-ui/utils/disposables.ts
   var Disposables = class {
     constructor() {
       this.disposables = [];
@@ -952,7 +952,7 @@ var SproutUI = (() => {
     }
   };
 
-  // js/sprout_ui/internal/transition.ts
+  // js/sprout-ui/internal/transition.ts
   var getTransitionClasses = (element) => Object.fromEntries(
     ["enter", "leave"].map((v3) => [v3, `${v3}From`, `${v3}To`]).flat().map((key) => {
       var _a, _b, _c;
@@ -1039,10 +1039,10 @@ var SproutUI = (() => {
     });
   });
 
-  // js/sprout_ui/utils/index.ts
+  // js/sprout-ui/utils/index.ts
   var isTruthy = (val) => val !== null && val !== void 0;
 
-  // js/sprout_ui/components/dialog.ts
+  // js/sprout-ui/components/dialog.ts
   var DialogElement = class extends SproutElement {
     constructor() {
       super(...arguments);
@@ -1508,7 +1508,7 @@ var SproutUI = (() => {
   }
   var A = (t2, n3, o3) => o(t2, n3, __spreadValues({ platform: S }, o3));
 
-  // js/sprout_ui/components/floating.ts
+  // js/sprout-ui/components/floating.ts
   var FloatingElement = class extends HTMLDivElement {
     connectedCallback() {
       const anchor = document.querySelector(this.getAttribute("anchor"));
@@ -1592,7 +1592,7 @@ var SproutUI = (() => {
   });
   var floating_default = floating;
 
-  // js/sprout_ui/index.ts
+  // js/sprout-ui/index.ts
   var createSproutConfig = (opts) => {
     const components = [global_default(), ...opts.components];
     return {

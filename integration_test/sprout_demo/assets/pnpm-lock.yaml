@@ -2,10 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   prettier: ^2.7.1
-  sprout_ui: link:../../components
+  sprout-ui: link:../../../
 
 dependencies:
-  sprout_ui: link:../../components
+  sprout-ui: link:../../..
 
 devDependencies:
   prettier: 2.8.0

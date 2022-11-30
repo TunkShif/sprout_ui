@@ -3,6 +3,6 @@
 		"prettier": "^2.7.1"
 	},
 	"dependencies": {
-		"sprout_ui": "link:../../components"
+		"sprout-ui": "link:../../../"
 	}
 }

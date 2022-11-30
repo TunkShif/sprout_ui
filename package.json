@@ -1,18 +1,18 @@
 {
-  "name": "sprout_ui",
+  "name": "sprout-ui",
   "version": "0.1.0",
   "description": "SproutUI JS Library",
-  "module": "./priv/static/sprout_ui.mjs",
-  "main": "./priv/static/sprout_ui.cjs",
+  "module": "./priv/static/sprout-ui.mjs",
+  "main": "./priv/static/sprout-ui.cjs",
   "types": "./priv/static/index.d.ts",
-  "unpkg": "./priv/static/sprout_ui.min.js",
-  "jsdelivr": "./priv/static/sprout_ui.min.js",
+  "unpkg": "./priv/static/sprout-ui.min.js",
+  "jsdelivr": "./priv/static/sprout-ui.min.js",
   "exports": {
     ".": {
-      "import": "./priv/static/sprout_ui.mjs",
-      "require": "./priv/static/sprout_ui.cjs"
+      "import": "./priv/static/sprout-ui.mjs",
+      "require": "./priv/static/sprout-ui.cjs"
     },
-    "./tailwind": "./priv/static/sprout_ui_tailwind.js"
+    "./tailwind": "./priv/static/sprout-ui-tailwind.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,6 @@
     "LICENSE",
     "package.json",
     "priv/static/*",
-    "assets/js/sprout_ui/*"
+    "assets/js/sprout-ui/*"
   ]
 }
