@@ -21,7 +21,7 @@ defmodule SproutWeb.PageHTML do
 
       <div class="relative" {api.container_attrs}>
         <div
-          class="fixed inset-0 bg-black bg-opacity-25"
+          class="fixed inset-0 bg-black bg-opacity-25 z-10"
           data-transition
           data-enter="ease-in-out duration-300"
           data-enter-from="opacity-0"
@@ -32,10 +32,10 @@ defmodule SproutWeb.PageHTML do
           {api.backdrop_attrs}
         >
         </div>
-        <div class="fixed inset-0 overflow-y-auto">
+        <div class="fixed inset-0 overflow-y-auto z-20">
           <div class="flex min-h-full items-center justify-center p-4 text-center">
             <div
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all opacity-100 scale-100"
+              class="z-50 w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all opacity-100 scale-100"
               data-transition
               data-enter="ease-in-out duration-300"
               data-enter-from="opacity-0 scale-50"
@@ -86,10 +86,10 @@ defmodule SproutWeb.PageHTML do
       </div>
       <div
         is="floating-element"
-        anchor="#dashed-box-1"
-        placement="right"
-        offset="12"
-        shift
+        data-anchor="#dashed-box-1"
+        data-placement="right"
+        data-offset="12"
+        data-shift
         class="absolute w-[220px] px-2 py-1 bg-gray-700 text-white rounded"
       >
         <h3 class="mb-2 font-medium">Popover</h3>
@@ -116,10 +116,10 @@ defmodule SproutWeb.PageHTML do
       </div>
       <div
         is="floating-element"
-        anchor="#dashed-box-2"
-        placement="top"
-        offset="12"
-        flip
+        data-anchor="#dashed-box-2"
+        data-placement="top"
+        data-offset="12"
+        data-flip
         class="absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
       >
         Tooltip
@@ -139,16 +139,73 @@ defmodule SproutWeb.PageHTML do
       </div>
       <div
         is="floating-element"
-        anchor="#dashed-box-3"
-        placement="top"
-        offset="12"
+        data-anchor="#dashed-box-3"
+        data-placement="top"
+        data-offset="12"
         class="absolute w-max px-2 py-1 bg-gray-700 text-sm text-white font-medium rounded"
-        active
       >
         Tooltip
         <div data-part="arrow" class="absolute w-2 h-2 bg-gray-700 rotate-45"></div>
       </div>
     </div>
+    """
+  end
+
+  def component(%{component: "popover"} = assigns) do
+    ~H"""
+    <Overlay.popover :let={api} offset={12}>
+      <button
+        class="inline-flex items-center rounded-md bg-blue-700 px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus:ring-blue-800"
+        {api.trigger_attrs}
+      >
+        Solutions
+      </button>
+      <div
+        class="absolute z-10 max-w-sm"
+        data-transition
+        data-enter="transition duration-300"
+        data-enter-from="opacity-0"
+        data-enter-to="opacity-100"
+        data-leave="transition duration-300"
+        data-leave-from="opacity-100"
+        data-leave-to="opacity-0"
+        {api.panel_attrs}
+      >
+        <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+          <div class="relative grid gap-8 bg-white p-7 lg:grid-cols-2">
+            <a
+              :for={solution <- @solutions}
+              href={solution.href}
+              class="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring focus:ring-orange-500 focus:ring-opacity-50"
+            >
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-900">
+                  <%= solution.name %>
+                </p>
+                <p class="text-sm text-gray-500">
+                  <%= solution.description %>
+                </p>
+              </div>
+            </a>
+          </div>
+          <div class="bg-gray-50 p-4">
+            <a
+              href="##"
+              class="flow-root rounded-md px-2 py-2 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+            >
+              <span class="flex items-center">
+                <span class="text-sm font-medium text-gray-900">
+                  Documentation
+                </span>
+              </span>
+              <span class="block text-sm text-gray-500">
+                Start integrating products and tools
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </Overlay.popover>
     """
   end
 end

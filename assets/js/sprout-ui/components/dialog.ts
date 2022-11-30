@@ -1,11 +1,9 @@
-import { createFocusTrap } from "focus-trap"
-import { query, attr } from "../internal/decorators"
+import { query } from "../internal/decorators"
+import Modal from "../internal/modal"
 import SproutElement from "../internal/sprout-element"
 import { transitionElement } from "../internal/transition"
 import type { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
-import { toggleBodyScroll } from "../utils/body-scroll"
-import Disposables from "../utils/disposables"
 
 class DialogElement extends SproutElement {
   @query("container")
@@ -15,10 +13,7 @@ class DialogElement extends SproutElement {
   @query("panel")
   panel: HTMLElement
 
-  @attr("data-prevent-scroll", isTruthy)
-  preventScroll: boolean
-
-  private disposables = new Disposables()
+  private modal: Modal
 
   static get observedAttributes() {
     return ["data-state"]
@@ -27,6 +22,12 @@ class DialogElement extends SproutElement {
   connectedCallback() {
     if (!this.dialog || !this.backdrop || !this.panel)
       throw new Error("Dialog must have a backdrop element and a panel element.")
+
+    this.modal = new Modal(this.panel, {
+      preventScroll: isTruthy(this.dataset.preventScroll),
+      dismissOnEsc: isTruthy(this.dataset.closeOnEsc),
+      dismissOnClickAway: isTruthy(this.dataset.closeOnClickAway)
+    })
   }
 
   updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown) {
@@ -37,34 +38,19 @@ class DialogElement extends SproutElement {
     const parts = [this.backdrop, this.panel]
 
     if (this.state === "open") {
-      // execute LiveView JS commands first
       this.executeJs(this.dataset.onOpenJs)
 
-      // make dialog visible to make sure transition is able to happen
       this.dialog.hidden = false
+      this.modal.addEventListeners(() => (this.state = "closed"))
+      this.modal.activate()
 
-      // create a focus trap and activate it in the next frame
-      // add the deactivate callback to disposables
-      const focusTrap = createFocusTrap(this.panel, {
-        escapeDeactivates: false,
-        allowOutsideClick: true
-      })
-      this.disposables.add(() => focusTrap.deactivate())
-      this.disposables.nextFrame(() => focusTrap.activate())
-
-      toggleBodyScroll(this.preventScroll ? "off" : undefined)
-
-      // wait for transition done
       await Promise.all(parts.map((part) => transitionElement(part, "enter")))
     } else {
       this.executeJs(this.dataset.onCloseJs)
 
-      // deactivate focus trap
-      this.disposables.dispose()
-
+      this.modal.removeEventListeners()
+      this.modal.deactivate()
       await Promise.all(parts.map((part) => transitionElement(part, "leave")))
-
-      toggleBodyScroll(this.preventScroll ? "on" : undefined)
       this.dialog.hidden = true
     }
   }

@@ -18,7 +18,7 @@ export default class Disposables {
   }
 
   addEventListener<TEvent extends keyof HTMLElementEventMap>(
-    element: HTMLElement,
+    element: Element | Document,
     event: TEvent | string,
     listener: (event: HTMLElementEventMap[TEvent] | Event) => any,
     options?: boolean | AddEventListenerOptions | undefined

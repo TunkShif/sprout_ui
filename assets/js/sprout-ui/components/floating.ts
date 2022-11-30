@@ -10,27 +10,27 @@ import {
 } from "@floating-ui/dom"
 import { attr, query } from "../internal/decorators"
 import { SproutComponentSetup } from "../types"
-import { isTruthy } from "../utils"
+import { isTruthy, isVisible } from "../utils"
 
 class FloatingElement extends HTMLDivElement {
   anchor: HTMLElement
   @query("arrow")
   arrow: HTMLElement | null
 
-  @attr("placement")
+  @attr("data-placement")
   placement: Placement
-  @attr("offset", Number)
+  @attr("data-offset", Number)
   offset: number
-  @attr("shift", isTruthy)
+  @attr("data-shift", isTruthy)
   shift: boolean
-  @attr("flip", isTruthy)
+  @attr("data-flip", isTruthy)
   flip: boolean
 
   private middleware: Middleware[]
   private cleanup: ReturnType<typeof autoUpdate> | undefined
 
   connectedCallback() {
-    const anchor = document.querySelector<HTMLElement>(this.getAttribute("anchor")!)
+    const anchor = document.querySelector<HTMLElement>(this.dataset.anchor!)
     if (!anchor) throw new Error("Floating element must have an anchor element")
 
     this.anchor = anchor
@@ -56,6 +56,7 @@ class FloatingElement extends HTMLDivElement {
   }
 
   update() {
+    if (!isVisible(this)) return
     computePosition(this.anchor, this, {
       placement: this.placement,
       middleware: this.middleware

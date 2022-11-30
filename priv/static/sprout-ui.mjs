@@ -61,6 +61,34 @@ var global = () => ({
 });
 var global_default = global;
 
+// js/sprout-ui/internal/decorators.ts
+var query = (part) => (target, propertyKey) => {
+  const key = `_${propertyKey}`;
+  Reflect.defineProperty(target, propertyKey, {
+    get() {
+      if (this[key] === void 0) {
+        this[key] = this.querySelector(`[data-part="${part}"]`);
+      }
+      return this[key];
+    },
+    enumerable: true,
+    configurable: true
+  });
+};
+var attr = (name, converter) => (target, propertyKey) => {
+  Reflect.defineProperty(target, propertyKey, {
+    get() {
+      const value = this.getAttribute(name);
+      return !!converter ? converter(value) : value;
+    },
+    set(value) {
+      this.setAttribute(name, value);
+    },
+    enumerable: true,
+    configurable: true
+  });
+};
+
 // node_modules/.pnpm/tabbable@6.0.1/node_modules/tabbable/dist/index.esm.js
 var candidateSelectors = ["input", "select", "textarea", "a[href]", "button", "[tabindex]:not(slot)", "audio[controls]", "video[controls]", '[contenteditable]:not([contenteditable="false"])', "details>summary:first-of-type", "details"];
 var candidateSelector = /* @__PURE__ */ candidateSelectors.join(",");
@@ -823,52 +851,10 @@ var createFocusTrap = function createFocusTrap2(elements, userOptions) {
   return trap;
 };
 
-// js/sprout-ui/internal/decorators.ts
-var query = (part) => (target, propertyKey) => {
-  const key = `_${propertyKey}`;
-  Reflect.defineProperty(target, propertyKey, {
-    get() {
-      if (this[key] === void 0) {
-        this[key] = this.querySelector(`[data-part="${part}"]`);
-      }
-      return this[key];
-    },
-    enumerable: true,
-    configurable: true
-  });
-};
-var attr = (name, converter) => (target, propertyKey) => {
-  Reflect.defineProperty(target, propertyKey, {
-    get() {
-      const value = this.getAttribute(name);
-      return !!converter ? converter(value) : value;
-    },
-    set(value) {
-      this.setAttribute(name, value);
-    },
-    enumerable: true,
-    configurable: true
-  });
-};
-
-// js/sprout-ui/internal/sprout-element.ts
-var SproutElement = class extends HTMLElement {
-  attributeChangedCallback(attribute, oldValue, newValue) {
-    if (oldValue === null && newValue !== null)
-      return;
-    if (oldValue === newValue)
-      return;
-    this.updatedCallback(attribute, oldValue, newValue);
-  }
-  updatedCallback(_attribute, _oldValue, _newValue) {
-  }
-  executeJs(command) {
-    window.liveSocket.execJS(this, command || "[]");
-  }
-};
-__decorateClass([
-  attr("data-state")
-], SproutElement.prototype, "state", 2);
+// js/sprout-ui/utils/index.ts
+var isTruthy = (val) => val !== null && val !== void 0;
+var isVisible = (element) => !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length > 0);
+var flipping = (current, values = ["open", "closed"]) => current === values[0] ? values[1] : values[0];
 
 // js/sprout-ui/utils/disposables.ts
 var Disposables = class {
@@ -897,6 +883,75 @@ var Disposables = class {
     this.disposables.splice(0).forEach((d3) => d3());
   }
 };
+
+// js/sprout-ui/internal/modal.ts
+var Modal = class {
+  constructor(element, options) {
+    this.listeners = new Disposables();
+    this.disposables = new Disposables();
+    var _a, _b, _c;
+    this.element = element;
+    this.preventScroll = (_a = options == null ? void 0 : options.preventScroll) != null ? _a : true;
+    this.dismissOnEsc = (_b = options == null ? void 0 : options.dismissOnEsc) != null ? _b : true;
+    this.dismissOnClickAway = (_c = options == null ? void 0 : options.dismissOnClickAway) != null ? _c : true;
+  }
+  addEventListeners(onDismiss) {
+    if (this.dismissOnClickAway) {
+      this.listeners.addEventListener(document, "click", (event) => {
+        if (isVisible(this.element) && !this.element.contains(event.target)) {
+          console.log(isVisible(this.element));
+          onDismiss();
+          event.preventDefault();
+        }
+      });
+    }
+    if (this.dismissOnEsc) {
+      this.listeners.addEventListener(document, "keydown", (event) => {
+        console.log(event);
+        const { key } = event;
+        if (isVisible(this.element) && key === "Escape") {
+          onDismiss();
+          event.preventDefault();
+        }
+      });
+    }
+  }
+  removeEventListeners() {
+    this.listeners.dispose();
+  }
+  activate() {
+    const focusTrap = createFocusTrap(this.element, {
+      escapeDeactivates: false,
+      allowOutsideClick: true
+    });
+    this.disposables.add(() => focusTrap.deactivate());
+    this.disposables.nextFrame(() => focusTrap.activate());
+    toggleBodyScroll(this.preventScroll ? "off" : void 0);
+  }
+  deactivate() {
+    this.disposables.dispose();
+    toggleBodyScroll(this.preventScroll ? "on" : void 0);
+  }
+};
+
+// js/sprout-ui/internal/sprout-element.ts
+var SproutElement = class extends HTMLElement {
+  attributeChangedCallback(attribute, oldValue, newValue) {
+    if (oldValue === null && newValue !== null)
+      return;
+    if (oldValue === newValue)
+      return;
+    this.updatedCallback(attribute, oldValue, newValue);
+  }
+  updatedCallback(_attribute, _oldValue, _newValue) {
+  }
+  executeJs(command) {
+    window.liveSocket.execJS(this, command || "[]");
+  }
+};
+__decorateClass([
+  attr("data-state")
+], SproutElement.prototype, "state", 2);
 
 // js/sprout-ui/internal/transition.ts
 var getTransitionClasses = (element) => Object.fromEntries(
@@ -985,21 +1040,19 @@ var transitionElement = (element, stage) => new Promise((resolve) => {
   });
 });
 
-// js/sprout-ui/utils/index.ts
-var isTruthy = (val) => val !== null && val !== void 0;
-
 // js/sprout-ui/components/dialog.ts
 var DialogElement = class extends SproutElement {
-  constructor() {
-    super(...arguments);
-    this.disposables = new Disposables();
-  }
   static get observedAttributes() {
     return ["data-state"];
   }
   connectedCallback() {
     if (!this.dialog || !this.backdrop || !this.panel)
       throw new Error("Dialog must have a backdrop element and a panel element.");
+    this.modal = new Modal(this.panel, {
+      preventScroll: isTruthy(this.dataset.preventScroll),
+      dismissOnEsc: isTruthy(this.dataset.closeOnEsc),
+      dismissOnClickAway: isTruthy(this.dataset.closeOnClickAway)
+    });
   }
   updatedCallback(attribute, _oldValue, _newValue) {
     if (attribute === "data-state")
@@ -1011,19 +1064,14 @@ var DialogElement = class extends SproutElement {
       if (this.state === "open") {
         this.executeJs(this.dataset.onOpenJs);
         this.dialog.hidden = false;
-        const focusTrap = createFocusTrap(this.panel, {
-          escapeDeactivates: false,
-          allowOutsideClick: true
-        });
-        this.disposables.add(() => focusTrap.deactivate());
-        this.disposables.nextFrame(() => focusTrap.activate());
-        toggleBodyScroll(this.preventScroll ? "off" : void 0);
+        this.modal.addEventListeners(() => this.state = "closed");
+        this.modal.activate();
         yield Promise.all(parts.map((part) => transitionElement(part, "enter")));
       } else {
         this.executeJs(this.dataset.onCloseJs);
-        this.disposables.dispose();
+        this.modal.removeEventListeners();
+        this.modal.deactivate();
         yield Promise.all(parts.map((part) => transitionElement(part, "leave")));
-        toggleBodyScroll(this.preventScroll ? "on" : void 0);
         this.dialog.hidden = true;
       }
     });
@@ -1038,9 +1086,6 @@ __decorateClass([
 __decorateClass([
   query("panel")
 ], DialogElement.prototype, "panel", 2);
-__decorateClass([
-  attr("data-prevent-scroll", isTruthy)
-], DialogElement.prototype, "preventScroll", 2);
 var dialog = (_opts) => ({
   init: () => {
     customElements.define("sp-dialog", DialogElement);
@@ -1445,7 +1490,7 @@ var A = (t2, n3, o3) => o(t2, n3, { platform: S, ...o3 });
 // js/sprout-ui/components/floating.ts
 var FloatingElement = class extends HTMLDivElement {
   connectedCallback() {
-    const anchor = document.querySelector(this.getAttribute("anchor"));
+    const anchor = document.querySelector(this.dataset.anchor);
     if (!anchor)
       throw new Error("Floating element must have an anchor element");
     this.anchor = anchor;
@@ -1472,6 +1517,8 @@ var FloatingElement = class extends HTMLDivElement {
     this.cleanup = z(this.anchor, this, this.update.bind(this));
   }
   update() {
+    if (!isVisible(this))
+      return;
     A(this.anchor, this, {
       placement: this.placement,
       middleware: this.middleware
@@ -1503,16 +1550,16 @@ __decorateClass([
   query("arrow")
 ], FloatingElement.prototype, "arrow", 2);
 __decorateClass([
-  attr("placement")
+  attr("data-placement")
 ], FloatingElement.prototype, "placement", 2);
 __decorateClass([
-  attr("offset", Number)
+  attr("data-offset", Number)
 ], FloatingElement.prototype, "offset", 2);
 __decorateClass([
-  attr("shift", isTruthy)
+  attr("data-shift", isTruthy)
 ], FloatingElement.prototype, "shift", 2);
 __decorateClass([
-  attr("flip", isTruthy)
+  attr("data-flip", isTruthy)
 ], FloatingElement.prototype, "flip", 2);
 var floating = () => ({
   init: () => {
@@ -1525,6 +1572,68 @@ var floating = () => ({
   }
 });
 var floating_default = floating;
+
+// js/sprout-ui/components/popover.ts
+var PopoverElement = class extends SproutElement {
+  constructor() {
+    super(...arguments);
+    this.listeners = new Disposables();
+  }
+  static get observedAttributes() {
+    return ["data-state"];
+  }
+  connectedCallback() {
+    if (!this.panel || !this.trigger)
+      throw new Error("Popover must have a trigger element and a panel element.");
+    this.listeners.addEventListener(this.trigger, "click", () => {
+      this.state = flipping(this.state);
+    });
+    this.modal = new Modal(this.panel, {
+      preventScroll: false,
+      dismissOnEsc: isTruthy(this.dataset.closeOnEsc),
+      dismissOnClickAway: isTruthy(this.dataset.closeOnClickAway)
+    });
+  }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
+  disconnectedCallback() {
+    this.listeners.dispose();
+  }
+  handleStateChange() {
+    return __async(this, null, function* () {
+      if (this.state === "open") {
+        this.executeJs(this.dataset.onOpenJs);
+        this.modal.addEventListeners(() => this.state = "closed");
+        const d3 = new Disposables();
+        d3.nextFrame(() => {
+          this.panel.hidden = false;
+          this.trigger.ariaExpanded = "true";
+          transitionElement(this.panel, "enter");
+        });
+      } else {
+        this.executeJs(this.dataset.onCloseJs);
+        this.modal.removeEventListeners();
+        yield transitionElement(this.panel, "leave");
+        this.panel.hidden = true;
+        this.trigger.ariaExpanded = "false";
+      }
+    });
+  }
+};
+__decorateClass([
+  query("trigger")
+], PopoverElement.prototype, "trigger", 2);
+__decorateClass([
+  query("panel")
+], PopoverElement.prototype, "panel", 2);
+var popover = (_opts) => ({
+  init: () => {
+    customElements.define("sp-popover", PopoverElement);
+  }
+});
+var popover_default = popover;
 
 // js/sprout-ui/index.ts
 var createSproutConfig = (opts) => {
@@ -1551,7 +1660,8 @@ var createSproutConfig = (opts) => {
 export {
   createSproutConfig,
   dialog_default as dialog,
-  floating_default as floating
+  floating_default as floating,
+  popover_default as popover
 };
 /*!
 * focus-trap 7.1.0

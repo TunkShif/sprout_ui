@@ -26,3 +26,5 @@ sprout_ui-*.tar
 /tmp/
 
 .elixir_ls
+
+/tailwind.config.js
