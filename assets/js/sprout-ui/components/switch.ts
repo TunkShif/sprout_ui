@@ -22,6 +22,10 @@ class SwitchElement extends SproutElement<"checked" | "unchecked"> {
     this.addEventListeners()
   }
 
+  updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown) {
+    if (attribute === "data-state") this.handleStateChange()
+  }
+
   disconnectedCallback() {
     this.listeners.dispose()
   }
@@ -46,6 +50,14 @@ class SwitchElement extends SproutElement<"checked" | "unchecked"> {
       "aria-checked",
       flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
     )
+  }
+
+  async handleStateChange() {
+    if (this.state === "checked") {
+      this.executeJs(this, this.dataset.onCheckedJs)
+    } else {
+      this.executeJs(this, this.dataset.onUncheckedJs)
+    }
   }
 }
 

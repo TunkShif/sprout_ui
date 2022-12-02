@@ -1784,6 +1784,10 @@ var SwitchElement = class extends SproutElement {
       throw new Error("Switch must have a track element and a thumb element.");
     this.addEventListeners();
   }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
   disconnectedCallback() {
     this.listeners.dispose();
   }
@@ -1806,6 +1810,15 @@ var SwitchElement = class extends SproutElement {
       "aria-checked",
       flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
     );
+  }
+  handleStateChange() {
+    return __async(this, null, function* () {
+      if (this.state === "checked") {
+        this.executeJs(this, this.dataset.onCheckedJs);
+      } else {
+        this.executeJs(this, this.dataset.onUncheckedJs);
+      }
+    });
   }
 };
 __decorateClass([
