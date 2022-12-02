@@ -1,5 +1,7 @@
 import Disposables from "../utils/disposables"
 
+// TODO: wait for animation and transition unified
+
 type TransitionStatus = "ended" | "canceled"
 type TransitionStage = "enter" | "leave"
 
@@ -20,7 +22,7 @@ const getTransitionClasses = (element: HTMLElement) =>
       .map((key) => [key, element.dataset[key]?.split(" ")?.filter(Boolean) ?? []] as const)
   ) as unknown as TransitionClasses
 
-const waitForTransition = (element: HTMLElement, onDone: (status: TransitionStatus) => void) => {
+const _waitForTransition = (element: HTMLElement, onDone: (status: TransitionStatus) => void) => {
   let { transitionDuration, transitionDelay } = getComputedStyle(element)
 
   let totalDuration = [transitionDuration, transitionDelay]
@@ -45,7 +47,6 @@ const waitForTransition = (element: HTMLElement, onDone: (status: TransitionStat
     listeners.push(
       d.addEventListener(element, "transitionrun", (event) => {
         if (event.target !== event.currentTarget) return
-
         listeners.splice(0).forEach((d) => d())
 
         listeners.push(
@@ -69,7 +70,7 @@ const waitForTransition = (element: HTMLElement, onDone: (status: TransitionStat
   return d.dispose
 }
 
-export const doTransition = (
+const doTransition = (
   element: HTMLElement,
   stage: TransitionStage,
   classes: TransitionClasses,
@@ -78,6 +79,8 @@ export const doTransition = (
     onDone?: (stage: TransitionStage, status: TransitionStatus) => void
   }
 ) => {
+  const originalClasses = Array.from(element.classList)
+
   let base: string[]
   let from: string[]
   let to: string[]
@@ -103,10 +106,14 @@ export const doTransition = (
     element.classList.remove(...from)
     element.classList.add(...to)
 
-    waitForTransition(element, (status) => {
+    _waitForTransition(element, (status) => {
       if (status === "ended") {
-        element.classList.remove(...base)
+        element.classList.remove(
+          ...base,
+          ...Array.from(element.classList).filter((c) => !originalClasses.includes(c))
+        )
       }
+
       callbacks.onDone?.(stage, status)
     })
   })
@@ -124,5 +131,12 @@ export const transitionElement = (element: HTMLElement, stage: TransitionStage) 
     const classes = getTransitionClasses(element)
     doTransition(element, stage, classes, {
       onDone: (_stage, status) => resolve(status)
+    })
+  })
+
+export const waitForTransition = (element: HTMLElement) =>
+  new Promise<TransitionStatus>((resolve) => {
+    _waitForTransition(element, (status) => {
+      resolve(status)
     })
   })

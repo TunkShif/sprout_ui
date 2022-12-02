@@ -79,6 +79,7 @@ var SproutUI = (() => {
   // js/sprout-ui/index.ts
   var sprout_ui_exports = {};
   __export(sprout_ui_exports, {
+    Accordion: () => accordion_default,
     Dialog: () => dialog_default,
     Floating: () => floating_default,
     Popover: () => popover_default,
@@ -119,12 +120,17 @@ var SproutUI = (() => {
   var global_default = global;
 
   // js/sprout-ui/internal/decorators.ts
-  var query = (part) => (target, propertyKey) => {
+  var query = (part, options) => (target, propertyKey) => {
     const key = `_${propertyKey}`;
     Reflect.defineProperty(target, propertyKey, {
       get() {
         if (this[key] === void 0) {
-          this[key] = this.querySelector(`[data-part="${part}"]`);
+          const root = (options == null ? void 0 : options.customRoot) ? this.root : this;
+          if (options == null ? void 0 : options.all) {
+            this[key] = root.querySelectorAll(`[data-part="${part}"]`);
+          } else {
+            this[key] = root.querySelector(`[data-part="${part}"]`);
+          }
         }
         return this[key];
       },
@@ -1028,7 +1034,7 @@ var SproutUI = (() => {
       return [key, (_c = (_b = (_a = element.dataset[key]) == null ? void 0 : _a.split(" ")) == null ? void 0 : _b.filter(Boolean)) != null ? _c : []];
     })
   );
-  var waitForTransition = (element, onDone) => {
+  var _waitForTransition = (element, onDone) => {
     let { transitionDuration, transitionDelay } = getComputedStyle(element);
     let totalDuration = [transitionDuration, transitionDelay].map((value) => {
       let [resolvedValue = 0] = value.split(",").filter(Boolean).map((v3) => v3.includes("ms") ? parseFloat(v3) : parseFloat(v3) * 1e3).sort((a3, z2) => z2 - a3);
@@ -1066,6 +1072,7 @@ var SproutUI = (() => {
   };
   var doTransition = (element, stage, classes, callbacks) => {
     var _a;
+    const originalClasses = Array.from(element.classList);
     let base;
     let from;
     let to;
@@ -1087,10 +1094,13 @@ var SproutUI = (() => {
     d3.nextFrame(() => {
       element.classList.remove(...from);
       element.classList.add(...to);
-      waitForTransition(element, (status) => {
+      _waitForTransition(element, (status) => {
         var _a2;
         if (status === "ended") {
-          element.classList.remove(...base);
+          element.classList.remove(
+            ...base,
+            ...Array.from(element.classList).filter((c3) => !originalClasses.includes(c3))
+          );
         }
         (_a2 = callbacks.onDone) == null ? void 0 : _a2.call(callbacks, stage, status);
       });
@@ -1874,6 +1884,84 @@ var SproutUI = (() => {
     }
   });
   var switch_default = Switch;
+
+  // js/sprout-ui/components/accordion.ts
+  var AccordionItem = class {
+    constructor(container) {
+      this.root = container;
+    }
+  };
+  __decorateClass([
+    query("trigger", { customRoot: true })
+  ], AccordionItem.prototype, "trigger", 2);
+  __decorateClass([
+    query("panel", { customRoot: true })
+  ], AccordionItem.prototype, "panel", 2);
+  var AccordionElement = class extends SproutElement {
+    constructor() {
+      super(...arguments);
+      this.listeners = new Disposables();
+    }
+    connectedCallback() {
+      this.items = [...this.containers].map((it) => new AccordionItem(it));
+      this.addEventListeners();
+    }
+    disconnectedCallback() {
+      this.listeners.dispose();
+    }
+    addEventListeners() {
+      this.items.forEach((item) => {
+        this.listeners.addEventListener(item.trigger, "click", () => {
+          if (item.root.dataset.state === "open") {
+            this.closeOne(item);
+          } else {
+            if (!this.allowMultiple) {
+              this.closeAll();
+            }
+            this.openOne(item);
+          }
+        });
+      });
+    }
+    openOne(item) {
+      return __async(this, null, function* () {
+        this.executeJs(item.root, item.root.dataset.onOpenJs);
+        this.removeAttributeLive(item.panel, "hidden");
+        const { height } = item.panel.getBoundingClientRect();
+        console.log(height);
+        item.panel.style.setProperty("--accordion-panel-height", `${height}px`);
+        this.setAttributeLive(item.root, "data-state", "open");
+        yield transitionElement(item.panel, "enter");
+      });
+    }
+    closeOne(item) {
+      return __async(this, null, function* () {
+        if (item.root.dataset.state === "closed")
+          return;
+        this.executeJs(item.root, item.root.dataset.onCloseJs);
+        this.setAttributeLive(item.root, "data-state", "closed");
+        yield transitionElement(item.panel, "leave");
+        this.setAttributeLive(item.panel, "hidden", "true");
+      });
+    }
+    closeAll() {
+      this.items.forEach((item) => {
+        this.closeOne(item);
+      });
+    }
+  };
+  __decorateClass([
+    query("container", { all: true })
+  ], AccordionElement.prototype, "containers", 2);
+  __decorateClass([
+    attr("data-allow-multiple", isTruthy)
+  ], AccordionElement.prototype, "allowMultiple", 2);
+  var Accordion = () => ({
+    init: () => {
+      customElements.define("sp-accordion", AccordionElement);
+    }
+  });
+  var accordion_default = Accordion;
 
   // js/sprout-ui/index.ts
   var createSproutConfig = (opts) => {

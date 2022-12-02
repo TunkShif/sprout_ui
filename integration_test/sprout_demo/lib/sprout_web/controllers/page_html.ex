@@ -1,11 +1,17 @@
 defmodule SproutWeb.PageHTML do
   use SproutWeb, :html
 
-  alias SproutUI.{Overlay, Input}
+  alias SproutUI.{Overlay, Input, Display}
 
   embed_templates("page_html/*")
 
-  def component(%{component: "dialog"} = assigns) do
+  def component(assigns) do
+    ~H"""
+    <.rendered_component component={@component} />
+    """
+  end
+
+  def rendered_component(%{component: "dialog"} = assigns) do
     ~H"""
     <Overlay.dialog :let={api}>
       <button
@@ -69,7 +75,7 @@ defmodule SproutWeb.PageHTML do
     """
   end
 
-  def component(%{component: "floating"} = assigns) do
+  def rendered_component(%{component: "floating"} = assigns) do
     ~H"""
     <hr class="my-4" />
 
@@ -151,7 +157,27 @@ defmodule SproutWeb.PageHTML do
     """
   end
 
-  def component(%{component: "popover"} = assigns) do
+  def rendered_component(%{component: "popover"} = assigns) do
+    solutions = [
+      %{
+        name: 'Insights',
+        description: 'Measure actions your users take',
+        href: '##'
+      },
+      %{
+        name: 'Automations',
+        description: 'Create your own targeted content',
+        href: '##'
+      },
+      %{
+        name: 'Reports',
+        description: 'Keep track of your growth',
+        href: '##'
+      }
+    ]
+
+    assigns = assign(assigns, solutions: solutions)
+
     ~H"""
     <Overlay.popover :let={api} offset={12}>
       <button
@@ -209,7 +235,7 @@ defmodule SproutWeb.PageHTML do
     """
   end
 
-  def component(%{component: "tooltip"} = assigns) do
+  def rendered_component(%{component: "tooltip"} = assigns) do
     ~H"""
     <div class="relative flex justify-center items-center h-48 overflow-hidden">
       <Overlay.tooltip :let={api} placement="top" offset={12}>
@@ -238,7 +264,7 @@ defmodule SproutWeb.PageHTML do
     """
   end
 
-  def component(%{component: "switch"} = assigns) do
+  def rendered_component(%{component: "switch"} = assigns) do
     ~H"""
     <div class="relative h-24 flex flex-col items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-green-400 to-cyan-500">
       <Input.switch :let={api}>
@@ -265,6 +291,66 @@ defmodule SproutWeb.PageHTML do
         </button>
       </Input.switch>
     </div>
+    """
+  end
+
+  def rendered_component(%{component: "accordion"} = assigns) do
+    items = [
+      %{
+        title: "Is it accessible?",
+        content: "Yes. It adheres to the WAI-ARIA design pattern."
+      },
+      %{
+        title: "Is it unstyled?",
+        content: "Yes. It's unstyled by default, giving you freedom over the look and feel."
+      },
+      %{
+        title: "Can it be animated?",
+        content: "Yes! You can animate the Accordion with CSS or JavaScript."
+      }
+    ]
+
+    assigns = assign(assigns, items: items)
+
+    ~H"""
+    <Display.accordion :let={api} items={@items}>
+      <div :for={item <- api.items} class="group" {item.container_attrs}>
+        <h3>
+          <button
+            class="flex items-center justify-between w-full p-5 font-medium text-left text-gray-500 border border-b-0 group-last:border-b group-first:rounded-t-xl border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+            {item.trigger_attrs}
+          >
+            <span><%= item.title %></span>
+            <svg
+              class="w-6 h-6 ui-open:rotate-180 shrink-0 transition duration-300"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              >
+              </path>
+            </svg>
+          </button>
+        </h3>
+        <div
+          class="font-light border border-b-0 group-last:border-b border-gray-200 dark:border-gray-700 dark:bg-gray-900 overflow-hidden"
+          data-transition
+          data-enter="transition-all duration-300 ease-in-out"
+          data-enter-from="h-0"
+          data-enter-to="h-[var(--accordion-panel-height)]"
+          data-leave="transition-all duration-300 ease-in-out"
+          data-leave-from="h-[var(--accordion-panel-height)]"
+          data-leave-to="h-0"
+          {item.panel_attrs}
+        >
+          <p class="p-5 text-gray-500 dark:text-gray-400"><%= item.content %></p>
+        </div>
+      </div>
+    </Display.accordion>
     """
   end
 end
