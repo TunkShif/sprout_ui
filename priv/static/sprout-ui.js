@@ -959,7 +959,6 @@ var SproutUI = (() => {
       if (this.dismissOnClickAway) {
         this.listeners.addEventListener(document, "click", (event) => {
           if (isVisible(this.element) && !this.element.contains(event.target)) {
-            console.log(isVisible(this.element));
             onDismiss();
             event.preventDefault();
           }
@@ -967,7 +966,6 @@ var SproutUI = (() => {
       }
       if (this.dismissOnEsc) {
         this.listeners.addEventListener(document, "keydown", (event) => {
-          console.log(event);
           const { key } = event;
           if (isVisible(this.element) && key === "Escape") {
             onDismiss();
@@ -1005,8 +1003,17 @@ var SproutUI = (() => {
     }
     updatedCallback(_attribute, _oldValue, _newValue) {
     }
-    executeJs(command) {
-      window.liveSocket.execJS(this, command || "[]");
+    executeJs(element, command) {
+      window.liveSocket.execJS(element, command || "[]");
+    }
+    setAttributeLive(element, name, value) {
+      this.executeJs(element, JSON.stringify([["set_attr", { attr: [name, value], to: null }]]));
+    }
+    removeAttributeLive(element, name) {
+      this.executeJs(element, JSON.stringify([["remove_attr", { attr: name, to: null }]]));
+    }
+    setStateLive(state) {
+      this.setAttributeLive(this, "data-state", state);
     }
   };
   __decorateClass([
@@ -1122,17 +1129,19 @@ var SproutUI = (() => {
       return __async(this, null, function* () {
         const parts = [this.backdrop, this.panel];
         if (this.state === "open") {
-          this.executeJs(this.dataset.onOpenJs);
-          this.dialog.hidden = false;
-          this.modal.addEventListeners(() => this.state = "closed");
+          this.executeJs(this, this.dataset.onOpenJs);
+          this.removeAttributeLive(this.dialog, "hidden");
+          this.modal.addEventListeners(() => {
+            this.setStateLive("closed");
+          });
           this.modal.activate();
           yield Promise.all(parts.map((part) => transitionElement(part, "enter")));
         } else {
-          this.executeJs(this.dataset.onCloseJs);
+          this.executeJs(this, this.dataset.onCloseJs);
           this.modal.removeEventListeners();
           this.modal.deactivate();
           yield Promise.all(parts.map((part) => transitionElement(part, "leave")));
-          this.dialog.hidden = true;
+          this.setAttributeLive(this.dialog, "hidden", "true");
         }
       });
     }
@@ -1658,7 +1667,7 @@ var SproutUI = (() => {
       if (!this.panel || !this.trigger)
         throw new Error("Popover must have a trigger element and a panel element.");
       this.listeners.addEventListener(this.trigger, "click", () => {
-        this.state = flipping(this.state);
+        this.setStateLive(flipping(this.state));
       });
       this.modal = new Modal(this.panel, {
         preventScroll: false,
@@ -1676,20 +1685,22 @@ var SproutUI = (() => {
     handleStateChange() {
       return __async(this, null, function* () {
         if (this.state === "open") {
-          this.executeJs(this.dataset.onOpenJs);
-          this.modal.addEventListeners(() => this.state = "closed");
+          this.executeJs(this, this.dataset.onOpenJs);
+          this.modal.addEventListeners(() => {
+            this.setStateLive("closed");
+          });
           const d3 = new Disposables();
           d3.nextFrame(() => {
-            this.panel.hidden = false;
-            this.trigger.ariaExpanded = "true";
+            this.removeAttributeLive(this.panel, "hidden");
+            this.setAttributeLive(this.trigger, "aria-expanded", "true");
             transitionElement(this.panel, "enter");
           });
         } else {
-          this.executeJs(this.dataset.onCloseJs);
+          this.executeJs(this, this.dataset.onCloseJs);
           this.modal.removeEventListeners();
           yield transitionElement(this.panel, "leave");
-          this.panel.hidden = true;
-          this.trigger.ariaExpanded = "false";
+          this.setAttributeLive(this.panel, "hidden", "true");
+          this.setAttributeLive(this.trigger, "aria-expanded", "false");
         }
       });
     }
@@ -1733,28 +1744,32 @@ var SproutUI = (() => {
     addEventListeners() {
       this.listeners.addEventListener(this.trigger, "mouseover", () => {
         this.disposables.dispose();
-        this.disposables.setTimeout(() => this.state = "open", this.openDelay);
+        this.disposables.setTimeout(() => {
+          this.setStateLive("open");
+        }, this.openDelay);
       });
       this.listeners.addEventListener(this.trigger, "mouseout", () => {
         this.disposables.dispose();
-        this.disposables.setTimeout(() => this.state = "closed", this.closeDelay);
+        this.disposables.setTimeout(() => {
+          this.setStateLive("closed");
+        }, this.closeDelay);
       });
       this.listeners.addEventListener(this.trigger, "focus", () => {
         this.disposables.dispose();
-        this.state = "open";
+        this.setStateLive("open");
       });
       this.listeners.addEventListener(this.trigger, "blur", () => {
         this.disposables.dispose();
-        this.state = "closed";
+        this.setStateLive("closed");
       });
       this.listeners.addEventListener(this.trigger, "click", () => {
         this.disposables.dispose();
-        this.state = "open";
+        this.setStateLive("open");
       });
       this.listeners.addEventListener(document, "keydown", (event) => {
         const { key } = event;
         if (this.state === "open" && key === "Escape") {
-          this.state = "closed";
+          this.setStateLive("closed");
           event.stopPropagation();
         }
       });
@@ -1765,13 +1780,13 @@ var SproutUI = (() => {
     handleStateChange() {
       return __async(this, null, function* () {
         if (this.state === "open") {
-          this.executeJs(this.dataset.onOpenJs);
-          this.container.hidden = false;
+          this.executeJs(this, this.dataset.onOpenJs);
+          this.removeAttributeLive(this.container, "hidden");
           transitionElement(this.container, "enter");
         } else {
-          this.executeJs(this.dataset.onCloseJs);
+          this.executeJs(this, this.dataset.onCloseJs);
           yield transitionElement(this.container, "leave");
-          this.container.hidden = true;
+          this.setAttributeLive(this.container, "hidden", "true");
         }
       });
     }

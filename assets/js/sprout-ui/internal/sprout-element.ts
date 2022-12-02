@@ -23,7 +23,19 @@ export default class SproutElement<UIState extends string = "open" | "closed"> e
     _newValue: string | undefined | null
   ) { }
 
-  executeJs(command: string | undefined | null) {
-    window.liveSocket.execJS(this, command || "[]")
+  executeJs(element: HTMLElement, command: string | undefined | null) {
+    window.liveSocket.execJS(element, command || "[]")
+  }
+
+  setAttributeLive(element: HTMLElement, name: string, value: string) {
+    this.executeJs(element, JSON.stringify([["set_attr", { attr: [name, value], to: null }]]))
+  }
+
+  removeAttributeLive(element: HTMLElement, name: string) {
+    this.executeJs(element, JSON.stringify([["remove_attr", { attr: name, to: null }]]))
+  }
+
+  setStateLive(state: UIState) {
+    this.setAttributeLive(this, "data-state", state)
   }
 }

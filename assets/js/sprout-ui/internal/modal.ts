@@ -30,7 +30,6 @@ export default class Modal {
     if (this.dismissOnClickAway) {
       this.listeners.addEventListener(document, "click", (event) => {
         if (isVisible(this.element) && !this.element.contains(event.target as Element)) {
-          console.log(isVisible(this.element))
           onDismiss()
           event.preventDefault()
         }
@@ -38,7 +37,6 @@ export default class Modal {
     }
     if (this.dismissOnEsc) {
       this.listeners.addEventListener(document, "keydown", (event) => {
-        console.log(event)
         const { key } = event as KeyboardEvent
         if (isVisible(this.element) && key === "Escape") {
           onDismiss()

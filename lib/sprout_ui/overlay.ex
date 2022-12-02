@@ -208,12 +208,14 @@ defmodule SproutUI.Overlay do
     api = %{
       trigger_attrs: %{
         "data-part" => "trigger",
-        "id" => "tooltip-trigger-#{id}"
+        "id" => "tooltip-trigger-#{id}",
+        "aria-describedby" => "tooltip-container-#{id}"
       },
       container_attrs: %{
         "data-part" => "container",
         "is" => "floating-element",
         "id" => "tooltip-container-#{id}",
+        "role" => "tooltip",
         "data-anchor" => "#tooltip-trigger-#{id}",
         "data-placement" => placement,
         "data-offset" => offset,

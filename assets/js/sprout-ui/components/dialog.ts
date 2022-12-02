@@ -38,20 +38,22 @@ class DialogElement extends SproutElement {
     const parts = [this.backdrop, this.panel]
 
     if (this.state === "open") {
-      this.executeJs(this.dataset.onOpenJs)
+      this.executeJs(this, this.dataset.onOpenJs)
 
-      this.dialog.hidden = false
-      this.modal.addEventListeners(() => (this.state = "closed"))
+      this.removeAttributeLive(this.dialog, "hidden")
+      this.modal.addEventListeners(() => {
+        this.setStateLive("closed")
+      })
       this.modal.activate()
 
       await Promise.all(parts.map((part) => transitionElement(part, "enter")))
     } else {
-      this.executeJs(this.dataset.onCloseJs)
+      this.executeJs(this, this.dataset.onCloseJs)
 
       this.modal.removeEventListeners()
       this.modal.deactivate()
       await Promise.all(parts.map((part) => transitionElement(part, "leave")))
-      this.dialog.hidden = true
+      this.setAttributeLive(this.dialog, "hidden", "true")
     }
   }
 }

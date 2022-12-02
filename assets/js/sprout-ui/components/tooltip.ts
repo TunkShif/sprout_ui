@@ -41,28 +41,32 @@ class TooltipElement extends SproutElement {
   addEventListeners() {
     this.listeners.addEventListener(this.trigger, "mouseover", () => {
       this.disposables.dispose()
-      this.disposables.setTimeout(() => (this.state = "open"), this.openDelay)
+      this.disposables.setTimeout(() => {
+        this.setStateLive("open")
+      }, this.openDelay)
     })
     this.listeners.addEventListener(this.trigger, "mouseout", () => {
       this.disposables.dispose()
-      this.disposables.setTimeout(() => (this.state = "closed"), this.closeDelay)
+      this.disposables.setTimeout(() => {
+        this.setStateLive("closed")
+      }, this.closeDelay)
     })
     this.listeners.addEventListener(this.trigger, "focus", () => {
       this.disposables.dispose()
-      this.state = "open"
+      this.setStateLive("open")
     })
     this.listeners.addEventListener(this.trigger, "blur", () => {
       this.disposables.dispose()
-      this.state = "closed"
+      this.setStateLive("closed")
     })
     this.listeners.addEventListener(this.trigger, "click", () => {
       this.disposables.dispose()
-      this.state = "open"
+      this.setStateLive("open")
     })
     this.listeners.addEventListener(document, "keydown", (event) => {
       const { key } = event as KeyboardEvent
       if (this.state === "open" && key === "Escape") {
-        this.state = "closed"
+        this.setStateLive("closed")
         event.stopPropagation()
       }
     })
@@ -74,15 +78,15 @@ class TooltipElement extends SproutElement {
 
   async handleStateChange() {
     if (this.state === "open") {
-      this.executeJs(this.dataset.onOpenJs)
+      this.executeJs(this, this.dataset.onOpenJs)
 
-      this.container.hidden = false
+      this.removeAttributeLive(this.container, "hidden")
       transitionElement(this.container, "enter")
     } else {
-      this.executeJs(this.dataset.onCloseJs)
+      this.executeJs(this, this.dataset.onCloseJs)
 
       await transitionElement(this.container, "leave")
-      this.container.hidden = true
+      this.setAttributeLive(this.container, "hidden", "true")
     }
   }
 }

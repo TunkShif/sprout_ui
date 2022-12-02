@@ -24,7 +24,7 @@ class PopoverElement extends SproutElement {
       throw new Error("Popover must have a trigger element and a panel element.")
 
     this.listeners.addEventListener(this.trigger, "click", () => {
-      this.state = flipping(this.state)
+      this.setStateLive(flipping(this.state))
     })
 
     this.modal = new Modal(this.panel, {
@@ -44,25 +44,27 @@ class PopoverElement extends SproutElement {
 
   async handleStateChange() {
     if (this.state === "open") {
-      this.executeJs(this.dataset.onOpenJs)
+      this.executeJs(this, this.dataset.onOpenJs)
 
-      this.modal.addEventListeners(() => (this.state = "closed"))
+      this.modal.addEventListeners(() => {
+        this.setStateLive("closed")
+      })
 
       // `on-click-away` listener must be registered before panel is visible,
       // or clicking on the trigger button will also trigger a `click-away` event
       const d = new Disposables()
       d.nextFrame(() => {
-        this.panel.hidden = false
-        this.trigger.ariaExpanded = "true"
+        this.removeAttributeLive(this.panel, "hidden")
+        this.setAttributeLive(this.trigger, "aria-expanded", "true")
         transitionElement(this.panel, "enter")
       })
     } else {
-      this.executeJs(this.dataset.onCloseJs)
+      this.executeJs(this, this.dataset.onCloseJs)
 
       this.modal.removeEventListeners()
       await transitionElement(this.panel, "leave")
-      this.panel.hidden = true
-      this.trigger.ariaExpanded = "false"
+      this.setAttributeLive(this.panel, "hidden", "true")
+      this.setAttributeLive(this.trigger, "aria-expanded", "false")
     }
   }
 }
