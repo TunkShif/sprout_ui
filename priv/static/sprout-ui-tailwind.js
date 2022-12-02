@@ -1,1 +1,1 @@
-"use strict";var a=require("tailwindcss/plugin"),n=["open","closed","active","inactive"];module.exports=a.withOptions(({prefix:e="ui"}={})=>({addVariant:i})=>{n.forEach(t=>{i(`${e}-${t}`,[`&[data-ui-state~="${t}"]`,`:where([data-ui-state~="${t}"]) &`])})});
+"use strict";var n=require("tailwindcss/plugin"),o=["open","closed","checked","unchecked"];module.exports=n.withOptions(({prefix:t="ui"}={})=>({addVariant:c})=>{o.forEach(e=>{c(`${t}-${e}`,[`&[data-state~="${e}"]`,`:where([data-state~="${e}"]) &`])})});

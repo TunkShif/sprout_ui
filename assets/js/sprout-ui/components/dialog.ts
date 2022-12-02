@@ -58,10 +58,10 @@ class DialogElement extends SproutElement {
   }
 }
 
-const dialog: SproutComponentSetup = (_opts) => ({
+const Dialog: SproutComponentSetup = (_opts) => ({
   init: () => {
     customElements.define("sp-dialog", DialogElement)
   }
 })
 
-export default dialog
+export default Dialog

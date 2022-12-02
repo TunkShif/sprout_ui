@@ -1,7 +1,7 @@
 defmodule SproutWeb.PageHTML do
   use SproutWeb, :html
 
-  alias SproutUI.Overlay
+  alias SproutUI.{Overlay, Input}
 
   embed_templates("page_html/*")
 
@@ -234,6 +234,36 @@ defmodule SproutWeb.PageHTML do
           <div class="absolute w-2 h-2 bg-gray-700 rotate-45" {api.arrow_attrs}></div>
         </div>
       </Overlay.tooltip>
+    </div>
+    """
+  end
+
+  def component(%{component: "switch"} = assigns) do
+    ~H"""
+    <div class="relative h-24 flex flex-col items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-green-400 to-cyan-500">
+      <Input.switch :let={api}>
+        <button
+          class={[
+            "relative inline-flex h-[38px] w-[74px]",
+            "shrink-0 cursor-pointer rounded-full border-2 border-transparent",
+            "transition-colors duration-200 ease-in-out",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75",
+            "ui-checked:bg-teal-900 ui-unchecked:bg-teal-700"
+          ]}
+          {api.track_attrs}
+        >
+          <span
+            class={[
+              "pointer-events-none inline-block h-[34px] w-[34px]",
+              "transform rounded-full bg-white shadow-lg ring-0",
+              "transition duration-200 ease-in-out",
+              "ui-checked:translate-x-9 ui-unchecked:translate-x-0"
+            ]}
+            {api.thumb_attrs}
+          >
+          </span>
+        </button>
+      </Input.switch>
     </div>
     """
   end

@@ -1,4 +1,5 @@
-export { default as dialog } from "./dialog";
-export { default as floating } from "./floating";
-export { default as popover } from "./popover";
-export { default as tooltip } from "./tooltip";
+export { default as Dialog } from "./dialog";
+export { default as Floating } from "./floating";
+export { default as Popover } from "./popover";
+export { default as Tooltip } from "./tooltip";
+export { default as Switch } from "./switch";

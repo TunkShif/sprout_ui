@@ -79,11 +79,12 @@ var SproutUI = (() => {
   // js/sprout-ui/index.ts
   var sprout_ui_exports = {};
   __export(sprout_ui_exports, {
-    createSproutConfig: () => createSproutConfig,
-    dialog: () => dialog_default,
-    floating: () => floating_default,
-    popover: () => popover_default,
-    tooltip: () => tooltip_default
+    Dialog: () => dialog_default,
+    Floating: () => floating_default,
+    Popover: () => popover_default,
+    Switch: () => switch_default,
+    Tooltip: () => tooltip_default,
+    createSproutConfig: () => createSproutConfig
   });
 
   // js/sprout-ui/utils/body-scroll.ts
@@ -1155,12 +1156,12 @@ var SproutUI = (() => {
   __decorateClass([
     query("panel")
   ], DialogElement.prototype, "panel", 2);
-  var dialog = (_opts) => ({
+  var Dialog = (_opts) => ({
     init: () => {
       customElements.define("sp-dialog", DialogElement);
     }
   });
-  var dialog_default = dialog;
+  var dialog_default = Dialog;
 
   // node_modules/.pnpm/@floating-ui+core@1.0.1/node_modules/@floating-ui/core/dist/floating-ui.core.browser.min.mjs
   function t(t2) {
@@ -1642,7 +1643,7 @@ var SproutUI = (() => {
   __decorateClass([
     attr("data-flip", isTruthy)
   ], FloatingElement.prototype, "flip", 2);
-  var floating = () => ({
+  var Floating = () => ({
     init: () => {
       customElements.define("floating-element", FloatingElement, { extends: "div" });
     },
@@ -1652,7 +1653,7 @@ var SproutUI = (() => {
       }
     }
   });
-  var floating_default = floating;
+  var floating_default = Floating;
 
   // js/sprout-ui/components/popover.ts
   var PopoverElement = class extends SproutElement {
@@ -1711,12 +1712,12 @@ var SproutUI = (() => {
   __decorateClass([
     query("panel")
   ], PopoverElement.prototype, "panel", 2);
-  var popover = () => ({
+  var Popover = () => ({
     init: () => {
       customElements.define("sp-popover", PopoverElement);
     }
   });
-  var popover_default = popover;
+  var popover_default = Popover;
 
   // js/sprout-ui/components/tooltip.ts
   var TooltipElement = class extends SproutElement {
@@ -1803,12 +1804,63 @@ var SproutUI = (() => {
   __decorateClass([
     attr("data-close-delay", Number)
   ], TooltipElement.prototype, "closeDelay", 2);
-  var tooltip = () => ({
+  var Tooltip = () => ({
     init: () => {
       customElements.define("sp-tooltip", TooltipElement);
     }
   });
-  var tooltip_default = tooltip;
+  var tooltip_default = Tooltip;
+
+  // js/sprout-ui/components/switch.ts
+  var SwitchElement = class extends SproutElement {
+    constructor() {
+      super(...arguments);
+      this.listeners = new Disposables();
+    }
+    static get observedAttributes() {
+      return ["data-state"];
+    }
+    connectedCallback() {
+      if (!this.track || !this.thumb)
+        throw new Error("Switch must have a track element and a thumb element.");
+      this.addEventListeners();
+    }
+    disconnectedCallback() {
+      this.listeners.dispose();
+    }
+    addEventListeners() {
+      this.listeners.addEventListener(this, "click", () => {
+        this.toggle();
+      });
+      this.listeners.addEventListener(this, "keydown", (event) => {
+        const { key } = event;
+        if (key === "Space") {
+          event.preventDefault();
+          this.toggle();
+        }
+      });
+    }
+    toggle() {
+      this.setStateLive(flipping(this.state, ["checked", "unchecked"]));
+      this.setAttributeLive(
+        this.track,
+        "aria-checked",
+        flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
+      );
+    }
+  };
+  __decorateClass([
+    query("track")
+  ], SwitchElement.prototype, "track", 2);
+  __decorateClass([
+    query("thumb")
+  ], SwitchElement.prototype, "thumb", 2);
+  var Switch = () => ({
+    init: () => {
+      customElements.define("sp-switch", SwitchElement);
+    }
+  });
+  var switch_default = Switch;
 
   // js/sprout-ui/index.ts
   var createSproutConfig = (opts) => {

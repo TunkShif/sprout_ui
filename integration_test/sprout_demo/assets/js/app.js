@@ -2,10 +2,10 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import { createSproutConfig, dialog, floating, popover, tooltip } from "sprout-ui"
+import { createSproutConfig, Dialog, Floating, Popover, Tooltip, Switch } from "sprout-ui"
 
 const { initComponents, hooks, handleDomChange } = createSproutConfig({
-  components: [dialog(), floating(), popover(), tooltip()]
+  components: [Dialog(), Floating(), Popover(), Tooltip(), Switch()]
 })
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

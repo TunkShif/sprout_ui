@@ -1,3 +1,3 @@
 import { SproutComponentSetup } from "../types";
-declare const popover: SproutComponentSetup;
-export default popover;
+declare const Popover: SproutComponentSetup;
+export default Popover;

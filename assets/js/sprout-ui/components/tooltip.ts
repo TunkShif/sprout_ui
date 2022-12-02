@@ -91,10 +91,10 @@ class TooltipElement extends SproutElement {
   }
 }
 
-const tooltip: SproutComponentSetup = () => ({
+const Tooltip: SproutComponentSetup = () => ({
   init: () => {
     customElements.define("sp-tooltip", TooltipElement)
   }
 })
 
-export default tooltip
+export default Tooltip

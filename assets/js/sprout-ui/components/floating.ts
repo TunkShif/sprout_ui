@@ -88,7 +88,7 @@ class FloatingElement extends HTMLDivElement {
   }
 }
 
-const floating: SproutComponentSetup = () => ({
+const Floating: SproutComponentSetup = () => ({
   init: () => {
     customElements.define("floating-element", FloatingElement, { extends: "div" })
   },
@@ -99,4 +99,4 @@ const floating: SproutComponentSetup = () => ({
   }
 })
 
-export default floating
+export default Floating

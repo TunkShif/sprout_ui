@@ -1,3 +1,3 @@
 import { SproutComponentSetup } from "../types";
-declare const tooltip: SproutComponentSetup;
-export default tooltip;
+declare const Tooltip: SproutComponentSetup;
+export default Tooltip;
