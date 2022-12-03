@@ -1,14 +1,17 @@
-import { query } from "../internal/decorators"
-import SproutElement from "../internal/sprout-element"
+import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
+import { query, attr } from "@tunkshif/live-element/decorators"
 import { SproutComponentSetup } from "../types"
 import { flipping } from "../utils"
 import Disposables from "../utils/disposables"
 
-class SwitchElement extends SproutElement<"checked" | "unchecked"> {
-  @query("track")
+class SwitchElement extends LiveElement {
+  @query("track", { part: true })
   track: HTMLElement
-  @query("thumb")
+  @query("thumb", { part: true })
   thumb: HTMLElement
+
+  @attr("data-state", { live: true })
+  state: "checked" | "unchecked"
 
   private listeners = new Disposables()
 
@@ -44,8 +47,8 @@ class SwitchElement extends SproutElement<"checked" | "unchecked"> {
   }
 
   toggle() {
-    this.setStateLive(flipping(this.state, ["checked", "unchecked"]))
-    this.setAttributeLive(
+    this.state = flipping(this.state, ["checked", "unchecked"])
+    LiveViewJS.setAttribute(
       this.track,
       "aria-checked",
       flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
@@ -54,9 +57,9 @@ class SwitchElement extends SproutElement<"checked" | "unchecked"> {
 
   async handleStateChange() {
     if (this.state === "checked") {
-      this.executeJs(this, this.dataset.onCheckedJs)
+      LiveViewJS.exec(this, this.dataset.onCheckedJs)
     } else {
-      this.executeJs(this, this.dataset.onUncheckedJs)
+      LiveViewJS.exec(this, this.dataset.onUncheckedJs)
     }
   }
 }

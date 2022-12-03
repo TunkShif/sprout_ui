@@ -1,16 +1,19 @@
-import { query } from "../internal/decorators"
+import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
+import { query, attr } from "@tunkshif/live-element/decorators"
 import Modal from "../internal/modal"
-import SproutElement from "../internal/sprout-element"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import { flipping, isTruthy } from "../utils"
 import Disposables from "../utils/disposables"
 
-class PopoverElement extends SproutElement {
-  @query("trigger")
+class PopoverElement extends LiveElement {
+  @query("trigger", { part: true })
   trigger: HTMLElement
-  @query("panel")
+  @query("panel", { part: true })
   panel: HTMLElement
+
+  @attr("data-state", { live: true })
+  state: "open" | "closed"
 
   private modal: Modal
   private listeners = new Disposables()
@@ -24,7 +27,7 @@ class PopoverElement extends SproutElement {
       throw new Error("Popover must have a trigger element and a panel element.")
 
     this.listeners.addEventListener(this.trigger, "click", () => {
-      this.setStateLive(flipping(this.state))
+      this.state = flipping(this.state)
     })
 
     this.modal = new Modal(this.panel, {
@@ -44,27 +47,27 @@ class PopoverElement extends SproutElement {
 
   async handleStateChange() {
     if (this.state === "open") {
-      this.executeJs(this, this.dataset.onOpenJs)
+      LiveViewJS.exec(this, this.dataset.onOpenJs)
 
       this.modal.addEventListeners(() => {
-        this.setStateLive("closed")
+        this.state = "closed"
       })
 
       // `on-click-away` listener must be registered before panel is visible,
       // or clicking on the trigger button will also trigger a `click-away` event
       const d = new Disposables()
       d.nextFrame(() => {
-        this.removeAttributeLive(this.panel, "hidden")
-        this.setAttributeLive(this.trigger, "aria-expanded", "true")
+        LiveViewJS.removeAttribute(this.panel, "hidden")
+        LiveViewJS.setAttribute(this.trigger, "aria-expanded", "true")
         transitionElement(this.panel, "enter")
       })
     } else {
-      this.executeJs(this, this.dataset.onCloseJs)
+      LiveViewJS.exec(this, this.dataset.onCloseJs)
 
       this.modal.removeEventListeners()
       await transitionElement(this.panel, "leave")
-      this.setAttributeLive(this.panel, "hidden", "true")
-      this.setAttributeLive(this.trigger, "aria-expanded", "false")
+      LiveViewJS.setAttribute(this.panel, "hidden", "true")
+      LiveViewJS.setAttribute(this.trigger, "aria-expanded", "false")
     }
   }
 }

@@ -8,22 +8,22 @@ import {
   Placement,
   shift
 } from "@floating-ui/dom"
-import { attr, query } from "../internal/decorators"
+import { attr, query } from "@tunkshif/live-element/decorators"
 import { SproutComponentSetup } from "../types"
 import { isTruthy, isVisible } from "../utils"
 
 class FloatingElement extends HTMLDivElement {
   anchor: HTMLElement
-  @query("arrow")
+  @query("arrow", { part: true })
   arrow: HTMLElement | null
 
   @attr("data-placement")
   placement: Placement
-  @attr("data-offset", Number)
+  @attr("data-offset", { converter: Number })
   offset: number
-  @attr("data-shift", isTruthy)
+  @attr("data-shift", { converter: isTruthy })
   shift: boolean
-  @attr("data-flip", isTruthy)
+  @attr("data-flip", { converter: isTruthy })
   flip: boolean
 
   private middleware: Middleware[]

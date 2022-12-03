@@ -1,18 +1,20 @@
-import { attr, query } from "../internal/decorators"
-import SproutElement from "../internal/sprout-element"
+import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
+import { query, attr } from "@tunkshif/live-element/decorators"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import Disposables from "../utils/disposables"
 
-class TooltipElement extends SproutElement {
-  @query("trigger")
+class TooltipElement extends LiveElement {
+  @query("trigger", { part: true })
   trigger: HTMLElement
-  @query("container")
+  @query("container", { part: true })
   container: HTMLElement
 
-  @attr("data-open-delay", Number)
+  @attr("data-state", { live: true })
+  state: "open" | "closed"
+  @attr("data-open-delay", { converter: Number })
   openDelay: number
-  @attr("data-close-delay", Number)
+  @attr("data-close-delay", { converter: Number })
   closeDelay: number
 
   private disposables = new Disposables()
@@ -42,31 +44,31 @@ class TooltipElement extends SproutElement {
     this.listeners.addEventListener(this.trigger, "mouseover", () => {
       this.disposables.dispose()
       this.disposables.setTimeout(() => {
-        this.setStateLive("open")
+        this.state = "open"
       }, this.openDelay)
     })
     this.listeners.addEventListener(this.trigger, "mouseout", () => {
       this.disposables.dispose()
       this.disposables.setTimeout(() => {
-        this.setStateLive("closed")
+        this.state = "closed"
       }, this.closeDelay)
     })
     this.listeners.addEventListener(this.trigger, "focus", () => {
       this.disposables.dispose()
-      this.setStateLive("open")
+      this.state = "open"
     })
     this.listeners.addEventListener(this.trigger, "blur", () => {
       this.disposables.dispose()
-      this.setStateLive("closed")
+      this.state = "closed"
     })
     this.listeners.addEventListener(this.trigger, "click", () => {
       this.disposables.dispose()
-      this.setStateLive("open")
+      this.state = "open"
     })
     this.listeners.addEventListener(document, "keydown", (event) => {
       const { key } = event as KeyboardEvent
       if (this.state === "open" && key === "Escape") {
-        this.setStateLive("closed")
+        this.state = "closed"
         event.stopPropagation()
       }
     })
@@ -78,15 +80,15 @@ class TooltipElement extends SproutElement {
 
   async handleStateChange() {
     if (this.state === "open") {
-      this.executeJs(this, this.dataset.onOpenJs)
+      LiveViewJS.exec(this, this.dataset.onOpenJs)
 
-      this.removeAttributeLive(this.container, "hidden")
+      LiveViewJS.removeAttribute(this.container, "hidden")
       transitionElement(this.container, "enter")
     } else {
-      this.executeJs(this, this.dataset.onCloseJs)
+      LiveViewJS.exec(this, this.dataset.onCloseJs)
 
       await transitionElement(this.container, "leave")
-      this.setAttributeLive(this.container, "hidden", "true")
+      LiveViewJS.setAttribute(this.container, "hidden", "true")
     }
   }
 }

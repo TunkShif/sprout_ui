@@ -1,11 +1,13 @@
 "use strict";
 var SproutUI = (() => {
+  var __create = Object.create;
   var __defProp = Object.defineProperty;
   var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __propIsEnum = Object.prototype.propertyIsEnumerable;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -33,6 +35,9 @@ var SproutUI = (() => {
       }
     return target;
   };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -45,11 +50,15 @@ var SproutUI = (() => {
     }
     return to;
   };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
   var __decorateClass = (decorators, target, key, kind) => {
     var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-    for (var i3 = decorators.length - 1, decorator; i3 >= 0; i3--)
-      if (decorator = decorators[i3])
+    for (var i4 = decorators.length - 1, decorator; i4 >= 0; i4--)
+      if (decorator = decorators[i4])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
     if (kind && result)
       __defProp(target, key, result);
@@ -76,6 +85,58 @@ var SproutUI = (() => {
     });
   };
 
+  // node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/liveview-js.a5760f61.js
+  var require_liveview_js_a5760f61 = __commonJS({
+    "node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/liveview-js.a5760f61.js"(exports) {
+      "use strict";
+      var c4 = (e2, t2) => JSON.stringify([[e2, t2]]);
+      var r3 = { exec(e2, t2) {
+        window.liveSocket.execJS(e2, t2 || "[]");
+      }, setAttribute(e2, t2, i4, n4 = null) {
+        r3.exec(e2, c4("set_attr", { attr: [t2, i4], to: n4 }));
+      }, removeAttribute(e2, t2, i4 = null) {
+        r3.exec(e2, c4("remove_attr", { attr: t2, to: i4 }));
+      } };
+      exports.LiveViewJS = r3;
+    }
+  });
+
+  // node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/decorators.js
+  var require_decorators = __commonJS({
+    "node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/decorators.js"(exports) {
+      "use strict";
+      Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+      var f3 = require_liveview_js_a5760f61();
+      var v3 = (t2, e2) => (l3, u3) => {
+        const r3 = `_${u3}`;
+        Reflect.defineProperty(l3, u3, { get() {
+          if (this[r3] === void 0) {
+            const c4 = e2 != null && e2.customRoot ? this.root : this, a3 = e2 != null && e2.part ? `[data-part="${t2}"]` : t2;
+            e2 != null && e2.all ? this[r3] = c4.querySelectorAll(a3) : this[r3] = c4.querySelector(a3);
+          }
+          return this[r3];
+        }, enumerable: true, configurable: true });
+      };
+      var b3 = (t2, e2) => (l3, u3) => {
+        Reflect.defineProperty(l3, u3, { get() {
+          const r3 = this.getAttribute(t2);
+          return e2 != null && e2.converter ? e2.converter(r3) : r3;
+        }, set(r3) {
+          e2 != null && e2.live ? f3.LiveViewJS.setAttribute(this, t2, r3) : this.setAttribute(t2, r3);
+        }, enumerable: true, configurable: true });
+      };
+      exports.attr = b3;
+      exports.query = v3;
+    }
+  });
+
+  // node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/decorators.js
+  var require_decorators2 = __commonJS({
+    "node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/decorators.js"(exports, module) {
+      module.exports = require_decorators();
+    }
+  });
+
   // js/sprout-ui/index.ts
   var sprout_ui_exports = {};
   __export(sprout_ui_exports, {
@@ -88,69 +149,43 @@ var SproutUI = (() => {
     createSproutConfig: () => createSproutConfig
   });
 
-  // js/sprout-ui/utils/body-scroll.ts
-  var toggleBodyScroll = (state) => {
-    if (!state)
-      return;
-    switch (state) {
-      case "on":
-        Object.assign(document.body.style, { overflow: "" });
-        break;
-      case "off":
-        Object.assign(document.body.style, { overflow: "hidden" });
-        break;
-    }
-  };
-
   // js/sprout-ui/components/global.ts
   var init = () => {
-    window.addEventListener("sp:toggle-attribute", (e2) => {
-      const { target, detail } = e2;
-      const state = target.getAttribute(detail.attribute) === detail.states[0] ? detail.states[1] : detail.states[0];
-      target.setAttribute(detail.attribute, state);
-    });
-    window.addEventListener("sp:toggle-body-scroll", (e2) => {
-      const { detail } = e2;
-      toggleBodyScroll(detail.state);
-    });
   };
   var global = () => ({
     init
   });
   var global_default = global;
 
-  // js/sprout-ui/internal/decorators.ts
-  var query = (part, options) => (target, propertyKey) => {
-    const key = `_${propertyKey}`;
-    Reflect.defineProperty(target, propertyKey, {
-      get() {
-        if (this[key] === void 0) {
-          const root = (options == null ? void 0 : options.customRoot) ? this.root : this;
-          if (options == null ? void 0 : options.all) {
-            this[key] = root.querySelectorAll(`[data-part="${part}"]`);
-          } else {
-            this[key] = root.querySelector(`[data-part="${part}"]`);
-          }
-        }
-        return this[key];
-      },
-      enumerable: true,
-      configurable: true
-    });
+  // node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/liveview-js.e3521e25.mjs
+  var c = (e2, t2) => JSON.stringify([[e2, t2]]);
+  var i = {
+    exec(e2, t2) {
+      window.liveSocket.execJS(e2, t2 || "[]");
+    },
+    setAttribute(e2, t2, r3, o3 = null) {
+      i.exec(e2, c("set_attr", { attr: [t2, r3], to: o3 }));
+    },
+    removeAttribute(e2, t2, r3 = null) {
+      i.exec(e2, c("remove_attr", { attr: t2, to: r3 }));
+    }
   };
-  var attr = (name, converter) => (target, propertyKey) => {
-    Reflect.defineProperty(target, propertyKey, {
-      get() {
-        const value = this.getAttribute(name);
-        return !!converter ? converter(value) : value;
-      },
-      set(value) {
-        this.setAttribute(name, value);
-      },
-      enumerable: true,
-      configurable: true
-    });
+
+  // node_modules/.pnpm/@tunkshif+live-element@0.0.3/node_modules/@tunkshif/live-element/dist/index.mjs
+  var n = class extends HTMLElement {
+    connectedCallback() {
+    }
+    updatedCallback(a3, e2, t2) {
+    }
+    disconnectedCallback() {
+    }
+    attributeChangedCallback(a3, e2, t2) {
+      e2 === null && t2 !== null || e2 !== t2 && this.updatedCallback(a3, e2, t2);
+    }
   };
+
+  // js/sprout-ui/components/dialog.ts
+  var import_decorators = __toESM(require_decorators2());
 
   // node_modules/.pnpm/tabbable@6.0.1/node_modules/tabbable/dist/index.esm.js
   var candidateSelectors = ["input", "select", "textarea", "a[href]", "button", "[tabindex]:not(slot)", "audio[controls]", "video[controls]", '[contenteditable]:not([contenteditable="false"])', "details>summary:first-of-type", "details"];
@@ -236,9 +271,9 @@ var SproutUI = (() => {
     return r3;
   };
   var getCheckedRadio = function getCheckedRadio2(nodes, form) {
-    for (var i3 = 0; i3 < nodes.length; i3++) {
-      if (nodes[i3].checked && nodes[i3].form === form) {
-        return nodes[i3];
+    for (var i4 = 0; i4 < nodes.length; i4++) {
+      if (nodes[i4].checked && nodes[i4].form === form) {
+        return nodes[i4];
       }
     }
   };
@@ -329,8 +364,8 @@ var SproutUI = (() => {
       var parentNode = node.parentElement;
       while (parentNode) {
         if (parentNode.tagName === "FIELDSET" && parentNode.disabled) {
-          for (var i3 = 0; i3 < parentNode.children.length; i3++) {
-            var child = parentNode.children.item(i3);
+          for (var i4 = 0; i4 < parentNode.children.length; i4++) {
+            var child = parentNode.children.item(i4);
             if (child.tagName === "LEGEND") {
               return matches.call(parentNode, "fieldset[disabled] *") ? true : !child.contains(node);
             }
@@ -364,7 +399,7 @@ var SproutUI = (() => {
   var sortByOrder = function sortByOrder2(candidates) {
     var regularTabbables = [];
     var orderedTabbables = [];
-    candidates.forEach(function(item, i3) {
+    candidates.forEach(function(item, i4) {
       var isScope = !!item.scopeParent;
       var element = isScope ? item.scopeParent : item;
       var candidateTabindex = getTabindex(element, isScope);
@@ -373,7 +408,7 @@ var SproutUI = (() => {
         isScope ? regularTabbables.push.apply(regularTabbables, elements) : regularTabbables.push(element);
       } else {
         orderedTabbables.push({
-          documentOrder: i3,
+          documentOrder: i4,
           tabIndex: candidateTabindex,
           item,
           isScope,
@@ -449,9 +484,9 @@ var SproutUI = (() => {
     return keys;
   }
   function _objectSpread2(target) {
-    for (var i3 = 1; i3 < arguments.length; i3++) {
-      var source = null != arguments[i3] ? arguments[i3] : {};
-      i3 % 2 ? ownKeys(Object(source), true).forEach(function(key) {
+    for (var i4 = 1; i4 < arguments.length; i4++) {
+      var source = null != arguments[i4] ? arguments[i4] : {};
+      i4 % 2 ? ownKeys(Object(source), true).forEach(function(key) {
         _defineProperty(target, key, source[key]);
       }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function(key) {
         Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
@@ -513,9 +548,9 @@ var SproutUI = (() => {
   };
   var findIndex = function findIndex2(arr, fn) {
     var idx = -1;
-    arr.every(function(value, i3) {
+    arr.every(function(value, i4) {
       if (fn(value)) {
-        idx = i3;
+        idx = i4;
         return false;
       }
       return true;
@@ -618,19 +653,19 @@ var SproutUI = (() => {
           lastTabbableNode: tabbableNodes.length > 0 ? tabbableNodes[tabbableNodes.length - 1] : null,
           nextTabbableNode: function nextTabbableNode(node) {
             var forward = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : true;
-            var nodeIdx = focusableNodes.findIndex(function(n3) {
-              return n3 === node;
+            var nodeIdx = focusableNodes.findIndex(function(n4) {
+              return n4 === node;
             });
             if (nodeIdx < 0) {
               return void 0;
             }
             if (forward) {
-              return focusableNodes.slice(nodeIdx + 1).find(function(n3) {
-                return isTabbable(n3, config.tabbableOptions);
+              return focusableNodes.slice(nodeIdx + 1).find(function(n4) {
+                return isTabbable(n4, config.tabbableOptions);
               });
             }
-            return focusableNodes.slice(0, nodeIdx).reverse().find(function(n3) {
-              return isTabbable(n3, config.tabbableOptions);
+            return focusableNodes.slice(0, nodeIdx).reverse().find(function(n4) {
+              return isTabbable(n4, config.tabbableOptions);
             });
           }
         };
@@ -919,6 +954,20 @@ var SproutUI = (() => {
   var isVisible = (element) => !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length > 0);
   var flipping = (current, values = ["open", "closed"]) => current === values[0] ? values[1] : values[0];
 
+  // js/sprout-ui/utils/body-scroll.ts
+  var toggleBodyScroll = (state) => {
+    if (!state)
+      return;
+    switch (state) {
+      case "on":
+        Object.assign(document.body.style, { overflow: "" });
+        break;
+      case "off":
+        Object.assign(document.body.style, { overflow: "hidden" });
+        break;
+    }
+  };
+
   // js/sprout-ui/utils/disposables.ts
   var Disposables = class {
     constructor() {
@@ -999,37 +1048,9 @@ var SproutUI = (() => {
     }
   };
 
-  // js/sprout-ui/internal/sprout-element.ts
-  var SproutElement = class extends HTMLElement {
-    attributeChangedCallback(attribute, oldValue, newValue) {
-      if (oldValue === null && newValue !== null)
-        return;
-      if (oldValue === newValue)
-        return;
-      this.updatedCallback(attribute, oldValue, newValue);
-    }
-    updatedCallback(_attribute, _oldValue, _newValue) {
-    }
-    executeJs(element, command) {
-      window.liveSocket.execJS(element, command || "[]");
-    }
-    setAttributeLive(element, name, value) {
-      this.executeJs(element, JSON.stringify([["set_attr", { attr: [name, value], to: null }]]));
-    }
-    removeAttributeLive(element, name) {
-      this.executeJs(element, JSON.stringify([["remove_attr", { attr: name, to: null }]]));
-    }
-    setStateLive(state) {
-      this.setAttributeLive(this, "data-state", state);
-    }
-  };
-  __decorateClass([
-    attr("data-state")
-  ], SproutElement.prototype, "state", 2);
-
   // js/sprout-ui/internal/transition.ts
   var getTransitionClasses = (element) => Object.fromEntries(
-    ["enter", "leave"].map((v3) => [v3, `${v3}From`, `${v3}To`]).flat().map((key) => {
+    ["enter", "leave"].map((v3) => [v3, `${v3}From`, `${v3}To`, `${v3}Ended`]).flat().map((key) => {
       var _a, _b, _c;
       return [key, (_c = (_b = (_a = element.dataset[key]) == null ? void 0 : _a.split(" ")) == null ? void 0 : _b.filter(Boolean)) != null ? _c : []];
     })
@@ -1076,16 +1097,19 @@ var SproutUI = (() => {
     let base;
     let from;
     let to;
+    let ended;
     switch (stage) {
       case "enter":
         base = classes.enter;
         from = classes.enterFrom;
         to = classes.enterTo;
+        ended = classes.enterEnded;
         break;
       case "leave":
         base = classes.leave;
         from = classes.leaveFrom;
         to = classes.leaveTo;
+        ended = classes.leaveEnded;
         break;
     }
     (_a = callbacks.onStart) == null ? void 0 : _a.call(callbacks, stage);
@@ -1099,8 +1123,9 @@ var SproutUI = (() => {
         if (status === "ended") {
           element.classList.remove(
             ...base,
-            ...Array.from(element.classList).filter((c3) => !originalClasses.includes(c3))
+            ...Array.from(element.classList).filter((c4) => !originalClasses.includes(c4))
           );
+          element.classList.add(...ended);
         }
         (_a2 = callbacks.onDone) == null ? void 0 : _a2.call(callbacks, stage, status);
       });
@@ -1119,7 +1144,7 @@ var SproutUI = (() => {
   });
 
   // js/sprout-ui/components/dialog.ts
-  var DialogElement = class extends SproutElement {
+  var DialogElement = class extends n {
     static get observedAttributes() {
       return ["data-state"];
     }
@@ -1140,32 +1165,35 @@ var SproutUI = (() => {
       return __async(this, null, function* () {
         const parts = [this.backdrop, this.panel];
         if (this.state === "open") {
-          this.executeJs(this, this.dataset.onOpenJs);
-          this.removeAttributeLive(this.dialog, "hidden");
+          i.exec(this, this.dataset.onOpenJs);
+          i.removeAttribute(this.dialog, "hidden");
           this.modal.addEventListeners(() => {
-            this.setStateLive("closed");
+            this.state = "closed";
           });
           this.modal.activate();
           yield Promise.all(parts.map((part) => transitionElement(part, "enter")));
         } else {
-          this.executeJs(this, this.dataset.onCloseJs);
+          i.exec(this, this.dataset.onCloseJs);
           this.modal.removeEventListeners();
           this.modal.deactivate();
           yield Promise.all(parts.map((part) => transitionElement(part, "leave")));
-          this.setAttributeLive(this.dialog, "hidden", "true");
+          i.setAttribute(this.dialog, "hidden", "true");
         }
       });
     }
   };
   __decorateClass([
-    query("container")
+    (0, import_decorators.query)("container", { part: true })
   ], DialogElement.prototype, "dialog", 2);
   __decorateClass([
-    query("backdrop")
+    (0, import_decorators.query)("backdrop", { part: true })
   ], DialogElement.prototype, "backdrop", 2);
   __decorateClass([
-    query("panel")
+    (0, import_decorators.query)("panel", { part: true })
   ], DialogElement.prototype, "panel", 2);
+  __decorateClass([
+    (0, import_decorators.attr)("data-state", { live: true })
+  ], DialogElement.prototype, "state", 2);
   var Dialog = (_opts) => ({
     init: () => {
       customElements.define("sp-dialog", DialogElement);
@@ -1180,22 +1208,22 @@ var SproutUI = (() => {
   function e(t2) {
     return t2.split("-")[1];
   }
-  function n(e2) {
+  function n2(e2) {
     return ["top", "bottom"].includes(t(e2)) ? "x" : "y";
   }
   function r(t2) {
     return "y" === t2 ? "height" : "width";
   }
-  function i(i3, o3, a3) {
-    let { reference: l3, floating: s3 } = i3;
-    const c3 = l3.x + l3.width / 2 - s3.width / 2, f3 = l3.y + l3.height / 2 - s3.height / 2, u3 = n(o3), m3 = r(u3), g3 = l3[m3] / 2 - s3[m3] / 2, d3 = "x" === u3;
+  function i2(i4, o3, a3) {
+    let { reference: l3, floating: s3 } = i4;
+    const c4 = l3.x + l3.width / 2 - s3.width / 2, f3 = l3.y + l3.height / 2 - s3.height / 2, u3 = n2(o3), m3 = r(u3), g3 = l3[m3] / 2 - s3[m3] / 2, d3 = "x" === u3;
     let p3;
     switch (t(o3)) {
       case "top":
-        p3 = { x: c3, y: l3.y - s3.height };
+        p3 = { x: c4, y: l3.y - s3.height };
         break;
       case "bottom":
-        p3 = { x: c3, y: l3.y + l3.height };
+        p3 = { x: c4, y: l3.y + l3.height };
         break;
       case "right":
         p3 = { x: l3.x + l3.width, y: f3 };
@@ -1215,12 +1243,12 @@ var SproutUI = (() => {
     }
     return p3;
   }
-  var o = (t2, e2, n3) => __async(void 0, null, function* () {
-    const { placement: r3 = "bottom", strategy: o3 = "absolute", middleware: a3 = [], platform: l3 } = n3, s3 = yield null == l3.isRTL ? void 0 : l3.isRTL(e2);
-    let c3 = yield l3.getElementRects({ reference: t2, floating: e2, strategy: o3 }), { x: f3, y: u3 } = i(c3, r3, s3), m3 = r3, g3 = {}, d3 = 0;
-    for (let n4 = 0; n4 < a3.length; n4++) {
-      const { name: p3, fn: h3 } = a3[n4], { x: y3, y: x3, data: w3, reset: v3 } = yield h3({ x: f3, y: u3, initialPlacement: r3, placement: m3, strategy: o3, middlewareData: g3, rects: c3, platform: l3, elements: { reference: t2, floating: e2 } });
-      f3 = null != y3 ? y3 : f3, u3 = null != x3 ? x3 : u3, g3 = __spreadProps(__spreadValues({}, g3), { [p3]: __spreadValues(__spreadValues({}, g3[p3]), w3) }), v3 && d3 <= 50 && (d3++, "object" == typeof v3 && (v3.placement && (m3 = v3.placement), v3.rects && (c3 = true === v3.rects ? yield l3.getElementRects({ reference: t2, floating: e2, strategy: o3 }) : v3.rects), { x: f3, y: u3 } = i(c3, m3, s3)), n4 = -1);
+  var o = (t2, e2, n4) => __async(void 0, null, function* () {
+    const { placement: r3 = "bottom", strategy: o3 = "absolute", middleware: a3 = [], platform: l3 } = n4, s3 = yield null == l3.isRTL ? void 0 : l3.isRTL(e2);
+    let c4 = yield l3.getElementRects({ reference: t2, floating: e2, strategy: o3 }), { x: f3, y: u3 } = i2(c4, r3, s3), m3 = r3, g3 = {}, d3 = 0;
+    for (let n5 = 0; n5 < a3.length; n5++) {
+      const { name: p3, fn: h3 } = a3[n5], { x: y3, y: x3, data: w3, reset: v3 } = yield h3({ x: f3, y: u3, initialPlacement: r3, placement: m3, strategy: o3, middlewareData: g3, rects: c4, platform: l3, elements: { reference: t2, floating: e2 } });
+      f3 = null != y3 ? y3 : f3, u3 = null != x3 ? x3 : u3, g3 = __spreadProps(__spreadValues({}, g3), { [p3]: __spreadValues(__spreadValues({}, g3[p3]), w3) }), v3 && d3 <= 50 && (d3++, "object" == typeof v3 && (v3.placement && (m3 = v3.placement), v3.rects && (c4 = true === v3.rects ? yield l3.getElementRects({ reference: t2, floating: e2, strategy: o3 }) : v3.rects), { x: f3, y: u3 } = i2(c4, m3, s3)), n5 = -1);
     }
     return { x: f3, y: u3, placement: m3, strategy: o3, middlewareData: g3 };
   });
@@ -1234,23 +1262,23 @@ var SproutUI = (() => {
   }
   function s(t2, e2) {
     return __async(this, null, function* () {
-      var n3;
+      var n4;
       void 0 === e2 && (e2 = {});
-      const { x: r3, y: i3, platform: o3, rects: s3, elements: c3, strategy: f3 } = t2, { boundary: u3 = "clippingAncestors", rootBoundary: m3 = "viewport", elementContext: g3 = "floating", altBoundary: d3 = false, padding: p3 = 0 } = e2, h3 = a(p3), y3 = c3[d3 ? "floating" === g3 ? "reference" : "floating" : g3], x3 = l(yield o3.getClippingRect({ element: null == (n3 = yield null == o3.isElement ? void 0 : o3.isElement(y3)) || n3 ? y3 : y3.contextElement || (yield null == o3.getDocumentElement ? void 0 : o3.getDocumentElement(c3.floating)), boundary: u3, rootBoundary: m3, strategy: f3 })), w3 = l(o3.convertOffsetParentRelativeRectToViewportRelativeRect ? yield o3.convertOffsetParentRelativeRectToViewportRelativeRect({ rect: "floating" === g3 ? __spreadProps(__spreadValues({}, s3.floating), { x: r3, y: i3 }) : s3.reference, offsetParent: yield null == o3.getOffsetParent ? void 0 : o3.getOffsetParent(c3.floating), strategy: f3 }) : s3[g3]);
+      const { x: r3, y: i4, platform: o3, rects: s3, elements: c4, strategy: f3 } = t2, { boundary: u3 = "clippingAncestors", rootBoundary: m3 = "viewport", elementContext: g3 = "floating", altBoundary: d3 = false, padding: p3 = 0 } = e2, h3 = a(p3), y3 = c4[d3 ? "floating" === g3 ? "reference" : "floating" : g3], x3 = l(yield o3.getClippingRect({ element: null == (n4 = yield null == o3.isElement ? void 0 : o3.isElement(y3)) || n4 ? y3 : y3.contextElement || (yield null == o3.getDocumentElement ? void 0 : o3.getDocumentElement(c4.floating)), boundary: u3, rootBoundary: m3, strategy: f3 })), w3 = l(o3.convertOffsetParentRelativeRectToViewportRelativeRect ? yield o3.convertOffsetParentRelativeRectToViewportRelativeRect({ rect: "floating" === g3 ? __spreadProps(__spreadValues({}, s3.floating), { x: r3, y: i4 }) : s3.reference, offsetParent: yield null == o3.getOffsetParent ? void 0 : o3.getOffsetParent(c4.floating), strategy: f3 }) : s3[g3]);
       return { top: x3.top - w3.top + h3.top, bottom: w3.bottom - x3.bottom + h3.bottom, left: x3.left - w3.left + h3.left, right: w3.right - x3.right + h3.right };
     });
   }
-  var c = Math.min;
+  var c2 = Math.min;
   var f = Math.max;
-  function u(t2, e2, n3) {
-    return f(t2, c(e2, n3));
+  function u(t2, e2, n4) {
+    return f(t2, c2(e2, n4));
   }
-  var m = (t2) => ({ name: "arrow", options: t2, fn(i3) {
+  var m = (t2) => ({ name: "arrow", options: t2, fn(i4) {
     return __async(this, null, function* () {
-      const { element: o3, padding: l3 = 0 } = null != t2 ? t2 : {}, { x: s3, y: c3, placement: f3, rects: m3, platform: g3 } = i3;
+      const { element: o3, padding: l3 = 0 } = null != t2 ? t2 : {}, { x: s3, y: c4, placement: f3, rects: m3, platform: g3 } = i4;
       if (null == o3)
         return {};
-      const d3 = a(l3), p3 = { x: s3, y: c3 }, h3 = n(f3), y3 = e(f3), x3 = r(h3), w3 = yield g3.getDimensions(o3), v3 = "y" === h3 ? "top" : "left", b3 = "y" === h3 ? "bottom" : "right", R2 = m3.reference[x3] + m3.reference[h3] - p3[h3] - m3.floating[x3], A2 = p3[h3] - m3.reference[h3], P2 = yield null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(o3);
+      const d3 = a(l3), p3 = { x: s3, y: c4 }, h3 = n2(f3), y3 = e(f3), x3 = r(h3), w3 = yield g3.getDimensions(o3), v3 = "y" === h3 ? "top" : "left", b3 = "y" === h3 ? "bottom" : "right", R2 = m3.reference[x3] + m3.reference[h3] - p3[h3] - m3.floating[x3], A2 = p3[h3] - m3.reference[h3], P2 = yield null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(o3);
       let T3 = P2 ? "y" === h3 ? P2.clientHeight || 0 : P2.clientWidth || 0 : 0;
       0 === T3 && (T3 = m3.floating[x3]);
       const O2 = R2 / 2 - A2 / 2, L3 = d3[v3], D3 = T3 - w3[x3] - d3[b3], k2 = T3 / 2 - w3[x3] / 2 + O2, E3 = u(L3, k2, D3), C2 = ("start" === y3 ? d3[v3] : d3[b3]) > 0 && k2 !== E3 && m3.reference[x3] <= m3.floating[x3];
@@ -1261,11 +1289,11 @@ var SproutUI = (() => {
   function d(t2) {
     return t2.replace(/left|right|bottom|top/g, (t3) => g[t3]);
   }
-  function p(t2, i3, o3) {
+  function p(t2, i4, o3) {
     void 0 === o3 && (o3 = false);
-    const a3 = e(t2), l3 = n(t2), s3 = r(l3);
-    let c3 = "x" === l3 ? a3 === (o3 ? "end" : "start") ? "right" : "left" : "start" === a3 ? "bottom" : "top";
-    return i3.reference[s3] > i3.floating[s3] && (c3 = d(c3)), { main: c3, cross: d(c3) };
+    const a3 = e(t2), l3 = n2(t2), s3 = r(l3);
+    let c4 = "x" === l3 ? a3 === (o3 ? "end" : "start") ? "right" : "left" : "start" === a3 ? "bottom" : "top";
+    return i4.reference[s3] > i4.floating[s3] && (c4 = d(c4)), { main: c4, cross: d(c4) };
   }
   var h = { start: "end", end: "start" };
   function y(t2) {
@@ -1274,51 +1302,51 @@ var SproutUI = (() => {
   var x = ["top", "right", "bottom", "left"];
   var w = x.reduce((t2, e2) => t2.concat(e2, e2 + "-start", e2 + "-end"), []);
   var b = function(e2) {
-    return void 0 === e2 && (e2 = {}), { name: "flip", options: e2, fn(n3) {
+    return void 0 === e2 && (e2 = {}), { name: "flip", options: e2, fn(n4) {
       return __async(this, null, function* () {
         var r3;
-        const { placement: i3, middlewareData: o3, rects: a3, initialPlacement: l3, platform: c3, elements: f3 } = n3, _a2 = e2, { mainAxis: u3 = true, crossAxis: m3 = true, fallbackPlacements: g3, fallbackStrategy: h3 = "bestFit", flipAlignment: x3 = true } = _a2, w3 = __objRest(_a2, ["mainAxis", "crossAxis", "fallbackPlacements", "fallbackStrategy", "flipAlignment"]), v3 = t(i3), b3 = g3 || (v3 === l3 || !x3 ? [d(l3)] : function(t2) {
+        const { placement: i4, middlewareData: o3, rects: a3, initialPlacement: l3, platform: c4, elements: f3 } = n4, _a2 = e2, { mainAxis: u3 = true, crossAxis: m3 = true, fallbackPlacements: g3, fallbackStrategy: h3 = "bestFit", flipAlignment: x3 = true } = _a2, w3 = __objRest(_a2, ["mainAxis", "crossAxis", "fallbackPlacements", "fallbackStrategy", "flipAlignment"]), v3 = t(i4), b3 = g3 || (v3 === l3 || !x3 ? [d(l3)] : function(t2) {
           const e3 = d(t2);
           return [y(t2), e3, y(e3)];
-        }(l3)), R2 = [l3, ...b3], A2 = yield s(n3, w3), P2 = [];
+        }(l3)), R2 = [l3, ...b3], A2 = yield s(n4, w3), P2 = [];
         let T3 = (null == (r3 = o3.flip) ? void 0 : r3.overflows) || [];
         if (u3 && P2.push(A2[v3]), m3) {
-          const { main: t2, cross: e3 } = p(i3, a3, yield null == c3.isRTL ? void 0 : c3.isRTL(f3.floating));
+          const { main: t2, cross: e3 } = p(i4, a3, yield null == c4.isRTL ? void 0 : c4.isRTL(f3.floating));
           P2.push(A2[t2], A2[e3]);
         }
-        if (T3 = [...T3, { placement: i3, overflows: P2 }], !P2.every((t2) => t2 <= 0)) {
+        if (T3 = [...T3, { placement: i4, overflows: P2 }], !P2.every((t2) => t2 <= 0)) {
           var O2, L3;
           const t2 = (null != (O2 = null == (L3 = o3.flip) ? void 0 : L3.index) ? O2 : 0) + 1, e3 = R2[t2];
           if (e3)
             return { data: { index: t2, overflows: T3 }, reset: { placement: e3 } };
-          let n4 = "bottom";
+          let n5 = "bottom";
           switch (h3) {
             case "bestFit": {
               var D3;
               const t3 = null == (D3 = T3.map((t4) => [t4, t4.overflows.filter((t5) => t5 > 0).reduce((t5, e4) => t5 + e4, 0)]).sort((t4, e4) => t4[1] - e4[1])[0]) ? void 0 : D3[0].placement;
-              t3 && (n4 = t3);
+              t3 && (n5 = t3);
               break;
             }
             case "initialPlacement":
-              n4 = l3;
+              n5 = l3;
           }
-          if (i3 !== n4)
-            return { reset: { placement: n4 } };
+          if (i4 !== n5)
+            return { reset: { placement: n5 } };
         }
         return {};
       });
     } };
   };
   var T = function(r3) {
-    return void 0 === r3 && (r3 = 0), { name: "offset", options: r3, fn(i3) {
+    return void 0 === r3 && (r3 = 0), { name: "offset", options: r3, fn(i4) {
       return __async(this, null, function* () {
-        const { x: o3, y: a3 } = i3, l3 = yield function(r4, i4) {
+        const { x: o3, y: a3 } = i4, l3 = yield function(r4, i5) {
           return __async(this, null, function* () {
-            const { placement: o4, platform: a4, elements: l4 } = r4, s3 = yield null == a4.isRTL ? void 0 : a4.isRTL(l4.floating), c3 = t(o4), f3 = e(o4), u3 = "x" === n(o4), m3 = ["left", "top"].includes(c3) ? -1 : 1, g3 = s3 && u3 ? -1 : 1, d3 = "function" == typeof i4 ? i4(r4) : i4;
+            const { placement: o4, platform: a4, elements: l4 } = r4, s3 = yield null == a4.isRTL ? void 0 : a4.isRTL(l4.floating), c4 = t(o4), f3 = e(o4), u3 = "x" === n2(o4), m3 = ["left", "top"].includes(c4) ? -1 : 1, g3 = s3 && u3 ? -1 : 1, d3 = "function" == typeof i5 ? i5(r4) : i5;
             let { mainAxis: p3, crossAxis: h3, alignmentAxis: y3 } = "number" == typeof d3 ? { mainAxis: d3, crossAxis: 0, alignmentAxis: null } : __spreadValues({ mainAxis: 0, crossAxis: 0, alignmentAxis: null }, d3);
             return f3 && "number" == typeof y3 && (h3 = "end" === f3 ? -1 * y3 : y3), u3 ? { x: h3 * g3, y: p3 * m3 } : { x: p3 * m3, y: h3 * g3 };
           });
-        }(i3, r3);
+        }(i4, r3);
         return { x: o3 + l3.x, y: a3 + l3.y, data: l3 };
       });
     } };
@@ -1329,49 +1357,49 @@ var SproutUI = (() => {
   var L = function(e2) {
     return void 0 === e2 && (e2 = {}), { name: "shift", options: e2, fn(r3) {
       return __async(this, null, function* () {
-        const { x: i3, y: o3, placement: a3 } = r3, _a2 = e2, { mainAxis: l3 = true, crossAxis: c3 = false, limiter: f3 = { fn: (t2) => {
-          let { x: e3, y: n3 } = t2;
-          return { x: e3, y: n3 };
-        } } } = _a2, m3 = __objRest(_a2, ["mainAxis", "crossAxis", "limiter"]), g3 = { x: i3, y: o3 }, d3 = yield s(r3, m3), p3 = n(t(a3)), h3 = O(p3);
+        const { x: i4, y: o3, placement: a3 } = r3, _a2 = e2, { mainAxis: l3 = true, crossAxis: c4 = false, limiter: f3 = { fn: (t2) => {
+          let { x: e3, y: n4 } = t2;
+          return { x: e3, y: n4 };
+        } } } = _a2, m3 = __objRest(_a2, ["mainAxis", "crossAxis", "limiter"]), g3 = { x: i4, y: o3 }, d3 = yield s(r3, m3), p3 = n2(t(a3)), h3 = O(p3);
         let y3 = g3[p3], x3 = g3[h3];
         if (l3) {
           const t2 = "y" === p3 ? "bottom" : "right";
           y3 = u(y3 + d3["y" === p3 ? "top" : "left"], y3, y3 - d3[t2]);
         }
-        if (c3) {
+        if (c4) {
           const t2 = "y" === h3 ? "bottom" : "right";
           x3 = u(x3 + d3["y" === h3 ? "top" : "left"], x3, x3 - d3[t2]);
         }
         const w3 = f3.fn(__spreadProps(__spreadValues({}, r3), { [p3]: y3, [h3]: x3 }));
-        return __spreadProps(__spreadValues({}, w3), { data: { x: w3.x - i3, y: w3.y - o3 } });
+        return __spreadProps(__spreadValues({}, w3), { data: { x: w3.x - i4, y: w3.y - o3 } });
       });
     } };
   };
 
   // node_modules/.pnpm/@floating-ui+dom@1.0.4/node_modules/@floating-ui/dom/dist/floating-ui.dom.browser.min.mjs
-  function n2(t2) {
+  function n3(t2) {
     return t2 && t2.document && t2.location && t2.alert && t2.setInterval;
   }
   function o2(t2) {
     if (null == t2)
       return window;
-    if (!n2(t2)) {
+    if (!n3(t2)) {
       const e2 = t2.ownerDocument;
       return e2 && e2.defaultView || window;
     }
     return t2;
   }
-  function i2(t2) {
+  function i3(t2) {
     return o2(t2).getComputedStyle(t2);
   }
   function r2(t2) {
-    return n2(t2) ? "" : t2 ? (t2.nodeName || "").toLowerCase() : "";
+    return n3(t2) ? "" : t2 ? (t2.nodeName || "").toLowerCase() : "";
   }
   function l2() {
     const t2 = navigator.userAgentData;
     return null != t2 && t2.brands ? t2.brands.map((t3) => t3.brand + "/" + t3.version).join(" ") : navigator.userAgent;
   }
-  function c2(t2) {
+  function c3(t2) {
     return t2 instanceof o2(t2).HTMLElement;
   }
   function s2(t2) {
@@ -1383,16 +1411,16 @@ var SproutUI = (() => {
     return t2 instanceof o2(t2).ShadowRoot || t2 instanceof ShadowRoot;
   }
   function u2(t2) {
-    const { overflow: e2, overflowX: n3, overflowY: o3, display: r3 } = i2(t2);
-    return /auto|scroll|overlay|hidden/.test(e2 + o3 + n3) && !["inline", "contents"].includes(r3);
+    const { overflow: e2, overflowX: n4, overflowY: o3, display: r3 } = i3(t2);
+    return /auto|scroll|overlay|hidden/.test(e2 + o3 + n4) && !["inline", "contents"].includes(r3);
   }
   function d2(t2) {
     return ["table", "td", "th"].includes(r2(t2));
   }
   function h2(t2) {
-    const e2 = /firefox/i.test(l2()), n3 = i2(t2);
-    return "none" !== n3.transform || "none" !== n3.perspective || e2 && "filter" === n3.willChange || e2 && !!n3.filter && "none" !== n3.filter || ["transform", "perspective"].some((t3) => n3.willChange.includes(t3)) || ["paint", "layout", "strict", "content"].some((t3) => {
-      const e3 = n3.contain;
+    const e2 = /firefox/i.test(l2()), n4 = i3(t2);
+    return "none" !== n4.transform || "none" !== n4.perspective || e2 && "filter" === n4.willChange || e2 && !!n4.filter && "none" !== n4.filter || ["transform", "perspective"].some((t3) => n4.willChange.includes(t3)) || ["paint", "layout", "strict", "content"].some((t3) => {
+      const e3 = n4.contain;
       return null != e3 && e3.includes(t3);
     });
   }
@@ -1405,13 +1433,13 @@ var SproutUI = (() => {
   var m2 = Math.min;
   var p2 = Math.max;
   var w2 = Math.round;
-  function v2(t2, e2, n3) {
-    var i3, r3, l3, f3;
-    void 0 === e2 && (e2 = false), void 0 === n3 && (n3 = false);
+  function v2(t2, e2, n4) {
+    var i4, r3, l3, f3;
+    void 0 === e2 && (e2 = false), void 0 === n4 && (n4 = false);
     const u3 = t2.getBoundingClientRect();
     let d3 = 1, h3 = 1;
-    e2 && c2(t2) && (d3 = t2.offsetWidth > 0 && w2(u3.width) / t2.offsetWidth || 1, h3 = t2.offsetHeight > 0 && w2(u3.height) / t2.offsetHeight || 1);
-    const g3 = s2(t2) ? o2(t2) : window, m3 = !a2() && n3, p3 = (u3.left + (m3 && null != (i3 = null == (r3 = g3.visualViewport) ? void 0 : r3.offsetLeft) ? i3 : 0)) / d3, v3 = (u3.top + (m3 && null != (l3 = null == (f3 = g3.visualViewport) ? void 0 : f3.offsetTop) ? l3 : 0)) / h3, y3 = u3.width / d3, x3 = u3.height / h3;
+    e2 && c3(t2) && (d3 = t2.offsetWidth > 0 && w2(u3.width) / t2.offsetWidth || 1, h3 = t2.offsetHeight > 0 && w2(u3.height) / t2.offsetHeight || 1);
+    const g3 = s2(t2) ? o2(t2) : window, m3 = !a2() && n4, p3 = (u3.left + (m3 && null != (i4 = null == (r3 = g3.visualViewport) ? void 0 : r3.offsetLeft) ? i4 : 0)) / d3, v3 = (u3.top + (m3 && null != (l3 = null == (f3 = g3.visualViewport) ? void 0 : f3.offsetTop) ? l3 : 0)) / h3, y3 = u3.width / d3, x3 = u3.height / h3;
     return { width: y3, height: x3, top: v3, right: p3 + y3, bottom: v3 + x3, left: p3, x: p3, y: v3 };
   }
   function y2(t2) {
@@ -1424,35 +1452,35 @@ var SproutUI = (() => {
   function b2(t2) {
     return v2(y2(t2)).left + x2(t2).scrollLeft;
   }
-  function L2(t2, e2, n3) {
-    const o3 = c2(e2), i3 = y2(e2), l3 = v2(t2, o3 && function(t3) {
+  function L2(t2, e2, n4) {
+    const o3 = c3(e2), i4 = y2(e2), l3 = v2(t2, o3 && function(t3) {
       const e3 = v2(t3);
       return w2(e3.width) !== t3.offsetWidth || w2(e3.height) !== t3.offsetHeight;
-    }(e2), "fixed" === n3);
+    }(e2), "fixed" === n4);
     let s3 = { scrollLeft: 0, scrollTop: 0 };
     const f3 = { x: 0, y: 0 };
-    if (o3 || !o3 && "fixed" !== n3)
-      if (("body" !== r2(e2) || u2(i3)) && (s3 = x2(e2)), c2(e2)) {
+    if (o3 || !o3 && "fixed" !== n4)
+      if (("body" !== r2(e2) || u2(i4)) && (s3 = x2(e2)), c3(e2)) {
         const t3 = v2(e2, true);
         f3.x = t3.x + e2.clientLeft, f3.y = t3.y + e2.clientTop;
       } else
-        i3 && (f3.x = b2(i3));
+        i4 && (f3.x = b2(i4));
     return { x: l3.left + s3.scrollLeft - f3.x, y: l3.top + s3.scrollTop - f3.y, width: l3.width, height: l3.height };
   }
   function R(t2) {
     return "html" === r2(t2) ? t2 : t2.assignedSlot || t2.parentNode || (f2(t2) ? t2.host : null) || y2(t2);
   }
   function E2(t2) {
-    return c2(t2) && "fixed" !== i2(t2).position ? t2.offsetParent : null;
+    return c3(t2) && "fixed" !== i3(t2).position ? t2.offsetParent : null;
   }
   function T2(t2) {
     const e2 = o2(t2);
-    let n3 = E2(t2);
-    for (; n3 && d2(n3) && "static" === i2(n3).position; )
-      n3 = E2(n3);
-    return n3 && ("html" === r2(n3) || "body" === r2(n3) && "static" === i2(n3).position && !h2(n3)) ? e2 : n3 || function(t3) {
+    let n4 = E2(t2);
+    for (; n4 && d2(n4) && "static" === i3(n4).position; )
+      n4 = E2(n4);
+    return n4 && ("html" === r2(n4) || "body" === r2(n4) && "static" === i3(n4).position && !h2(n4)) ? e2 : n4 || function(t3) {
       let e3 = R(t3);
-      for (f2(e3) && (e3 = e3.host); c2(e3) && !g2(e3); ) {
+      for (f2(e3) && (e3 = e3.host); c3(e3) && !g2(e3); ) {
         if (h2(e3))
           return e3;
         {
@@ -1464,122 +1492,123 @@ var SproutUI = (() => {
     }(t2) || e2;
   }
   function W(t2) {
-    if (c2(t2))
+    if (c3(t2))
       return { width: t2.offsetWidth, height: t2.offsetHeight };
     const e2 = v2(t2);
     return { width: e2.width, height: e2.height };
   }
   function H(t2) {
     const e2 = R(t2);
-    return g2(e2) ? t2.ownerDocument.body : c2(e2) && u2(e2) ? e2 : H(e2);
+    return g2(e2) ? t2.ownerDocument.body : c3(e2) && u2(e2) ? e2 : H(e2);
   }
   function C(t2, e2) {
-    var n3;
+    var n4;
     void 0 === e2 && (e2 = []);
-    const i3 = H(t2), r3 = i3 === (null == (n3 = t2.ownerDocument) ? void 0 : n3.body), l3 = o2(i3), c3 = r3 ? [l3].concat(l3.visualViewport || [], u2(i3) ? i3 : []) : i3, s3 = e2.concat(c3);
-    return r3 ? s3 : s3.concat(C(c3));
+    const i4 = H(t2), r3 = i4 === (null == (n4 = t2.ownerDocument) ? void 0 : n4.body), l3 = o2(i4), c4 = r3 ? [l3].concat(l3.visualViewport || [], u2(i4) ? i4 : []) : i4, s3 = e2.concat(c4);
+    return r3 ? s3 : s3.concat(C(c4));
   }
-  function D2(e2, n3, r3) {
-    return "viewport" === n3 ? l(function(t2, e3) {
-      const n4 = o2(t2), i3 = y2(t2), r4 = n4.visualViewport;
-      let l3 = i3.clientWidth, c3 = i3.clientHeight, s3 = 0, f3 = 0;
+  function D2(e2, n4, r3) {
+    return "viewport" === n4 ? l(function(t2, e3) {
+      const n5 = o2(t2), i4 = y2(t2), r4 = n5.visualViewport;
+      let l3 = i4.clientWidth, c4 = i4.clientHeight, s3 = 0, f3 = 0;
       if (r4) {
-        l3 = r4.width, c3 = r4.height;
+        l3 = r4.width, c4 = r4.height;
         const t3 = a2();
         (t3 || !t3 && "fixed" === e3) && (s3 = r4.offsetLeft, f3 = r4.offsetTop);
       }
-      return { width: l3, height: c3, x: s3, y: f3 };
-    }(e2, r3)) : s2(n3) ? function(t2, e3) {
-      const n4 = v2(t2, false, "fixed" === e3), o3 = n4.top + t2.clientTop, i3 = n4.left + t2.clientLeft;
-      return { top: o3, left: i3, x: i3, y: o3, right: i3 + t2.clientWidth, bottom: o3 + t2.clientHeight, width: t2.clientWidth, height: t2.clientHeight };
-    }(n3, r3) : l(function(t2) {
+      return { width: l3, height: c4, x: s3, y: f3 };
+    }(e2, r3)) : s2(n4) ? function(t2, e3) {
+      const n5 = v2(t2, false, "fixed" === e3), o3 = n5.top + t2.clientTop, i4 = n5.left + t2.clientLeft;
+      return { top: o3, left: i4, x: i4, y: o3, right: i4 + t2.clientWidth, bottom: o3 + t2.clientHeight, width: t2.clientWidth, height: t2.clientHeight };
+    }(n4, r3) : l(function(t2) {
       var e3;
-      const n4 = y2(t2), o3 = x2(t2), r4 = null == (e3 = t2.ownerDocument) ? void 0 : e3.body, l3 = p2(n4.scrollWidth, n4.clientWidth, r4 ? r4.scrollWidth : 0, r4 ? r4.clientWidth : 0), c3 = p2(n4.scrollHeight, n4.clientHeight, r4 ? r4.scrollHeight : 0, r4 ? r4.clientHeight : 0);
+      const n5 = y2(t2), o3 = x2(t2), r4 = null == (e3 = t2.ownerDocument) ? void 0 : e3.body, l3 = p2(n5.scrollWidth, n5.clientWidth, r4 ? r4.scrollWidth : 0, r4 ? r4.clientWidth : 0), c4 = p2(n5.scrollHeight, n5.clientHeight, r4 ? r4.scrollHeight : 0, r4 ? r4.clientHeight : 0);
       let s3 = -o3.scrollLeft + b2(t2);
       const f3 = -o3.scrollTop;
-      return "rtl" === i2(r4 || n4).direction && (s3 += p2(n4.clientWidth, r4 ? r4.clientWidth : 0) - l3), { width: l3, height: c3, x: s3, y: f3 };
+      return "rtl" === i3(r4 || n5).direction && (s3 += p2(n5.clientWidth, r4 ? r4.clientWidth : 0) - l3), { width: l3, height: c4, x: s3, y: f3 };
     }(y2(e2)));
   }
   function N(t2) {
-    const e2 = C(t2), n3 = function(t3, e3) {
-      let n4 = t3;
-      for (; n4 && !g2(n4) && !e3.includes(n4) && (!s2(n4) || !["absolute", "fixed"].includes(i2(n4).position)); ) {
-        const t4 = R(n4);
-        n4 = f2(t4) ? t4.host : t4;
+    const e2 = C(t2), n4 = function(t3, e3) {
+      let n5 = t3;
+      for (; n5 && !g2(n5) && !e3.includes(n5) && (!s2(n5) || !["absolute", "fixed"].includes(i3(n5).position)); ) {
+        const t4 = R(n5);
+        n5 = f2(t4) ? t4.host : t4;
       }
-      return n4;
+      return n5;
     }(t2, e2);
     let o3 = null;
-    if (n3 && c2(n3)) {
-      const t3 = T2(n3);
-      u2(n3) ? o3 = n3 : c2(t3) && (o3 = t3);
+    if (n4 && c3(n4)) {
+      const t3 = T2(n4);
+      u2(n4) ? o3 = n4 : c3(t3) && (o3 = t3);
     }
     return s2(o3) ? e2.filter((t3) => o3 && s2(t3) && function(t4, e3) {
-      const n4 = null == e3.getRootNode ? void 0 : e3.getRootNode();
+      const n5 = null == e3.getRootNode ? void 0 : e3.getRootNode();
       if (t4.contains(e3))
         return true;
-      if (n4 && f2(n4)) {
-        let n5 = e3;
+      if (n5 && f2(n5)) {
+        let n6 = e3;
         do {
-          if (n5 && t4 === n5)
+          if (n6 && t4 === n6)
             return true;
-          n5 = n5.parentNode || n5.host;
-        } while (n5);
+          n6 = n6.parentNode || n6.host;
+        } while (n6);
       }
       return false;
     }(t3, o3) && "body" !== r2(t3)) : [];
   }
   var S = { getClippingRect: function(t2) {
-    let { element: e2, boundary: n3, rootBoundary: o3, strategy: i3 } = t2;
-    const r3 = [..."clippingAncestors" === n3 ? N(e2) : [].concat(n3), o3], l3 = r3[0], c3 = r3.reduce((t3, n4) => {
-      const o4 = D2(e2, n4, i3);
+    let { element: e2, boundary: n4, rootBoundary: o3, strategy: i4 } = t2;
+    const r3 = [..."clippingAncestors" === n4 ? N(e2) : [].concat(n4), o3], l3 = r3[0], c4 = r3.reduce((t3, n5) => {
+      const o4 = D2(e2, n5, i4);
       return t3.top = p2(o4.top, t3.top), t3.right = m2(o4.right, t3.right), t3.bottom = m2(o4.bottom, t3.bottom), t3.left = p2(o4.left, t3.left), t3;
-    }, D2(e2, l3, i3));
-    return { width: c3.right - c3.left, height: c3.bottom - c3.top, x: c3.left, y: c3.top };
+    }, D2(e2, l3, i4));
+    return { width: c4.right - c4.left, height: c4.bottom - c4.top, x: c4.left, y: c4.top };
   }, convertOffsetParentRelativeRectToViewportRelativeRect: function(t2) {
-    let { rect: e2, offsetParent: n3, strategy: o3 } = t2;
-    const i3 = c2(n3), l3 = y2(n3);
-    if (n3 === l3)
+    let { rect: e2, offsetParent: n4, strategy: o3 } = t2;
+    const i4 = c3(n4), l3 = y2(n4);
+    if (n4 === l3)
       return e2;
     let s3 = { scrollLeft: 0, scrollTop: 0 };
     const f3 = { x: 0, y: 0 };
-    if ((i3 || !i3 && "fixed" !== o3) && (("body" !== r2(n3) || u2(l3)) && (s3 = x2(n3)), c2(n3))) {
-      const t3 = v2(n3, true);
-      f3.x = t3.x + n3.clientLeft, f3.y = t3.y + n3.clientTop;
+    if ((i4 || !i4 && "fixed" !== o3) && (("body" !== r2(n4) || u2(l3)) && (s3 = x2(n4)), c3(n4))) {
+      const t3 = v2(n4, true);
+      f3.x = t3.x + n4.clientLeft, f3.y = t3.y + n4.clientTop;
     }
     return __spreadProps(__spreadValues({}, e2), { x: e2.x - s3.scrollLeft + f3.x, y: e2.y - s3.scrollTop + f3.y });
   }, isElement: s2, getDimensions: W, getOffsetParent: T2, getDocumentElement: y2, getElementRects: (t2) => {
-    let { reference: e2, floating: n3, strategy: o3 } = t2;
-    return { reference: L2(e2, T2(n3), o3), floating: __spreadProps(__spreadValues({}, W(n3)), { x: 0, y: 0 }) };
-  }, getClientRects: (t2) => Array.from(t2.getClientRects()), isRTL: (t2) => "rtl" === i2(t2).direction };
-  function z(t2, e2, n3, o3) {
+    let { reference: e2, floating: n4, strategy: o3 } = t2;
+    return { reference: L2(e2, T2(n4), o3), floating: __spreadProps(__spreadValues({}, W(n4)), { x: 0, y: 0 }) };
+  }, getClientRects: (t2) => Array.from(t2.getClientRects()), isRTL: (t2) => "rtl" === i3(t2).direction };
+  function z(t2, e2, n4, o3) {
     void 0 === o3 && (o3 = {});
-    const { ancestorScroll: i3 = true, ancestorResize: r3 = true, elementResize: l3 = true, animationFrame: c3 = false } = o3, f3 = i3 && !c3, u3 = f3 || r3 ? [...s2(t2) ? C(t2) : t2.contextElement ? C(t2.contextElement) : [], ...C(e2)] : [];
+    const { ancestorScroll: i4 = true, ancestorResize: r3 = true, elementResize: l3 = true, animationFrame: c4 = false } = o3, f3 = i4 && !c4, u3 = f3 || r3 ? [...s2(t2) ? C(t2) : t2.contextElement ? C(t2.contextElement) : [], ...C(e2)] : [];
     u3.forEach((t3) => {
-      f3 && t3.addEventListener("scroll", n3, { passive: true }), r3 && t3.addEventListener("resize", n3);
+      f3 && t3.addEventListener("scroll", n4, { passive: true }), r3 && t3.addEventListener("resize", n4);
     });
     let d3, h3 = null;
     if (l3) {
       let o4 = true;
       h3 = new ResizeObserver(() => {
-        o4 || n3(), o4 = false;
-      }), s2(t2) && !c3 && h3.observe(t2), s2(t2) || !t2.contextElement || c3 || h3.observe(t2.contextElement), h3.observe(e2);
+        o4 || n4(), o4 = false;
+      }), s2(t2) && !c4 && h3.observe(t2), s2(t2) || !t2.contextElement || c4 || h3.observe(t2.contextElement), h3.observe(e2);
     }
-    let a3 = c3 ? v2(t2) : null;
-    return c3 && function e3() {
+    let a3 = c4 ? v2(t2) : null;
+    return c4 && function e3() {
       const o4 = v2(t2);
-      !a3 || o4.x === a3.x && o4.y === a3.y && o4.width === a3.width && o4.height === a3.height || n3();
+      !a3 || o4.x === a3.x && o4.y === a3.y && o4.width === a3.width && o4.height === a3.height || n4();
       a3 = o4, d3 = requestAnimationFrame(e3);
-    }(), n3(), () => {
+    }(), n4(), () => {
       var t3;
       u3.forEach((t4) => {
-        f3 && t4.removeEventListener("scroll", n3), r3 && t4.removeEventListener("resize", n3);
-      }), null == (t3 = h3) || t3.disconnect(), h3 = null, c3 && cancelAnimationFrame(d3);
+        f3 && t4.removeEventListener("scroll", n4), r3 && t4.removeEventListener("resize", n4);
+      }), null == (t3 = h3) || t3.disconnect(), h3 = null, c4 && cancelAnimationFrame(d3);
     };
   }
-  var A = (t2, n3, o3) => o(t2, n3, __spreadValues({ platform: S }, o3));
+  var A = (t2, n4, o3) => o(t2, n4, __spreadValues({ platform: S }, o3));
 
   // js/sprout-ui/components/floating.ts
+  var import_decorators2 = __toESM(require_decorators2());
   var FloatingElement = class extends HTMLDivElement {
     connectedCallback() {
       const anchor = document.querySelector(this.dataset.anchor);
@@ -1639,19 +1668,19 @@ var SproutUI = (() => {
     }
   };
   __decorateClass([
-    query("arrow")
+    (0, import_decorators2.query)("arrow", { part: true })
   ], FloatingElement.prototype, "arrow", 2);
   __decorateClass([
-    attr("data-placement")
+    (0, import_decorators2.attr)("data-placement")
   ], FloatingElement.prototype, "placement", 2);
   __decorateClass([
-    attr("data-offset", Number)
+    (0, import_decorators2.attr)("data-offset", { converter: Number })
   ], FloatingElement.prototype, "offset", 2);
   __decorateClass([
-    attr("data-shift", isTruthy)
+    (0, import_decorators2.attr)("data-shift", { converter: isTruthy })
   ], FloatingElement.prototype, "shift", 2);
   __decorateClass([
-    attr("data-flip", isTruthy)
+    (0, import_decorators2.attr)("data-flip", { converter: isTruthy })
   ], FloatingElement.prototype, "flip", 2);
   var Floating = () => ({
     init: () => {
@@ -1666,7 +1695,8 @@ var SproutUI = (() => {
   var floating_default = Floating;
 
   // js/sprout-ui/components/popover.ts
-  var PopoverElement = class extends SproutElement {
+  var import_decorators3 = __toESM(require_decorators2());
+  var PopoverElement = class extends n {
     constructor() {
       super(...arguments);
       this.listeners = new Disposables();
@@ -1678,7 +1708,7 @@ var SproutUI = (() => {
       if (!this.panel || !this.trigger)
         throw new Error("Popover must have a trigger element and a panel element.");
       this.listeners.addEventListener(this.trigger, "click", () => {
-        this.setStateLive(flipping(this.state));
+        this.state = flipping(this.state);
       });
       this.modal = new Modal(this.panel, {
         preventScroll: false,
@@ -1696,32 +1726,35 @@ var SproutUI = (() => {
     handleStateChange() {
       return __async(this, null, function* () {
         if (this.state === "open") {
-          this.executeJs(this, this.dataset.onOpenJs);
+          i.exec(this, this.dataset.onOpenJs);
           this.modal.addEventListeners(() => {
-            this.setStateLive("closed");
+            this.state = "closed";
           });
           const d3 = new Disposables();
           d3.nextFrame(() => {
-            this.removeAttributeLive(this.panel, "hidden");
-            this.setAttributeLive(this.trigger, "aria-expanded", "true");
+            i.removeAttribute(this.panel, "hidden");
+            i.setAttribute(this.trigger, "aria-expanded", "true");
             transitionElement(this.panel, "enter");
           });
         } else {
-          this.executeJs(this, this.dataset.onCloseJs);
+          i.exec(this, this.dataset.onCloseJs);
           this.modal.removeEventListeners();
           yield transitionElement(this.panel, "leave");
-          this.setAttributeLive(this.panel, "hidden", "true");
-          this.setAttributeLive(this.trigger, "aria-expanded", "false");
+          i.setAttribute(this.panel, "hidden", "true");
+          i.setAttribute(this.trigger, "aria-expanded", "false");
         }
       });
     }
   };
   __decorateClass([
-    query("trigger")
+    (0, import_decorators3.query)("trigger", { part: true })
   ], PopoverElement.prototype, "trigger", 2);
   __decorateClass([
-    query("panel")
+    (0, import_decorators3.query)("panel", { part: true })
   ], PopoverElement.prototype, "panel", 2);
+  __decorateClass([
+    (0, import_decorators3.attr)("data-state", { live: true })
+  ], PopoverElement.prototype, "state", 2);
   var Popover = () => ({
     init: () => {
       customElements.define("sp-popover", PopoverElement);
@@ -1730,7 +1763,8 @@ var SproutUI = (() => {
   var popover_default = Popover;
 
   // js/sprout-ui/components/tooltip.ts
-  var TooltipElement = class extends SproutElement {
+  var import_decorators4 = __toESM(require_decorators2());
+  var TooltipElement = class extends n {
     constructor() {
       super(...arguments);
       this.disposables = new Disposables();
@@ -1756,31 +1790,31 @@ var SproutUI = (() => {
       this.listeners.addEventListener(this.trigger, "mouseover", () => {
         this.disposables.dispose();
         this.disposables.setTimeout(() => {
-          this.setStateLive("open");
+          this.state = "open";
         }, this.openDelay);
       });
       this.listeners.addEventListener(this.trigger, "mouseout", () => {
         this.disposables.dispose();
         this.disposables.setTimeout(() => {
-          this.setStateLive("closed");
+          this.state = "closed";
         }, this.closeDelay);
       });
       this.listeners.addEventListener(this.trigger, "focus", () => {
         this.disposables.dispose();
-        this.setStateLive("open");
+        this.state = "open";
       });
       this.listeners.addEventListener(this.trigger, "blur", () => {
         this.disposables.dispose();
-        this.setStateLive("closed");
+        this.state = "closed";
       });
       this.listeners.addEventListener(this.trigger, "click", () => {
         this.disposables.dispose();
-        this.setStateLive("open");
+        this.state = "open";
       });
       this.listeners.addEventListener(document, "keydown", (event) => {
         const { key } = event;
         if (this.state === "open" && key === "Escape") {
-          this.setStateLive("closed");
+          this.state = "closed";
           event.stopPropagation();
         }
       });
@@ -1791,28 +1825,31 @@ var SproutUI = (() => {
     handleStateChange() {
       return __async(this, null, function* () {
         if (this.state === "open") {
-          this.executeJs(this, this.dataset.onOpenJs);
-          this.removeAttributeLive(this.container, "hidden");
+          i.exec(this, this.dataset.onOpenJs);
+          i.removeAttribute(this.container, "hidden");
           transitionElement(this.container, "enter");
         } else {
-          this.executeJs(this, this.dataset.onCloseJs);
+          i.exec(this, this.dataset.onCloseJs);
           yield transitionElement(this.container, "leave");
-          this.setAttributeLive(this.container, "hidden", "true");
+          i.setAttribute(this.container, "hidden", "true");
         }
       });
     }
   };
   __decorateClass([
-    query("trigger")
+    (0, import_decorators4.query)("trigger", { part: true })
   ], TooltipElement.prototype, "trigger", 2);
   __decorateClass([
-    query("container")
+    (0, import_decorators4.query)("container", { part: true })
   ], TooltipElement.prototype, "container", 2);
   __decorateClass([
-    attr("data-open-delay", Number)
+    (0, import_decorators4.attr)("data-state", { live: true })
+  ], TooltipElement.prototype, "state", 2);
+  __decorateClass([
+    (0, import_decorators4.attr)("data-open-delay", { converter: Number })
   ], TooltipElement.prototype, "openDelay", 2);
   __decorateClass([
-    attr("data-close-delay", Number)
+    (0, import_decorators4.attr)("data-close-delay", { converter: Number })
   ], TooltipElement.prototype, "closeDelay", 2);
   var Tooltip = () => ({
     init: () => {
@@ -1822,7 +1859,8 @@ var SproutUI = (() => {
   var tooltip_default = Tooltip;
 
   // js/sprout-ui/components/switch.ts
-  var SwitchElement = class extends SproutElement {
+  var import_decorators5 = __toESM(require_decorators2());
+  var SwitchElement = class extends n {
     constructor() {
       super(...arguments);
       this.listeners = new Disposables();
@@ -1855,8 +1893,8 @@ var SproutUI = (() => {
       });
     }
     toggle() {
-      this.setStateLive(flipping(this.state, ["checked", "unchecked"]));
-      this.setAttributeLive(
+      this.state = flipping(this.state, ["checked", "unchecked"]);
+      i.setAttribute(
         this.track,
         "aria-checked",
         flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
@@ -1865,19 +1903,22 @@ var SproutUI = (() => {
     handleStateChange() {
       return __async(this, null, function* () {
         if (this.state === "checked") {
-          this.executeJs(this, this.dataset.onCheckedJs);
+          i.exec(this, this.dataset.onCheckedJs);
         } else {
-          this.executeJs(this, this.dataset.onUncheckedJs);
+          i.exec(this, this.dataset.onUncheckedJs);
         }
       });
     }
   };
   __decorateClass([
-    query("track")
+    (0, import_decorators5.query)("track", { part: true })
   ], SwitchElement.prototype, "track", 2);
   __decorateClass([
-    query("thumb")
+    (0, import_decorators5.query)("thumb", { part: true })
   ], SwitchElement.prototype, "thumb", 2);
+  __decorateClass([
+    (0, import_decorators5.attr)("data-state", { live: true })
+  ], SwitchElement.prototype, "state", 2);
   var Switch = () => ({
     init: () => {
       customElements.define("sp-switch", SwitchElement);
@@ -1886,18 +1927,19 @@ var SproutUI = (() => {
   var switch_default = Switch;
 
   // js/sprout-ui/components/accordion.ts
+  var import_decorators6 = __toESM(require_decorators2());
   var AccordionItem = class {
     constructor(container) {
       this.root = container;
     }
   };
   __decorateClass([
-    query("trigger", { customRoot: true })
+    (0, import_decorators6.query)("trigger", { customRoot: true, part: true })
   ], AccordionItem.prototype, "trigger", 2);
   __decorateClass([
-    query("panel", { customRoot: true })
+    (0, import_decorators6.query)("panel", { customRoot: true, part: true })
   ], AccordionItem.prototype, "panel", 2);
-  var AccordionElement = class extends SproutElement {
+  var AccordionElement = class extends n {
     constructor() {
       super(...arguments);
       this.listeners = new Disposables();
@@ -1913,52 +1955,57 @@ var SproutUI = (() => {
       this.items.forEach((item) => {
         this.listeners.addEventListener(item.trigger, "click", () => {
           if (item.root.dataset.state === "open") {
-            this.closeOne(item);
+            this.close(item);
           } else {
             if (!this.allowMultiple) {
               this.closeAll();
             }
-            this.openOne(item);
+            this.open(item);
           }
         });
       });
     }
-    openOne(item) {
+    open(item) {
       return __async(this, null, function* () {
-        this.executeJs(item.root, item.root.dataset.onOpenJs);
-        this.removeAttributeLive(item.panel, "hidden");
+        i.exec(item.root, item.root.dataset.onOpenJs);
+        i.removeAttribute(item.panel, "hidden");
         const { height } = item.panel.getBoundingClientRect();
-        console.log(height);
         item.panel.style.setProperty("--accordion-panel-height", `${height}px`);
-        this.setAttributeLive(item.root, "data-state", "open");
+        i.setAttribute(item.root, "data-state", "open");
         yield transitionElement(item.panel, "enter");
       });
     }
-    closeOne(item) {
+    close(item) {
       return __async(this, null, function* () {
         if (item.root.dataset.state === "closed")
           return;
-        this.executeJs(item.root, item.root.dataset.onCloseJs);
-        this.setAttributeLive(item.root, "data-state", "closed");
+        i.exec(item.root, item.root.dataset.onCloseJs);
+        i.setAttribute(item.root, "data-state", "closed");
         yield transitionElement(item.panel, "leave");
-        this.setAttributeLive(item.panel, "hidden", "true");
+        i.setAttribute(item.panel, "hidden", "true");
       });
     }
     closeAll() {
       this.items.forEach((item) => {
-        this.closeOne(item);
+        this.close(item);
       });
     }
   };
   __decorateClass([
-    query("container", { all: true })
+    (0, import_decorators6.query)("container", { part: true, all: true })
   ], AccordionElement.prototype, "containers", 2);
   __decorateClass([
-    attr("data-allow-multiple", isTruthy)
+    (0, import_decorators6.attr)("data-allow-multiple", { converter: isTruthy })
   ], AccordionElement.prototype, "allowMultiple", 2);
   var Accordion = () => ({
     init: () => {
       customElements.define("sp-accordion", AccordionElement);
+    },
+    handleDomChange: (from, to) => {
+      if (from.id.startsWith("accordion") && from.dataset.part === "panel") {
+        const property = "--accordion-panel-height";
+        to.style.setProperty(property, from.style.getPropertyValue(property));
+      }
     }
   });
   var accordion_default = Accordion;

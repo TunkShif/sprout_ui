@@ -1,5 +1,5 @@
-import { attr, query } from "../internal/decorators"
-import SproutElement from "../internal/sprout-element"
+import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
+import { attr, query } from "@tunkshif/live-element/decorators"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
@@ -8,9 +8,9 @@ import Disposables from "../utils/disposables"
 class AccordionItem {
   root: HTMLElement
 
-  @query("trigger", { customRoot: true })
+  @query("trigger", { customRoot: true, part: true })
   trigger: HTMLElement
-  @query("panel", { customRoot: true })
+  @query("panel", { customRoot: true, part: true })
   panel: HTMLElement
 
   constructor(container: HTMLElement) {
@@ -18,11 +18,11 @@ class AccordionItem {
   }
 }
 
-class AccordionElement extends SproutElement {
-  @query("container", { all: true })
+class AccordionElement extends LiveElement {
+  @query("container", { part: true, all: true })
   containers: HTMLElement[]
 
-  @attr("data-allow-multiple", isTruthy)
+  @attr("data-allow-multiple", { converter: isTruthy })
   allowMultiple: boolean
 
   items: AccordionItem[]
@@ -42,43 +42,42 @@ class AccordionElement extends SproutElement {
     this.items.forEach((item) => {
       this.listeners.addEventListener(item.trigger, "click", () => {
         if (item.root.dataset.state === "open") {
-          this.closeOne(item)
+          this.close(item)
         } else {
           if (!this.allowMultiple) {
             this.closeAll()
           }
-          this.openOne(item)
+          this.open(item)
         }
       })
     })
   }
 
-  async openOne(item: AccordionItem) {
-    this.executeJs(item.root, item.root.dataset.onOpenJs)
+  async open(item: AccordionItem) {
+    LiveViewJS.exec(item.root, item.root.dataset.onOpenJs)
 
-    this.removeAttributeLive(item.panel, "hidden")
+    LiveViewJS.removeAttribute(item.panel, "hidden")
 
     const { height } = item.panel.getBoundingClientRect()
-    console.log(height)
     item.panel.style.setProperty("--accordion-panel-height", `${height}px`)
 
-    this.setAttributeLive(item.root, "data-state", "open")
+    LiveViewJS.setAttribute(item.root, "data-state", "open")
     await transitionElement(item.panel, "enter")
   }
 
-  async closeOne(item: AccordionItem) {
+  async close(item: AccordionItem) {
     if (item.root.dataset.state === "closed") return
 
-    this.executeJs(item.root, item.root.dataset.onCloseJs)
+    LiveViewJS.exec(item.root, item.root.dataset.onCloseJs)
 
-    this.setAttributeLive(item.root, "data-state", "closed")
+    LiveViewJS.setAttribute(item.root, "data-state", "closed")
     await transitionElement(item.panel, "leave")
-    this.setAttributeLive(item.panel, "hidden", "true")
+    LiveViewJS.setAttribute(item.panel, "hidden", "true")
   }
 
   closeAll() {
     this.items.forEach((item) => {
-      this.closeOne(item)
+      this.close(item)
     })
   }
 }
@@ -86,6 +85,12 @@ class AccordionElement extends SproutElement {
 const Accordion: SproutComponentSetup = () => ({
   init: () => {
     customElements.define("sp-accordion", AccordionElement)
+  },
+  handleDomChange: (from, to) => {
+    if (from.id.startsWith("accordion") && from.dataset.part === "panel") {
+      const property = "--accordion-panel-height"
+      to.style.setProperty(property, from.style.getPropertyValue(property))
+    }
   }
 })
 

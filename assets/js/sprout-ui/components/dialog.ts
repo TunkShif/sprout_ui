@@ -1,17 +1,20 @@
-import { query } from "../internal/decorators"
+import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
+import { query, attr } from "@tunkshif/live-element/decorators"
 import Modal from "../internal/modal"
-import SproutElement from "../internal/sprout-element"
 import { transitionElement } from "../internal/transition"
 import type { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
 
-class DialogElement extends SproutElement {
-  @query("container")
+class DialogElement extends LiveElement {
+  @query("container", { part: true })
   dialog: HTMLElement
-  @query("backdrop")
+  @query("backdrop", { part: true })
   backdrop: HTMLElement
-  @query("panel")
+  @query("panel", { part: true })
   panel: HTMLElement
+
+  @attr("data-state", { live: true })
+  state: "open" | "closed"
 
   private modal: Modal
 
@@ -38,22 +41,22 @@ class DialogElement extends SproutElement {
     const parts = [this.backdrop, this.panel]
 
     if (this.state === "open") {
-      this.executeJs(this, this.dataset.onOpenJs)
+      LiveViewJS.exec(this, this.dataset.onOpenJs)
 
-      this.removeAttributeLive(this.dialog, "hidden")
+      LiveViewJS.removeAttribute(this.dialog, "hidden")
       this.modal.addEventListeners(() => {
-        this.setStateLive("closed")
+        this.state = "closed"
       })
       this.modal.activate()
 
       await Promise.all(parts.map((part) => transitionElement(part, "enter")))
     } else {
-      this.executeJs(this, this.dataset.onCloseJs)
+      LiveViewJS.exec(this, this.dataset.onCloseJs)
 
       this.modal.removeEventListeners()
       this.modal.deactivate()
       await Promise.all(parts.map((part) => transitionElement(part, "leave")))
-      this.setAttributeLive(this.dialog, "hidden", "true")
+      LiveViewJS.setAttribute(this.dialog, "hidden", "true")
     }
   }
 }

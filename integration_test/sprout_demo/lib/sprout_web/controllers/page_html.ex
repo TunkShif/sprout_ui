@@ -41,7 +41,7 @@ defmodule SproutWeb.PageHTML do
         <div class="fixed inset-0 overflow-y-auto z-20">
           <div class="flex min-h-full items-center justify-center p-4 text-center">
             <div
-              class="z-50 w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all opacity-100 scale-100"
+              class="z-50 w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl"
               data-transition
               data-enter="ease-in-out duration-300"
               data-enter-from="opacity-0 scale-50"
@@ -49,6 +49,7 @@ defmodule SproutWeb.PageHTML do
               data-leave="ease-in-out duration-200"
               data-leave-from="opacity-100 scale-100"
               data-leave-to="opacity-0 scale-50"
+              data-leave-ended="opacity-0"
               {api.panel_attrs}
             >
               <h3 class="text-lg font-medium leading-6 text-gray-900" {api.title_attrs}>

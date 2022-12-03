@@ -9,15 +9,17 @@ interface TransitionClasses {
   enter: string[]
   enterFrom: string[]
   enterTo: string[]
+  enterEnded: string[]
   leave: string[]
   leaveFrom: string[]
   leaveTo: string[]
+  leaveEnded: string[]
 }
 
 const getTransitionClasses = (element: HTMLElement) =>
   Object.fromEntries(
     ["enter", "leave"]
-      .map((v) => [v, `${v}From`, `${v}To`])
+      .map((v) => [v, `${v}From`, `${v}To`, `${v}Ended`])
       .flat()
       .map((key) => [key, element.dataset[key]?.split(" ")?.filter(Boolean) ?? []] as const)
   ) as unknown as TransitionClasses
@@ -84,16 +86,19 @@ const doTransition = (
   let base: string[]
   let from: string[]
   let to: string[]
+  let ended: string[]
   switch (stage) {
     case "enter":
       base = classes.enter
       from = classes.enterFrom
       to = classes.enterTo
+      ended = classes.enterEnded
       break
     case "leave":
       base = classes.leave
       from = classes.leaveFrom
       to = classes.leaveTo
+      ended = classes.leaveEnded
       break
   }
 
@@ -112,6 +117,7 @@ const doTransition = (
           ...base,
           ...Array.from(element.classList).filter((c) => !originalClasses.includes(c))
         )
+        element.classList.add(...ended)
       }
 
       callbacks.onDone?.(stage, status)
