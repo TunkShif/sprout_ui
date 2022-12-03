@@ -36,6 +36,8 @@ defmodule SproutUI.Display do
           panel_attrs: %{
             "data-part" => "panel",
             "id" => "accordion-#{id}-item-panel-#{index}",
+            "role" => "region",
+            "aria-labelledby" => "accordion-#{id}-item-trigger-#{index}",
             "hidden" => true
           }
         })

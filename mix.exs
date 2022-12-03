@@ -1,7 +1,7 @@
 defmodule SproutUI.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.0.1-alpha.0"
 
   def project do
     [
@@ -43,8 +43,7 @@ defmodule SproutUI.MixProject do
     [
       {:phoenix, "~> 1.7.0-rc.0", override: true},
       {:phoenix_live_view, "~> 0.18.3"},
-      {:esbuild, "~> 0.5", only: :dev},
-      {:jason, "~> 1.4.0"},
+      {:esbuild, "~> 0.5", only: :dev}
     ]
   end
 

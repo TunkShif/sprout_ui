@@ -22,6 +22,8 @@ defmodule SproutUI.Overlay do
     state = if open, do: "open", else: "closed"
     open_modal_js = JS.set_attribute({"data-state", "open"}, to: "#dialog-#{id}")
     close_modal_js = JS.set_attribute({"data-state", "closed"}, to: "#dialog-#{id}")
+    # TODO: ^^^ should thoses events registered in the custom element to be consistent
+    # with most other components?
 
     api = %{
       open_modal_js: open_modal_js,

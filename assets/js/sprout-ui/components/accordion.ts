@@ -19,14 +19,15 @@ class AccordionItem {
 }
 
 class AccordionElement extends LiveElement {
+  static TRIGGER_KEYS = ["Home", "End", "ArrowUp", "ArrowDown"]
+
   @query("container", { part: true, all: true })
   containers: HTMLElement[]
 
   @attr("data-allow-multiple", { converter: isTruthy })
   allowMultiple: boolean
 
-  items: AccordionItem[]
-
+  private items: AccordionItem[]
   private listeners = new Disposables()
 
   connectedCallback() {
@@ -41,16 +42,52 @@ class AccordionElement extends LiveElement {
   addEventListeners() {
     this.items.forEach((item) => {
       this.listeners.addEventListener(item.trigger, "click", () => {
-        if (item.root.dataset.state === "open") {
-          this.close(item)
-        } else {
-          if (!this.allowMultiple) {
-            this.closeAll()
-          }
-          this.open(item)
+        this.toggle(item)
+      })
+
+      this.listeners.addEventListener(item.trigger, "keydown", (event) => {
+        const { key } = event as KeyboardEvent
+        if (!AccordionElement.TRIGGER_KEYS.includes(key)) return
+
+        const itemCount = this.items.length
+        const currentIndex = this.items.findIndex((it) => it === item)
+
+        event.preventDefault()
+
+        let nextIndex = 0
+        switch (key) {
+          case "Home":
+            nextIndex = 0
+            break
+          case "End":
+            nextIndex = itemCount - 1
+            break
+          case "ArrowDown":
+            nextIndex = currentIndex + 1
+            break
+          case "ArrowUp":
+            nextIndex = currentIndex - 1
+            if (nextIndex < 0) {
+              nextIndex = itemCount - 1
+            }
+            break
         }
+
+        let cycledIndex = nextIndex % itemCount
+        this.items[cycledIndex].trigger.focus()
       })
     })
+  }
+
+  toggle(item: AccordionItem) {
+    if (item.root.dataset.state === "open") {
+      this.close(item)
+    } else {
+      if (!this.allowMultiple) {
+        this.closeAll()
+      }
+      this.open(item)
+    }
   }
 
   async open(item: AccordionItem) {
@@ -62,6 +99,7 @@ class AccordionElement extends LiveElement {
     item.panel.style.setProperty("--accordion-panel-height", `${height}px`)
 
     LiveViewJS.setAttribute(item.root, "data-state", "open")
+    LiveViewJS.setAttribute(item.trigger, "aria-expanded", "true")
     await transitionElement(item.panel, "enter")
   }
 
@@ -71,6 +109,7 @@ class AccordionElement extends LiveElement {
     LiveViewJS.exec(item.root, item.root.dataset.onCloseJs)
 
     LiveViewJS.setAttribute(item.root, "data-state", "closed")
+    LiveViewJS.setAttribute(item.trigger, "aria-expanded", "false")
     await transitionElement(item.panel, "leave")
     LiveViewJS.setAttribute(item.panel, "hidden", "true")
   }

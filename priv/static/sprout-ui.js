@@ -1939,7 +1939,7 @@ var SproutUI = (() => {
   __decorateClass([
     (0, import_decorators6.query)("panel", { customRoot: true, part: true })
   ], AccordionItem.prototype, "panel", 2);
-  var AccordionElement = class extends n {
+  var _AccordionElement = class extends n {
     constructor() {
       super(...arguments);
       this.listeners = new Disposables();
@@ -1954,16 +1954,47 @@ var SproutUI = (() => {
     addEventListeners() {
       this.items.forEach((item) => {
         this.listeners.addEventListener(item.trigger, "click", () => {
-          if (item.root.dataset.state === "open") {
-            this.close(item);
-          } else {
-            if (!this.allowMultiple) {
-              this.closeAll();
-            }
-            this.open(item);
+          this.toggle(item);
+        });
+        this.listeners.addEventListener(item.trigger, "keydown", (event) => {
+          const { key } = event;
+          if (!_AccordionElement.TRIGGER_KEYS.includes(key))
+            return;
+          const itemCount = this.items.length;
+          const currentIndex = this.items.findIndex((it) => it === item);
+          event.preventDefault();
+          let nextIndex = 0;
+          switch (key) {
+            case "Home":
+              nextIndex = 0;
+              break;
+            case "End":
+              nextIndex = itemCount - 1;
+              break;
+            case "ArrowDown":
+              nextIndex = currentIndex + 1;
+              break;
+            case "ArrowUp":
+              nextIndex = currentIndex - 1;
+              if (nextIndex < 0) {
+                nextIndex = itemCount - 1;
+              }
+              break;
           }
+          let cycledIndex = nextIndex % itemCount;
+          this.items[cycledIndex].trigger.focus();
         });
       });
+    }
+    toggle(item) {
+      if (item.root.dataset.state === "open") {
+        this.close(item);
+      } else {
+        if (!this.allowMultiple) {
+          this.closeAll();
+        }
+        this.open(item);
+      }
     }
     open(item) {
       return __async(this, null, function* () {
@@ -1972,6 +2003,7 @@ var SproutUI = (() => {
         const { height } = item.panel.getBoundingClientRect();
         item.panel.style.setProperty("--accordion-panel-height", `${height}px`);
         i.setAttribute(item.root, "data-state", "open");
+        i.setAttribute(item.trigger, "aria-expanded", "true");
         yield transitionElement(item.panel, "enter");
       });
     }
@@ -1981,6 +2013,7 @@ var SproutUI = (() => {
           return;
         i.exec(item.root, item.root.dataset.onCloseJs);
         i.setAttribute(item.root, "data-state", "closed");
+        i.setAttribute(item.trigger, "aria-expanded", "false");
         yield transitionElement(item.panel, "leave");
         i.setAttribute(item.panel, "hidden", "true");
       });
@@ -1991,6 +2024,8 @@ var SproutUI = (() => {
       });
     }
   };
+  var AccordionElement = _AccordionElement;
+  AccordionElement.TRIGGER_KEYS = ["Home", "End", "ArrowUp", "ArrowDown"];
   __decorateClass([
     (0, import_decorators6.query)("container", { part: true, all: true })
   ], AccordionElement.prototype, "containers", 2);
