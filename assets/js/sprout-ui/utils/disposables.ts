@@ -1,4 +1,9 @@
-export default class Disposables {
+export const nextFrame = (callback: () => void) => {
+  const raf = requestAnimationFrame(() => requestAnimationFrame(callback))
+  return () => cancelAnimationFrame(raf)
+}
+
+export class Disposables {
   private disposables: Function[] = []
 
   add(callback: () => void) {
@@ -13,8 +18,7 @@ export default class Disposables {
   }
 
   nextFrame(callback: () => void) {
-    const raf = requestAnimationFrame(() => requestAnimationFrame(callback))
-    return this.add(() => cancelAnimationFrame(raf))
+    return this.add(nextFrame(callback))
   }
 
   addEventListener<TEvent extends keyof HTMLElementEventMap>(

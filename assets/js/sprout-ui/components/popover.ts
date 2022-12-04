@@ -1,16 +1,17 @@
-import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
-import { query, attr } from "@tunkshif/live-element/decorators"
+import { LiveElement, LiveJS, query, attr } from "@tunkshif/live-element"
 import Modal from "../internal/modal"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import { flipping, isTruthy } from "../utils"
-import Disposables from "../utils/disposables"
+import { Disposables, nextFrame } from "../utils/disposables"
 
 class PopoverElement extends LiveElement {
   @query("trigger", { part: true })
   trigger: HTMLElement
   @query("panel", { part: true })
   panel: HTMLElement
+  @query("close-button", { part: true, all: true })
+  closeButtons: HTMLElement[]
 
   @attr("data-state", { live: true })
   state: "open" | "closed"
@@ -26,15 +27,12 @@ class PopoverElement extends LiveElement {
     if (!this.panel || !this.trigger)
       throw new Error("Popover must have a trigger element and a panel element.")
 
-    this.listeners.addEventListener(this.trigger, "click", () => {
-      this.state = flipping(this.state)
-    })
-
     this.modal = new Modal(this.panel, {
       preventScroll: false,
       dismissOnEsc: isTruthy(this.dataset.closeOnEsc),
       dismissOnClickAway: isTruthy(this.dataset.closeOnClickAway)
     })
+    this.addEventListeners()
   }
 
   updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown) {
@@ -45,9 +43,20 @@ class PopoverElement extends LiveElement {
     this.listeners.dispose()
   }
 
+  addEventListeners() {
+    this.listeners.addEventListener(this.trigger, "click", () => {
+      this.state = flipping(this.state)
+    })
+    this.closeButtons.forEach((it) =>
+      this.listeners.addEventListener(it, "click", () => {
+        this.state = "closed"
+      })
+    )
+  }
+
   async handleStateChange() {
     if (this.state === "open") {
-      LiveViewJS.exec(this, this.dataset.onOpenJs)
+      LiveJS.execute(this, this.dataset.onOpenJs)
 
       this.modal.addEventListeners(() => {
         this.state = "closed"
@@ -55,19 +64,18 @@ class PopoverElement extends LiveElement {
 
       // `on-click-away` listener must be registered before panel is visible,
       // or clicking on the trigger button will also trigger a `click-away` event
-      const d = new Disposables()
-      d.nextFrame(() => {
-        LiveViewJS.removeAttribute(this.panel, "hidden")
-        LiveViewJS.setAttribute(this.trigger, "aria-expanded", "true")
+      nextFrame(() => {
+        LiveJS.removeAttribute(this.panel, "hidden")
+        LiveJS.setAttribute(this.trigger, "aria-expanded", "true")
         transitionElement(this.panel, "enter")
       })
     } else {
-      LiveViewJS.exec(this, this.dataset.onCloseJs)
+      LiveJS.execute(this, this.dataset.onCloseJs)
 
       this.modal.removeEventListeners()
       await transitionElement(this.panel, "leave")
-      LiveViewJS.setAttribute(this.panel, "hidden", "true")
-      LiveViewJS.setAttribute(this.trigger, "aria-expanded", "false")
+      LiveJS.setAttribute(this.panel, "hidden", "true")
+      LiveJS.setAttribute(this.trigger, "aria-expanded", "false")
     }
   }
 }

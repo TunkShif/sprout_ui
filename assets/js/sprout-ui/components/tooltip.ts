@@ -1,8 +1,7 @@
-import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
-import { query, attr } from "@tunkshif/live-element/decorators"
+import { LiveElement, LiveJS, query, attr } from "@tunkshif/live-element"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
-import Disposables from "../utils/disposables"
+import { Disposables } from "../utils/disposables"
 
 class TooltipElement extends LiveElement {
   @query("trigger", { part: true })
@@ -37,58 +36,52 @@ class TooltipElement extends LiveElement {
 
   disconnectedCallback() {
     this.disposables.dispose()
-    this.removeEventListeners()
+    this.listeners.dispose()
   }
 
   addEventListeners() {
     this.listeners.addEventListener(this.trigger, "mouseover", () => {
-      this.disposables.dispose()
       this.disposables.setTimeout(() => {
         this.state = "open"
       }, this.openDelay)
     })
     this.listeners.addEventListener(this.trigger, "mouseout", () => {
-      this.disposables.dispose()
       this.disposables.setTimeout(() => {
         this.state = "closed"
       }, this.closeDelay)
     })
     this.listeners.addEventListener(this.trigger, "focus", () => {
-      this.disposables.dispose()
       this.state = "open"
     })
     this.listeners.addEventListener(this.trigger, "blur", () => {
-      this.disposables.dispose()
       this.state = "closed"
     })
     this.listeners.addEventListener(this.trigger, "click", () => {
-      this.disposables.dispose()
       this.state = "open"
     })
-    this.listeners.addEventListener(document, "keydown", (event) => {
-      const { key } = event as KeyboardEvent
-      if (this.state === "open" && key === "Escape") {
-        this.state = "closed"
-        event.stopPropagation()
-      }
-    })
-  }
-
-  removeEventListeners() {
-    this.listeners.dispose()
   }
 
   async handleStateChange() {
     if (this.state === "open") {
-      LiveViewJS.exec(this, this.dataset.onOpenJs)
+      LiveJS.execute(this, this.dataset.onOpenJs)
 
-      LiveViewJS.removeAttribute(this.container, "hidden")
+      this.disposables.dispose()
+      this.disposables.addEventListener(document, "keydown", (event) => {
+        const { key } = event as KeyboardEvent
+        if (this.state === "open" && key === "Escape") {
+          this.state = "closed"
+          event.preventDefault()
+        }
+      })
+
+      LiveJS.removeAttribute(this.container, "hidden")
       transitionElement(this.container, "enter")
     } else {
-      LiveViewJS.exec(this, this.dataset.onCloseJs)
+      LiveJS.execute(this, this.dataset.onCloseJs)
+      this.disposables.dispose()
 
       await transitionElement(this.container, "leave")
-      LiveViewJS.setAttribute(this.container, "hidden", "true")
+      LiveJS.setAttribute(this.container, "hidden", "true")
     }
   }
 }

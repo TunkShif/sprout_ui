@@ -1,9 +1,8 @@
-import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
-import { attr, query } from "@tunkshif/live-element/decorators"
+import { LiveElement, LiveJS, attr, query } from "@tunkshif/live-element"
 import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
-import Disposables from "../utils/disposables"
+import { Disposables } from "../utils/disposables"
 
 class AccordionItem {
   root: HTMLElement
@@ -91,27 +90,27 @@ class AccordionElement extends LiveElement {
   }
 
   async open(item: AccordionItem) {
-    LiveViewJS.exec(item.root, item.root.dataset.onOpenJs)
+    LiveJS.execute(item.root, item.root.dataset.onOpenJs)
 
-    LiveViewJS.removeAttribute(item.panel, "hidden")
+    LiveJS.removeAttribute(item.panel, "hidden")
 
     const { height } = item.panel.getBoundingClientRect()
     item.panel.style.setProperty("--accordion-panel-height", `${height}px`)
 
-    LiveViewJS.setAttribute(item.root, "data-state", "open")
-    LiveViewJS.setAttribute(item.trigger, "aria-expanded", "true")
+    LiveJS.setAttribute(item.root, "data-state", "open")
+    LiveJS.setAttribute(item.trigger, "aria-expanded", "true")
     await transitionElement(item.panel, "enter")
   }
 
   async close(item: AccordionItem) {
     if (item.root.dataset.state === "closed") return
 
-    LiveViewJS.exec(item.root, item.root.dataset.onCloseJs)
+    LiveJS.execute(item.root, item.root.dataset.onCloseJs)
 
-    LiveViewJS.setAttribute(item.root, "data-state", "closed")
-    LiveViewJS.setAttribute(item.trigger, "aria-expanded", "false")
+    LiveJS.setAttribute(item.root, "data-state", "closed")
+    LiveJS.setAttribute(item.trigger, "aria-expanded", "false")
     await transitionElement(item.panel, "leave")
-    LiveViewJS.setAttribute(item.panel, "hidden", "true")
+    LiveJS.setAttribute(item.panel, "hidden", "true")
   }
 
   closeAll() {

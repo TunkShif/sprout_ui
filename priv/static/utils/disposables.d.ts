@@ -1,4 +1,5 @@
-export default class Disposables {
+export declare const nextFrame: (callback: () => void) => () => void;
+export declare class Disposables {
     private disposables;
     add(callback: () => void): () => void;
     nextFrame(callback: () => void): () => void;

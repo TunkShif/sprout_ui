@@ -1,6 +1,4 @@
-import Disposables from "../utils/disposables"
-
-// TODO: wait for animation and transition unified
+import { Disposables } from "../utils/disposables"
 
 type TransitionStatus = "ended" | "canceled"
 type TransitionStage = "enter" | "leave"

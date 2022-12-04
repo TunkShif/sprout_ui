@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@floating-ui/dom': ^1.0.4
-  '@tunkshif/live-element': ^0.0.3
+  '@tunkshif/live-element': ^0.1.1
   focus-trap: ^7.1.0
   prettier: ^2.7.1
   tailwindcss: ^3.2.1
@@ -10,7 +10,7 @@ specifiers:
 
 dependencies:
   '@floating-ui/dom': 1.0.4
-  '@tunkshif/live-element': 0.0.3
+  '@tunkshif/live-element': 0.1.1
   focus-trap: 7.1.0
 
 devDependencies:
@@ -51,8 +51,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@tunkshif/live-element/0.0.3:
-    resolution: {integrity: sha512-TmzFHv8o4sHXf/jxrlI2oxtgJI5Zc6a8ICV47DgEIewy8MrL5J9lUhIv0JeaseH4AXSt3ctEtjoMEv54MBZigw==}
+  /@tunkshif/live-element/0.1.1:
+    resolution: {integrity: sha512-oGN0negpMjD4ZMJTinQj6LHaESha83KIsKcBj4E9CgboOJwa6mJNdtSZOYdXVpMxnC5nZojvXokcL29mSMk65w==}
     dev: false
 
   /acorn-node/1.8.2:

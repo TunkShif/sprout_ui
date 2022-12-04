@@ -1,8 +1,7 @@
-import { LiveElement, LiveViewJS } from "@tunkshif/live-element"
-import { query, attr } from "@tunkshif/live-element/decorators"
+import { LiveElement, LiveJS, query, attr } from "@tunkshif/live-element"
 import { SproutComponentSetup } from "../types"
 import { flipping } from "../utils"
-import Disposables from "../utils/disposables"
+import { Disposables } from "../utils/disposables"
 
 class SwitchElement extends LiveElement {
   @query("track", { part: true })
@@ -37,18 +36,11 @@ class SwitchElement extends LiveElement {
     this.listeners.addEventListener(this, "click", () => {
       this.toggle()
     })
-    this.listeners.addEventListener(this, "keydown", (event) => {
-      const { key } = event as KeyboardEvent
-      if (key === "Space") {
-        event.preventDefault()
-        this.toggle()
-      }
-    })
   }
 
   toggle() {
     this.state = flipping(this.state, ["checked", "unchecked"])
-    LiveViewJS.setAttribute(
+    LiveJS.setAttribute(
       this.track,
       "aria-checked",
       flipping(this.track.getAttribute("aria-checked") || "false", ["true", "false"])
@@ -57,9 +49,9 @@ class SwitchElement extends LiveElement {
 
   async handleStateChange() {
     if (this.state === "checked") {
-      LiveViewJS.exec(this, this.dataset.onCheckedJs)
+      LiveJS.execute(this, this.dataset.onCheckedJs)
     } else {
-      LiveViewJS.exec(this, this.dataset.onUncheckedJs)
+      LiveJS.execute(this, this.dataset.onUncheckedJs)
     }
   }
 }

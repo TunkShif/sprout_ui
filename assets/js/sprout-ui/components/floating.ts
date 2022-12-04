@@ -8,11 +8,11 @@ import {
   Placement,
   shift
 } from "@floating-ui/dom"
-import { attr, query } from "@tunkshif/live-element/decorators"
+import { LiveMixin, attr, query } from "@tunkshif/live-element"
 import { SproutComponentSetup } from "../types"
 import { isTruthy, isVisible } from "../utils"
 
-class FloatingElement extends HTMLDivElement {
+class FloatingElement extends LiveMixin(HTMLDivElement) {
   anchor: HTMLElement
   @query("arrow", { part: true })
   arrow: HTMLElement | null
@@ -29,6 +29,10 @@ class FloatingElement extends HTMLDivElement {
   private middleware: Middleware[]
   private cleanup: ReturnType<typeof autoUpdate> | undefined
 
+  static get observedAttributes() {
+    return ["data-placement"]
+  }
+
   connectedCallback() {
     const anchor = document.querySelector<HTMLElement>(this.dataset.anchor!)
     if (!anchor) throw new Error("Floating element must have an anchor element")
@@ -36,6 +40,14 @@ class FloatingElement extends HTMLDivElement {
     this.anchor = anchor
     this.middleware = this.buildMiddleware()
     this.start()
+  }
+
+  updatedCallback(
+    _attribute: string,
+    _oldValue: string | null | undefined,
+    _newValue: string | null | undefined
+  ) {
+    this.update()
   }
 
   disconnectedCallback() {

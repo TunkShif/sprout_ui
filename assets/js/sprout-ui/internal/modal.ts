@@ -1,7 +1,7 @@
 import { createFocusTrap } from "focus-trap"
 import { isVisible } from "../utils"
 import { toggleBodyScroll } from "../utils/body-scroll"
-import Disposables from "../utils/disposables"
+import { Disposables } from "../utils/disposables"
 
 interface ModalOptions {
   preventScroll?: boolean

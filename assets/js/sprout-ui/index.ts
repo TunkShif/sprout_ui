@@ -1,4 +1,3 @@
-import global from "./components/global"
 import type { SproutComponent, SproutHook } from "./types"
 
 type CreateSproutConfigOptions = {
@@ -12,7 +11,7 @@ type CreateSproutConfig = (opts: CreateSproutConfigOptions) => {
 }
 
 export const createSproutConfig: CreateSproutConfig = (opts) => {
-  const components = [global(), ...opts.components]
+  const components = opts.components
   return {
     initComponents: () => {
       components.forEach((comp) => comp.init?.())

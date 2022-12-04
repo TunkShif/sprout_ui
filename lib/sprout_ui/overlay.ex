@@ -5,7 +5,6 @@ defmodule SproutUI.Overlay do
 
   import SproutUI.Helper
 
-  attr :open, :boolean, default: false
   attr :prevent_scroll, :boolean, default: true
   attr :close_on_esc, :boolean, default: true
   attr :close_on_click_away, :boolean, default: true
@@ -16,21 +15,15 @@ defmodule SproutUI.Overlay do
   slot :inner_block, required: true
 
   def dialog(assigns) do
-    %{open: open} = assigns
-
     id = unique_id()
-    state = if open, do: "open", else: "closed"
     open_modal_js = JS.set_attribute({"data-state", "open"}, to: "#dialog-#{id}")
     close_modal_js = JS.set_attribute({"data-state", "closed"}, to: "#dialog-#{id}")
-    # TODO: ^^^ should thoses events registered in the custom element to be consistent
-    # with most other components?
 
     api = %{
       open_modal_js: open_modal_js,
       close_modal_js: close_modal_js,
       trigger_attrs: %{
-        "data-part" => "trigger",
-        "phx-click" => open_modal_js
+        "data-part" => "trigger"
       },
       backdrop_attrs: %{
         "data-part" => "backdrop",
@@ -38,7 +31,7 @@ defmodule SproutUI.Overlay do
       },
       container_attrs: %{
         "data-part" => "container",
-        "hidden" => !open
+        "hidden" => true
       },
       panel_attrs: %{
         "data-part" => "panel",
@@ -57,31 +50,27 @@ defmodule SproutUI.Overlay do
         "id" => "dialog-description-#{id}"
       },
       close_button_attrs: %{
-        "data-part" => "close-button",
-        "phx-click" => close_modal_js
+        "data-part" => "close-button"
       }
     }
 
-    assigns = assign(assigns, id: id, state: state, api: api)
+    assigns = assign(assigns, id: id, api: api)
 
     ~H"""
     <sp-dialog
       id={"dialog-#{@id}"}
-      data-state={@state}
+      data-state="closed"
       data-on-open-js={@on_open}
       data-on-close-js={@on_close}
       data-prevent-scroll={@prevent_scroll}
       data-close-on-esc={@close_on_esc}
       data-close-on-click-away={@close_on_click_away}
-      phx-mounted={@open && @api.open_modal_js}
       {@rest}
     >
       <%= render_slot(@inner_block, @api) %>
     </sp-dialog>
     """
   end
-
-  attr :open, :boolean, default: false
 
   attr :placement, :string,
     default: "bottom",
@@ -111,13 +100,11 @@ defmodule SproutUI.Overlay do
 
   def popover(assigns) do
     %{
-      open: open,
       placement: placement,
       offset: offset
     } = assigns
 
     id = unique_id()
-    state = if open, do: "open", else: "closed"
     open_popover_js = JS.set_attribute({"data-state", "open"}, to: "#popover-#{id}")
     close_popover_js = JS.set_attribute({"data-state", "closed"}, to: "#popover-#{id}")
 
@@ -127,7 +114,7 @@ defmodule SproutUI.Overlay do
       trigger_attrs: %{
         "data-part" => "trigger",
         "id" => "popover-trigger-#{id}",
-        "aria-expanded" => if(open, do: "true", else: "false"),
+        "aria-expanded" => "false",
         "aria-controls" => "popover-panel-#{id}"
       },
       panel_attrs: %{
@@ -140,36 +127,32 @@ defmodule SproutUI.Overlay do
         "data-shift" => true,
         "data-flip" => true,
         "tabindex" => "-1",
-        "hidden" => !open
+        "hidden" => true
       },
       arrow_attrs: %{
         "data-part" => "arrow"
       },
       close_button_attrs: %{
-        "data-part" => "close-button",
-        "phx-click" => close_popover_js
+        "data-part" => "close-button"
       }
     }
 
-    assigns = assign(assigns, id: id, state: state, api: api)
+    assigns = assign(assigns, id: id, api: api)
 
     ~H"""
     <sp-popover
       id={"popover-#{@id}"}
-      data-state={@state}
+      data-state="closed"
       data-on-open-js={@on_open}
       data-on-close-js={@on_close}
       data-close-on-esc={@close_on_esc}
       data-close-on-click-away={@close_on_click_away}
-      phx-mounted={@open && @api.open_popover_js}
       {@rest}
     >
       <%= render_slot(@inner_block, @api) %>
     </sp-popover>
     """
   end
-
-  attr :open, :boolean, default: false
 
   attr :placement, :string,
     default: "top",
@@ -199,13 +182,11 @@ defmodule SproutUI.Overlay do
 
   def tooltip(assigns) do
     %{
-      open: open,
       placement: placement,
       offset: offset
     } = assigns
 
     id = unique_id()
-    state = if open, do: "open", else: "closed"
 
     api = %{
       trigger_attrs: %{
@@ -223,19 +204,19 @@ defmodule SproutUI.Overlay do
         "data-offset" => offset,
         "data-shift" => true,
         "data-flip" => true,
-        "hidden" => !open
+        "hidden" => true
       },
       arrow_attrs: %{
         "data-part" => "arrow"
       }
     }
 
-    assigns = assign(assigns, id: id, state: state, api: api)
+    assigns = assign(assigns, id: id, api: api)
 
     ~H"""
     <sp-tooltip
       id={"tooltip-#{@id}"}
-      data-state={@state}
+      data-state="closed"
       data-open-delay={@open_delay}
       data-close-delay={@close_delay}
       data-on-open-js={@on_open}
