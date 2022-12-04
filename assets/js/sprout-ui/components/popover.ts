@@ -5,7 +5,7 @@ import { SproutComponentSetup } from "../types"
 import { flipping, isTruthy } from "../utils"
 import { Disposables, nextFrame } from "../utils/disposables"
 
-class PopoverElement extends LiveElement {
+export class PopoverElement extends LiveElement {
   @query("trigger", { part: true })
   trigger: HTMLElement
   @query("panel", { part: true })

@@ -3,7 +3,7 @@ import { SproutComponentSetup } from "../types"
 import { flipping } from "../utils"
 import { Disposables } from "../utils/disposables"
 
-class SwitchElement extends LiveElement {
+export class SwitchElement extends LiveElement {
   @query("track", { part: true })
   track: HTMLElement
   @query("thumb", { part: true })

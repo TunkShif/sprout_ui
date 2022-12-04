@@ -3,7 +3,7 @@ import { transitionElement } from "../internal/transition"
 import { SproutComponentSetup } from "../types"
 import { Disposables } from "../utils/disposables"
 
-class TooltipElement extends LiveElement {
+export class TooltipElement extends LiveElement {
   @query("trigger", { part: true })
   trigger: HTMLElement
   @query("container", { part: true })

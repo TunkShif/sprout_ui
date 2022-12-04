@@ -21,7 +21,7 @@ defmodule SproutUI.Input do
       track_attrs: %{
         "data-part" => "track",
         "role" => "switch",
-        "aria-checked" => if(checked, do: "true", else: "false")
+        "aria-checked" => to_string(checked)
       },
       thumb_attrs: %{
         "data-part" => "thumb"

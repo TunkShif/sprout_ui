@@ -50,6 +50,7 @@ var __async = (__this, __arguments, generator) => {
 var sprout_ui_exports = {};
 __export(sprout_ui_exports, {
   Accordion: () => accordion_default,
+  Collapsible: () => collapsible_default,
   Dialog: () => dialog_default,
   Floating: () => floating_default,
   Popover: () => popover_default,
@@ -1874,25 +1875,83 @@ var Switch = () => ({
 });
 var switch_default = Switch;
 
-// js/sprout-ui/components/accordion.ts
-var AccordionItem = class {
-  constructor(container) {
-    this.root = container;
+// js/sprout-ui/components/collapsible.ts
+var CollapsibleElement = class extends s(HTMLDivElement) {
+  constructor() {
+    super(...arguments);
+    this.listeners = new Disposables();
+  }
+  static get observedAttributes() {
+    return ["data-state"];
+  }
+  connectedCallback() {
+    if (!this.trigger || !this.panel)
+      throw new Error("Collapsible must have a trigger element and a panel element.");
+    if (!this.controlled)
+      this.addEventListeners();
+  }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
+  disconnectedCallback() {
+    this.listeners.dispose();
+  }
+  addEventListeners() {
+    this.listeners.addEventListener(this.trigger, "click", () => {
+      this.state = flipping(this.state);
+    });
+  }
+  handleStateChange() {
+    return __async(this, null, function* () {
+      if (this.state === "open") {
+        b.execute(this, this.dataset.onOpenJs);
+        b.removeAttribute(this.panel, "hidden");
+        const { height } = this.panel.getBoundingClientRect();
+        this.panel.style.setProperty("--panel-height", `${height}px`);
+        b.setAttribute(this.trigger, "aria-expanded", "true");
+        yield transitionElement(this.panel, "enter");
+      } else {
+        b.execute(this, this.dataset.onCloseJs);
+        b.setAttribute(this.trigger, "aria-expanded", "false");
+        yield transitionElement(this.panel, "leave");
+        b.setAttribute(this.panel, "hidden", "true");
+      }
+    });
   }
 };
 __decorateClass([
-  h("trigger", { customRoot: true, part: true })
-], AccordionItem.prototype, "trigger", 2);
+  h("trigger", { part: true })
+], CollapsibleElement.prototype, "trigger", 2);
 __decorateClass([
-  h("panel", { customRoot: true, part: true })
-], AccordionItem.prototype, "panel", 2);
+  h("panel", { part: true })
+], CollapsibleElement.prototype, "panel", 2);
+__decorateClass([
+  n("data-state", { live: true })
+], CollapsibleElement.prototype, "state", 2);
+__decorateClass([
+  n("data-controlled", { live: true, converter: isTruthy })
+], CollapsibleElement.prototype, "controlled", 2);
+var Collapsible = () => ({
+  init: () => {
+    customElements.define("sp-collapsible", CollapsibleElement, { extends: "div" });
+  },
+  handleDomChange: (from, to) => {
+    if (from.id.startsWith("collapsible-panel") || from.id.startsWith("accordion-item-panel")) {
+      const property = "--panel-height";
+      to.style.setProperty(property, from.style.getPropertyValue(property));
+    }
+  }
+});
+var collapsible_default = Collapsible;
+
+// js/sprout-ui/components/accordion.ts
 var _AccordionElement = class extends d {
   constructor() {
     super(...arguments);
     this.listeners = new Disposables();
   }
   connectedCallback() {
-    this.items = [...this.containers].map((it) => new AccordionItem(it));
     this.addEventListeners();
   }
   disconnectedCallback() {
@@ -1901,14 +1960,21 @@ var _AccordionElement = class extends d {
   addEventListeners() {
     this.items.forEach((item) => {
       this.listeners.addEventListener(item.trigger, "click", () => {
-        this.toggle(item);
+        if (item.state === "open") {
+          item.state = "closed";
+        } else {
+          if (!this.allowMultiple)
+            this.closeAll();
+          item.state = "open";
+        }
       });
       this.listeners.addEventListener(item.trigger, "keydown", (event) => {
         const { key } = event;
         if (!_AccordionElement.TRIGGER_KEYS.includes(key))
           return;
-        const itemCount = this.items.length;
-        const currentIndex = this.items.findIndex((it) => it === item);
+        const items = [...this.items];
+        const itemCount = items.length;
+        const currentIndex = items.findIndex((it) => it === item);
         event.preventDefault();
         let nextIndex = 0;
         switch (key) {
@@ -1928,46 +1994,14 @@ var _AccordionElement = class extends d {
             }
             break;
         }
-        let cycledIndex = nextIndex % itemCount;
-        this.items[cycledIndex].trigger.focus();
+        const cycledIndex = nextIndex % itemCount;
+        items[cycledIndex].trigger.focus();
       });
-    });
-  }
-  toggle(item) {
-    if (item.root.dataset.state === "open") {
-      this.close(item);
-    } else {
-      if (!this.allowMultiple) {
-        this.closeAll();
-      }
-      this.open(item);
-    }
-  }
-  open(item) {
-    return __async(this, null, function* () {
-      b.execute(item.root, item.root.dataset.onOpenJs);
-      b.removeAttribute(item.panel, "hidden");
-      const { height } = item.panel.getBoundingClientRect();
-      item.panel.style.setProperty("--accordion-panel-height", `${height}px`);
-      b.setAttribute(item.root, "data-state", "open");
-      b.setAttribute(item.trigger, "aria-expanded", "true");
-      yield transitionElement(item.panel, "enter");
-    });
-  }
-  close(item) {
-    return __async(this, null, function* () {
-      if (item.root.dataset.state === "closed")
-        return;
-      b.execute(item.root, item.root.dataset.onCloseJs);
-      b.setAttribute(item.root, "data-state", "closed");
-      b.setAttribute(item.trigger, "aria-expanded", "false");
-      yield transitionElement(item.panel, "leave");
-      b.setAttribute(item.panel, "hidden", "true");
     });
   }
   closeAll() {
     this.items.forEach((item) => {
-      this.close(item);
+      item.state = "closed";
     });
   }
 };
@@ -1975,7 +2009,7 @@ var AccordionElement = _AccordionElement;
 AccordionElement.TRIGGER_KEYS = ["Home", "End", "ArrowUp", "ArrowDown"];
 __decorateClass([
   h("container", { part: true, all: true })
-], AccordionElement.prototype, "containers", 2);
+], AccordionElement.prototype, "items", 2);
 __decorateClass([
   n("data-allow-multiple", { converter: isTruthy })
 ], AccordionElement.prototype, "allowMultiple", 2);

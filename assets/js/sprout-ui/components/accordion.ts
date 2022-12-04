@@ -1,36 +1,21 @@
-import { LiveElement, LiveJS, attr, query } from "@tunkshif/live-element"
-import { transitionElement } from "../internal/transition"
+import { LiveElement, attr, query } from "@tunkshif/live-element"
 import { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
 import { Disposables } from "../utils/disposables"
+import type { CollapsibleElement } from "./collapsible"
 
-class AccordionItem {
-  root: HTMLElement
-
-  @query("trigger", { customRoot: true, part: true })
-  trigger: HTMLElement
-  @query("panel", { customRoot: true, part: true })
-  panel: HTMLElement
-
-  constructor(container: HTMLElement) {
-    this.root = container
-  }
-}
-
-class AccordionElement extends LiveElement {
+export class AccordionElement extends LiveElement {
   static TRIGGER_KEYS = ["Home", "End", "ArrowUp", "ArrowDown"]
 
   @query("container", { part: true, all: true })
-  containers: HTMLElement[]
+  items: CollapsibleElement[]
 
   @attr("data-allow-multiple", { converter: isTruthy })
   allowMultiple: boolean
 
-  private items: AccordionItem[]
   private listeners = new Disposables()
 
   connectedCallback() {
-    this.items = [...this.containers].map((it) => new AccordionItem(it))
     this.addEventListeners()
   }
 
@@ -41,15 +26,21 @@ class AccordionElement extends LiveElement {
   addEventListeners() {
     this.items.forEach((item) => {
       this.listeners.addEventListener(item.trigger, "click", () => {
-        this.toggle(item)
+        if (item.state === "open") {
+          item.state = "closed"
+        } else {
+          if (!this.allowMultiple) this.closeAll()
+          item.state = "open"
+        }
       })
 
       this.listeners.addEventListener(item.trigger, "keydown", (event) => {
         const { key } = event as KeyboardEvent
         if (!AccordionElement.TRIGGER_KEYS.includes(key)) return
 
-        const itemCount = this.items.length
-        const currentIndex = this.items.findIndex((it) => it === item)
+        const items = [...this.items]
+        const itemCount = items.length
+        const currentIndex = items.findIndex((it) => it === item)
 
         event.preventDefault()
 
@@ -72,50 +63,15 @@ class AccordionElement extends LiveElement {
             break
         }
 
-        let cycledIndex = nextIndex % itemCount
-        this.items[cycledIndex].trigger.focus()
+        const cycledIndex = nextIndex % itemCount
+        items[cycledIndex].trigger.focus()
       })
     })
   }
 
-  toggle(item: AccordionItem) {
-    if (item.root.dataset.state === "open") {
-      this.close(item)
-    } else {
-      if (!this.allowMultiple) {
-        this.closeAll()
-      }
-      this.open(item)
-    }
-  }
-
-  async open(item: AccordionItem) {
-    LiveJS.execute(item.root, item.root.dataset.onOpenJs)
-
-    LiveJS.removeAttribute(item.panel, "hidden")
-
-    const { height } = item.panel.getBoundingClientRect()
-    item.panel.style.setProperty("--accordion-panel-height", `${height}px`)
-
-    LiveJS.setAttribute(item.root, "data-state", "open")
-    LiveJS.setAttribute(item.trigger, "aria-expanded", "true")
-    await transitionElement(item.panel, "enter")
-  }
-
-  async close(item: AccordionItem) {
-    if (item.root.dataset.state === "closed") return
-
-    LiveJS.execute(item.root, item.root.dataset.onCloseJs)
-
-    LiveJS.setAttribute(item.root, "data-state", "closed")
-    LiveJS.setAttribute(item.trigger, "aria-expanded", "false")
-    await transitionElement(item.panel, "leave")
-    LiveJS.setAttribute(item.panel, "hidden", "true")
-  }
-
   closeAll() {
     this.items.forEach((item) => {
-      this.close(item)
+      item.state = "closed"
     })
   }
 }

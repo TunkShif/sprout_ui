@@ -5,7 +5,7 @@ import type { SproutComponentSetup } from "../types"
 import { isTruthy } from "../utils"
 import { Disposables } from "../utils/disposables"
 
-class DialogElement extends LiveElement {
+export class DialogElement extends LiveElement {
   @query("trigger", { part: true })
   trigger: HTMLElement
   @query("container", { part: true })

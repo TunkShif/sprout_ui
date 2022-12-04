@@ -1,6 +1,5 @@
-import { Placement } from "@floating-ui/dom";
 import { SproutComponentSetup } from "../types";
-declare const FloatingElement_base: (new (...args: any[]) => {
+declare const CollapsibleElement_base: (new (...args: any[]) => {
     connectedCallback(): void;
     updatedCallback(_attribute: string, _oldValue: string | null | undefined, _newValue: string | null | undefined): void;
     disconnectedCallback(): void;
@@ -317,22 +316,18 @@ declare const FloatingElement_base: (new (...args: any[]) => {
     new (): HTMLDivElement;
     prototype: HTMLDivElement;
 };
-export declare class FloatingElement extends FloatingElement_base {
-    anchor: HTMLElement;
-    arrow: HTMLElement | null;
-    placement: Placement;
-    offset: number;
-    shift: boolean;
-    flip: boolean;
-    private middleware;
-    private cleanup;
+export declare class CollapsibleElement extends CollapsibleElement_base {
+    trigger: HTMLElement;
+    panel: HTMLElement;
+    state: "open" | "closed";
+    controlled: boolean;
+    private listeners;
     static get observedAttributes(): string[];
     connectedCallback(): void;
-    updatedCallback(_attribute: string, _oldValue: string | null | undefined, _newValue: string | null | undefined): void;
+    updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown): void;
     disconnectedCallback(): void;
-    private buildMiddleware;
-    start(): void;
-    update(): void;
+    addEventListeners(): void;
+    handleStateChange(): Promise<void>;
 }
-declare const Floating: SproutComponentSetup;
-export default Floating;
+declare const Collapsible: SproutComponentSetup;
+export default Collapsible;

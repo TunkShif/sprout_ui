@@ -12,7 +12,7 @@ import { LiveMixin, attr, query } from "@tunkshif/live-element"
 import { SproutComponentSetup } from "../types"
 import { isTruthy, isVisible } from "../utils"
 
-class FloatingElement extends LiveMixin(HTMLDivElement) {
+export class FloatingElement extends LiveMixin(HTMLDivElement) {
   anchor: HTMLElement
   @query("arrow", { part: true })
   arrow: HTMLElement | null
