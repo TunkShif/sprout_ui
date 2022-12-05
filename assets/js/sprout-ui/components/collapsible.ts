@@ -1,5 +1,5 @@
 import { attr, LiveJS, LiveMixin, query } from "@tunkshif/live-element"
-import { transitionElement } from "../internal/transition"
+import { stopAnimations, waitForAnimation } from "../internal/animation"
 import { SproutComponentSetup } from "../types"
 import { flipping, isTruthy } from "../utils"
 import { Disposables } from "../utils/disposables"
@@ -46,18 +46,35 @@ export class CollapsibleElement extends LiveMixin(HTMLDivElement) {
     if (this.state === "open") {
       LiveJS.execute(this, this.dataset.onOpenJs)
 
+      // stop all ongoing animations
+      await stopAnimations(this.panel)
+
+      // made panel element visible to calculate its height
       LiveJS.removeAttribute(this.panel, "hidden")
+      LiveJS.setAttribute(this.trigger, "aria-expanded", "true")
+
+      // store the name of the animation about to happen
+      // set the animation to none to get the actual height of the element
+      const animationName = getComputedStyle(this.panel).animationName
+      this.panel.style.animationName = "none"
+
+      // store the height of the panel element into a CSS property
+      // and then restore the animation name to let it animate
       const { height } = this.panel.getBoundingClientRect()
       this.panel.style.setProperty("--panel-height", `${height}px`)
+      this.panel.style.animationName = animationName
 
-      LiveJS.setAttribute(this.trigger, "aria-expanded", "true")
-      await transitionElement(this.panel, "enter")
+      // wait for animation done and then
+      // clear the animation so it get the right animation name when closing
+      await waitForAnimation(this.panel)
+      this.panel.style.animation = ""
     } else {
       LiveJS.execute(this, this.dataset.onCloseJs)
 
-      LiveJS.setAttribute(this.trigger, "aria-expanded", "false")
-      await transitionElement(this.panel, "leave")
+      await waitForAnimation(this.panel)
+
       LiveJS.setAttribute(this.panel, "hidden", "true")
+      LiveJS.setAttribute(this.trigger, "aria-expanded", "false")
     }
   }
 }

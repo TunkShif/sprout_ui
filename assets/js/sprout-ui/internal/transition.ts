@@ -1,5 +1,7 @@
 import { Disposables } from "../utils/disposables"
 
+// TODO: refactor
+
 type TransitionStatus = "ended" | "canceled"
 type TransitionStage = "enter" | "leave"
 

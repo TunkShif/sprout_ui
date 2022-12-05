@@ -56,7 +56,7 @@ defmodule SproutWeb.PageHTML do
                 Payment successful
               </h3>
               <div class="mt-2">
-                <p>
+                <p {api.description_attrs}>
                   Your payment has been successfully submitted. We’ve sent you an email with all of the details of your order.
                 </p>
               </div>
@@ -379,15 +379,7 @@ defmodule SproutWeb.PageHTML do
           />
         </svg>
       </button>
-      <div
-        class="w-full overflow-hidden duration-300 transtion-[height] ease-in-out"
-        data-transition
-        data-enter-from="h-0"
-        data-enter-to="h-[var(--panel-height)]"
-        data-leave-from="h-[var(--panel-height)]"
-        data-leave-to="h-0"
-        {api.panel_attrs}
-      >
+      <div class="w-full overflow-hidden" {api.panel_attrs}>
         <div class="mt-5">
           <p class="text-gray-500 dark:text-gray-400">
             This is a collapse body. It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions.

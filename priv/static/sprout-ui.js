@@ -1916,6 +1916,26 @@ var SproutUI = (() => {
   });
   var switch_default = Switch;
 
+  // js/sprout-ui/internal/animation.ts
+  var waitForAnimation = (element) => Promise.all(
+    element.getAnimations().map(
+      (animation) => new Promise((resolve) => {
+        animation.addEventListener("cancel", () => resolve("cancelled"), { once: true });
+        animation.addEventListener("finish", () => resolve("finished"), { once: true });
+      })
+    )
+  );
+  var stopAnimations = (element) => Promise.all(
+    element.getAnimations().map(
+      (animation) => new Promise((resolve) => {
+        const handleAnimationEvent = requestAnimationFrame(resolve);
+        animation.addEventListener("cancel", () => handleAnimationEvent, { once: true });
+        animation.addEventListener("finish", () => handleAnimationEvent, { once: true });
+        animation.cancel();
+      })
+    )
+  );
+
   // js/sprout-ui/components/collapsible.ts
   var CollapsibleElement = class extends s(HTMLDivElement) {
     constructor() {
@@ -1947,16 +1967,21 @@ var SproutUI = (() => {
       return __async(this, null, function* () {
         if (this.state === "open") {
           b.execute(this, this.dataset.onOpenJs);
+          yield stopAnimations(this.panel);
           b.removeAttribute(this.panel, "hidden");
+          b.setAttribute(this.trigger, "aria-expanded", "true");
+          const animationName = getComputedStyle(this.panel).animationName;
+          this.panel.style.animationName = "none";
           const { height } = this.panel.getBoundingClientRect();
           this.panel.style.setProperty("--panel-height", `${height}px`);
-          b.setAttribute(this.trigger, "aria-expanded", "true");
-          yield transitionElement(this.panel, "enter");
+          this.panel.style.animationName = animationName;
+          yield waitForAnimation(this.panel);
+          this.panel.style.animation = "";
         } else {
           b.execute(this, this.dataset.onCloseJs);
-          b.setAttribute(this.trigger, "aria-expanded", "false");
-          yield transitionElement(this.panel, "leave");
+          yield waitForAnimation(this.panel);
           b.setAttribute(this.panel, "hidden", "true");
+          b.setAttribute(this.trigger, "aria-expanded", "false");
         }
       });
     }
