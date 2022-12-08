@@ -4,11 +4,11 @@
 
 ---
 
-> **Still Work In Progress**
-
-SproutUI provides unstyled and accessible Phoenix (Live View) components for building web apps.
+Sprout UI provides a collection of unstyled and accessible components for Phoenix Framework. Check out the [website](https://sprout-ui.tunkshif.one) for more information. Also you can find the of the website [here](https://github.com/TunkShif/sprout_ui_docs).
 
 ## Installation
+
+Sprout UI is **still in en early development stage**, it is not oficially released on hex.pm yet. But you can try it by installing it from the GitHub repository. Currently it depends on `phoenix ~> 1.7.0-rc` and `phoenix_live_view ~> 0.18.3`.
 
 The package can be installed by adding `sprout_ui` to your list of dependencies in `mix.exs`:
 
@@ -20,23 +20,14 @@ def deps do
 end
 ```
 
-## Preview
+## Credits & Inspirations
 
-There's a phoenix project in `test` folder demonstrating the usage of all components. And later I'm considering using `Puppeteer` to test all these components.
-
-To start running the preview testing project:
-
-```bash
-# Enter the `test` folder
-cd test
-# Install dependencies with mix deps.get
-mix deps.get
-# Install javascript dependencies
-cd assets && npm install
-# Start Phoenix endpoint with mix phx.server or inside IEx with iex -S mix phx.server
-mix phx.server
-```
+- [Headless UI](https://headlessui.dev/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Zag](https://zagjs.com/)
+- [Shoelace UI](https://shoelace.style/)
+- [Lit Element](https://lit.dev/)
 
 ## Copyright & License
 
-SproutUI source code is distributed under the [MIT License](./LICENSE).
+Sprout UI source code is distributed under the [MIT License](./LICENSE).

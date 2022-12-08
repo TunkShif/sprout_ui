@@ -16,12 +16,12 @@ defmodule SproutUI.Overlay do
 
   def dialog(assigns) do
     id = unique_id()
-    open_modal_js = JS.set_attribute({"data-state", "open"}, to: "#dialog-#{id}")
-    close_modal_js = JS.set_attribute({"data-state", "closed"}, to: "#dialog-#{id}")
+    open_dialog_js = JS.set_attribute({"data-state", "open"}, to: "#dialog-#{id}")
+    close_dialog_js = JS.set_attribute({"data-state", "closed"}, to: "#dialog-#{id}")
 
     api = %{
-      open_modal_js: open_modal_js,
-      close_modal_js: close_modal_js,
+      open_dialog_js: open_dialog_js,
+      close_dialog_js: close_dialog_js,
       trigger_attrs: %{
         "data-part" => "trigger"
       },

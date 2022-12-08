@@ -40,6 +40,7 @@ export class TooltipElement extends LiveElement {
   }
 
   addEventListeners() {
+    // FIXME: properly dispose old event actions
     this.listeners.addEventListener(this.trigger, "mouseover", () => {
       this.disposables.setTimeout(() => {
         this.state = "open"
