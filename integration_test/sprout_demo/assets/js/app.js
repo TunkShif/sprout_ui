@@ -10,11 +10,21 @@ import {
   Tooltip,
   Switch,
   Collapsible,
-  Accordion
+  Accordion,
+  Toggle
 } from "sprout-ui"
 
 const { initComponents, hooks, handleDomChange } = createSproutConfig({
-  components: [Dialog(), Floating(), Popover(), Tooltip(), Switch(), Collapsible(), Accordion()]
+  components: [
+    Dialog(),
+    Floating(),
+    Popover(),
+    Tooltip(),
+    Switch(),
+    Collapsible(),
+    Accordion(),
+    Toggle()
+  ]
 })
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

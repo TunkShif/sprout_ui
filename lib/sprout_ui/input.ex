@@ -42,4 +42,31 @@ defmodule SproutUI.Input do
     </sp-switch>
     """
   end
+
+  attr :on, :boolean, default: false
+  attr :on_toggle_on, JS, default: %JS{}
+  attr :on_toggle_off, JS, default: %JS{}
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def toggle(assigns) do
+    %{on: on} = assigns
+    id = unique_id()
+    state = if(on, do: "on", else: "off")
+
+    assigns = assign(assigns, id: id, state: state)
+
+    ~H"""
+    <sp-toggle
+      id={"toggle-#{@id}"}
+      data-state={@state}
+      data-on-toggle-on-js={@on_toggle_on}
+      data-on-toggle-off-js={@on_toggle_off}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </sp-toggle>
+    """
+  end
 end

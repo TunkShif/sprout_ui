@@ -389,4 +389,18 @@ defmodule SproutWeb.PageHTML do
     </Display.collapsible>
     """
   end
+
+  def rendered_component(%{component: "toggle"} = assigns) do
+    ~H"""
+    <Input.toggle
+      on_toggle_on={JS.show(to: "#toggle-text")}
+      on_toggle_off={JS.hide(to: "#toggle-text")}
+      class="inline-block p-2 border rounded-md ui-on:bg-gray-50 hover:bg-gray-50"
+      role="button"
+    >
+      <span><Heroicons.pencil mini class="w-4 h-4 text-slate-600" /></span>
+    </Input.toggle>
+    <div id="toggle-text" hidden>toggle text</div>
+    """
+  end
 end

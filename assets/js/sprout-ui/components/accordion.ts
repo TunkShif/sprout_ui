@@ -79,12 +79,6 @@ export class AccordionElement extends LiveElement {
 const Accordion: SproutComponentSetup = () => ({
   init: () => {
     customElements.define("sp-accordion", AccordionElement)
-  },
-  handleDomChange: (from, to) => {
-    if (from.id.startsWith("accordion") && from.dataset.part === "panel") {
-      const property = "--accordion-panel-height"
-      to.style.setProperty(property, from.style.getPropertyValue(property))
-    }
   }
 })
 

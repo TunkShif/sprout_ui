@@ -55,6 +55,7 @@ __export(sprout_ui_exports, {
   Floating: () => floating_default,
   Popover: () => popover_default,
   Switch: () => switch_default,
+  Toggle: () => toggle_default,
   Tooltip: () => tooltip_default,
   createSproutConfig: () => createSproutConfig
 });
@@ -1875,6 +1876,48 @@ var Switch = () => ({
 });
 var switch_default = Switch;
 
+// js/sprout-ui/components/toggle.ts
+var ToggleElement = class extends d {
+  constructor() {
+    super(...arguments);
+    this.listeners = new Disposables();
+  }
+  static get observedAttributes() {
+    return ["data-state"];
+  }
+  connectedCallback() {
+    this.addEventListeners();
+  }
+  updatedCallback(attribute, _oldValue, _newValue) {
+    if (attribute === "data-state")
+      this.handleStateChange();
+  }
+  disconnectedCallback() {
+    this.listeners.dispose();
+  }
+  addEventListeners() {
+    this.listeners.addEventListener(this, "click", () => {
+      this.state = flipping(this.state, ["on", "off"]);
+    });
+  }
+  handleStateChange() {
+    if (this.state === "on") {
+      b.execute(this, this.dataset.onToggleOnJs);
+    } else {
+      b.execute(this, this.dataset.onToggleOffJs);
+    }
+  }
+};
+__decorateClass([
+  n("data-state", { live: true })
+], ToggleElement.prototype, "state", 2);
+var Toggle = () => ({
+  init: () => {
+    customElements.define("sp-toggle", ToggleElement);
+  }
+});
+var toggle_default = Toggle;
+
 // js/sprout-ui/internal/animation.ts
 var waitForAnimation = (element) => Promise.all(
   element.getAnimations().map(
@@ -2041,12 +2084,6 @@ __decorateClass([
 var Accordion = () => ({
   init: () => {
     customElements.define("sp-accordion", AccordionElement);
-  },
-  handleDomChange: (from, to) => {
-    if (from.id.startsWith("accordion") && from.dataset.part === "panel") {
-      const property = "--accordion-panel-height";
-      to.style.setProperty(property, from.style.getPropertyValue(property));
-    }
   }
 });
 var accordion_default = Accordion;

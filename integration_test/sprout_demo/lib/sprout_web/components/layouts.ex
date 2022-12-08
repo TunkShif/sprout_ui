@@ -1,7 +1,7 @@
 defmodule SproutWeb.Layouts do
   use SproutWeb, :html
 
-  embed_templates "layouts/*"
+  embed_templates("layouts/*")
 
   @components [
     "dialog",
@@ -11,7 +11,8 @@ defmodule SproutWeb.Layouts do
     "tab",
     "collapsible",
     "accordion",
-    "switch"
+    "switch",
+    "toggle"
   ]
   def sidebar_navigation(assigns) do
     assigns = assign(assigns, components: @components)

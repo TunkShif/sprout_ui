@@ -1,7 +1,7 @@
 import { LiveElement, LiveJS, query, attr } from "@tunkshif/live-element"
-import { SproutComponentSetup } from "../types"
 import { flipping } from "../utils"
 import { Disposables } from "../utils/disposables"
+import type { SproutComponentSetup } from "../types"
 
 export class SwitchElement extends LiveElement {
   @query("track", { part: true })

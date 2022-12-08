@@ -1,17 +1,14 @@
 import { LiveElement } from "@tunkshif/live-element";
 import type { SproutComponentSetup } from "../types";
-export declare class SwitchElement extends LiveElement {
-    track: HTMLElement;
-    thumb: HTMLElement;
-    state: "checked" | "unchecked";
+export declare class ToggleElement extends LiveElement {
+    state: "on" | "off";
     private listeners;
     static get observedAttributes(): string[];
     connectedCallback(): void;
     updatedCallback(attribute: string, _oldValue: unknown, _newValue: unknown): void;
     disconnectedCallback(): void;
     addEventListeners(): void;
-    toggle(): void;
-    handleStateChange(): Promise<void>;
+    handleStateChange(): void;
 }
-declare const Switch: SproutComponentSetup;
-export default Switch;
+declare const Toggle: SproutComponentSetup;
+export default Toggle;
