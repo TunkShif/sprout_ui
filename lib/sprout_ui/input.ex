@@ -58,7 +58,8 @@ defmodule SproutUI.Input do
     assigns = assign(assigns, id: id, state: state)
 
     ~H"""
-    <sp-toggle
+    <button
+      is="sp-toggle"
       id={"toggle-#{@id}"}
       data-state={@state}
       data-on-toggle-on-js={@on_toggle_on}
@@ -66,7 +67,7 @@ defmodule SproutUI.Input do
       {@rest}
     >
       <%= render_slot(@inner_block) %>
-    </sp-toggle>
+    </button>
     """
   end
 end

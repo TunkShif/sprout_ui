@@ -1918,7 +1918,7 @@ var SproutUI = (() => {
   var switch_default = Switch;
 
   // js/sprout-ui/components/toggle.ts
-  var ToggleElement = class extends d {
+  var ToggleElement = class extends s(HTMLButtonElement) {
     constructor() {
       super(...arguments);
       this.listeners = new Disposables();
@@ -1954,7 +1954,7 @@ var SproutUI = (() => {
   ], ToggleElement.prototype, "state", 2);
   var Toggle = () => ({
     init: () => {
-      customElements.define("sp-toggle", ToggleElement);
+      customElements.define("sp-toggle", ToggleElement, { extends: "button" });
     }
   });
   var toggle_default = Toggle;

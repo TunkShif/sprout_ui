@@ -1,9 +1,9 @@
-import { LiveElement, attr, LiveJS } from "@tunkshif/live-element"
+import { attr, LiveJS, LiveMixin } from "@tunkshif/live-element"
 import { flipping } from "../utils"
 import { Disposables } from "../utils/disposables"
 import type { SproutComponentSetup } from "../types"
 
-export class ToggleElement extends LiveElement {
+export class ToggleElement extends LiveMixin(HTMLButtonElement) {
   @attr("data-state", { live: true })
   state: "on" | "off"
 
@@ -42,7 +42,7 @@ export class ToggleElement extends LiveElement {
 
 const Toggle: SproutComponentSetup = () => ({
   init: () => {
-    customElements.define("sp-toggle", ToggleElement)
+    customElements.define("sp-toggle", ToggleElement, { extends: "button" })
   }
 })
 
